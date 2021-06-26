@@ -1,0 +1,5 @@
+rootProject.name = 'var'
+include(':core')
+include 'serializer-guice'
+include 'test'
+

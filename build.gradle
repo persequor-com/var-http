@@ -1,0 +1,10 @@
+allprojects {
+    apply plugin: 'java'
+
+    group 'io.var-http'
+    version '0.1'
+
+    repositories {
+        mavenCentral()
+    }
+}
