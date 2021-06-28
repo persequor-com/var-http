@@ -41,6 +41,9 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
+        env:
+          GITHUB_CI_TOKEN: ${{ secrets.CI_TOKEN }}
+          GITHUB_CI_ACTOR: ${{ secrets.CI_USER }}
       - name: Publish package
         run: ./gradlew -Pversion=${{steps.versioning.outputs.version}} publish
         env:
@@ -48,5 +51,6 @@ jobs:
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
           GITHUB_CI_TOKEN: ${{ secrets.CI_TOKEN }}
           GITHUB_CI_ACTOR: ${{ secrets.CI_USER }}
+
 
 
