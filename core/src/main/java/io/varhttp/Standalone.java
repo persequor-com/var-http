@@ -20,7 +20,7 @@ public class Standalone implements Runnable {
 	}
 
 	public void addControllerPackage(Package controllerPackage) {
-		controllerMapper.map(servlet, controllerPackage.getName());
+		controllerMapper.map(controllerPackage.getName());
 	}
 
 	@Override

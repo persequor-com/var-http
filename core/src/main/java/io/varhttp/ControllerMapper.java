@@ -9,19 +9,20 @@ import java.util.Set;
 
 public class ControllerMapper {
 
-	private final Provider<VarServlet> extensionPointControllerFactory;
-	private ControllerFactory injector;
-	private ExceptionRegistry exceptionRegistry;
+	private final ControllerFactory injector;
+	private final ExceptionRegistry exceptionRegistry;
+	private final VarServlet varServlet;
 
 	@Inject
-	public ControllerMapper(Provider<VarServlet> extensionPointControllerFactory, ControllerFactory injector,
-							ExceptionRegistry exceptionRegistry) {
-		this.extensionPointControllerFactory = extensionPointControllerFactory;
+	public ControllerMapper(ControllerFactory injector,
+							ExceptionRegistry exceptionRegistry,
+							VarServlet varServlet) {
 		this.injector = injector;
 		this.exceptionRegistry = exceptionRegistry;
+		this.varServlet = varServlet;
 	}
 
-	public void map(VarServlet servlet, String basePackage) {
+	public void map(String basePackage) {
 
 		Reflections reflections = new Reflections(basePackage);
 
@@ -41,7 +42,7 @@ public class ControllerMapper {
 
 						String baseUri = servicepath;
 						String urlMapKey = baseUri + controllerAnnotation.path();
-						servlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
+						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
 
 					});
 		}

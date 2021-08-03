@@ -1,19 +1,10 @@
 package io.varhttp;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +12,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.servlet.Filter;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 @Singleton
@@ -31,16 +29,13 @@ public class VarServlet extends HttpServlet {
 	private final ExecutionMap executions = new ExecutionMap();
 	private final Map<Request, ControllerExecution> executionsOld = new HashMap<>();
 
-	private final Serializer serializer;
 	private final FilterFactory filterFactory;
 
 	@Inject
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
-			Serializer serializer,
 			FilterFactory filterFactory) {
 		this.parameterHandlerProvider = parameterHandlerProvider;
-		this.serializer = serializer;
 		this.filterFactory = filterFactory;
 	}
 
@@ -102,7 +97,7 @@ public class VarServlet extends HttpServlet {
 //		}
 		Function<ControllerContext, Object>[] args = parameterHandler.initializeHandlers(method, baseUri);
 		for (HttpMethod httpMethod : httpMethods) {
-			executions.put(new Request(httpMethod, baseUri), new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, serializer, getFilters(method)));
+			executions.put(new Request(httpMethod, baseUri), new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, getFilters(method)));
 //			executionsOld.put(new Request(httpMethod, baseUri), new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, serializer, getFilters(method)));
 		}
 	}
@@ -146,7 +141,7 @@ public class VarServlet extends HttpServlet {
 		return res;
 	}
 
-	private class FilterTuple {
+	private static class FilterTuple {
 		private io.varhttp.Filter filter;
 		private Annotation annotation;
 
