@@ -15,7 +15,7 @@ public class Standalone implements Runnable {
 	@Inject
 	public Standalone(ControllerMapper controllerMapper, VarConfig varConfig,
 					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory) {
-		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, "/");
+		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, "");
 		this.controllerMapper = controllerMapper;
 		this.varConfig = varConfig;
 	}
