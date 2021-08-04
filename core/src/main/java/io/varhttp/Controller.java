@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Controller {
-	String path();
+	String path() default "/";
 	HttpMethod[] httpMethods() default {};
 }

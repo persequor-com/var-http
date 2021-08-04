@@ -11,18 +11,15 @@ public class ControllerMapper {
 
 	private final ControllerFactory injector;
 	private final ExceptionRegistry exceptionRegistry;
-	private final VarServlet varServlet;
 
 	@Inject
 	public ControllerMapper(ControllerFactory injector,
-							ExceptionRegistry exceptionRegistry,
-							VarServlet varServlet) {
+							ExceptionRegistry exceptionRegistry) {
 		this.injector = injector;
 		this.exceptionRegistry = exceptionRegistry;
-		this.varServlet = varServlet;
 	}
 
-	public void map(String basePackage) {
+	public void map(VarServlet varServlet, String basePackage) {
 
 		Reflections reflections = new Reflections(basePackage);
 
@@ -34,16 +31,15 @@ public class ControllerMapper {
 					.forEach(method -> {
 						Controller controllerAnnotation = method.getAnnotation(Controller.class);
 
-						String servicepath = "";
-						if (!controllerAnnotation.path().startsWith("/")) {
-							throw new RuntimeException("Controller path for " + controllerAnnotation.path() +
+						String controllerPath = controllerAnnotation.path();
+						if (!controllerPath.startsWith("/")) {
+							throw new RuntimeException("Controller path for " + controllerPath +
 									" should have a leading forward slash");
 						}
 
-						String baseUri = servicepath;
-						String urlMapKey = baseUri + controllerAnnotation.path();
+						String baseUri = varServlet.getBasePath();
+						String urlMapKey = baseUri + controllerPath;
 						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
-
 					});
 		}
 	}

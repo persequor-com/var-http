@@ -20,23 +20,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
-@Singleton
 public class VarServlet extends HttpServlet {
 
 	private final Provider<ParameterHandler> parameterHandlerProvider;
-	//maps HttpMethod to controller execution
-	private final ExecutionMap executions = new ExecutionMap();
-	private final Map<Request, ControllerExecution> executionsOld = new HashMap<>();
-
 	private final FilterFactory filterFactory;
+	private final ExecutionMap executions;
+	private final String basePath;
 
-	@Inject
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
-			FilterFactory filterFactory) {
+			FilterFactory filterFactory,
+			String basePath) {
 		this.parameterHandlerProvider = parameterHandlerProvider;
 		this.filterFactory = filterFactory;
+		this.executions = new ExecutionMap();
+		this.basePath = basePath;
 	}
 
 	@Override
@@ -63,20 +61,14 @@ public class VarServlet extends HttpServlet {
 		Request r = new Request(httpMethod, servletPath);
 
 		ControllerExecution exe = null;
-		// Match with path-variables?
-//		for(Map.Entry<Request, ControllerExecution> e : executionsOld.entrySet()) {
-//			if(e.getKey().matchPath(r.path)) {
-//				exe = e.getValue();
-//				break;
-//			}
-//		}
+
 		exe = executions.get(r.path.substring(1).split("/"), r.method);
 
 		if(exe != null) {
 			exe.execute(new ControllerContext(request, response));
 		} else {
 			// Strange error message
-			throw new RuntimeException("HttpMethod " + request.getMethod() + " is not allowed for " + request.getPathInfo());
+			return;
 		}
 
 		try {
@@ -91,14 +83,9 @@ public class VarServlet extends HttpServlet {
 		ParameterHandler parameterHandler = parameterHandlerProvider.get();
 
 		Set<HttpMethod> httpMethods = parameterHandler.initializeHttpMethods(method);
-//		if (executions.keySet().stream().anyMatch(httpMethods::contains)) {
-//			throw new RuntimeException(String.format("Controller with same path and HTTP method " +
-//					"has been registered already. Trying to add: (%s, %s)", baseUri, method));
-//		}
 		Function<ControllerContext, Object>[] args = parameterHandler.initializeHandlers(method, baseUri);
 		for (HttpMethod httpMethod : httpMethods) {
 			executions.put(new Request(httpMethod, baseUri), new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, getFilters(method)));
-//			executionsOld.put(new Request(httpMethod, baseUri), new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, serializer, getFilters(method)));
 		}
 	}
 
@@ -118,18 +105,17 @@ public class VarServlet extends HttpServlet {
 	}
 
 	private List<Filter> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		List<Filter> filters = filterAnnotations.stream().map(f -> {
+		return filterAnnotations.stream().map(f -> {
 			Filter filter = filterFactory.getInstance(f.filter.value());
 			if (filter instanceof VarFilter) {
 				((VarFilter) filter).init(method, f.filter, f.annotation);
 			}
 			return filter;
 		}).collect(Collectors.toList());
-		return filters;
 	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {
-		Set<FilterTuple> res = Arrays.stream(annotations).map(annotation -> {
+		return Arrays.stream(annotations).map(annotation -> {
 			if (annotation instanceof io.varhttp.Filter) {
 				return new FilterTuple((io.varhttp.Filter) annotation, annotation);
 			} else if (annotation.annotationType().getAnnotation(io.varhttp.Filter.class) != null) {
@@ -138,12 +124,15 @@ public class VarServlet extends HttpServlet {
 				return null;
 			}
 		}).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
-		return res;
+	}
+
+	public String getBasePath() {
+		return basePath;
 	}
 
 	private static class FilterTuple {
-		private io.varhttp.Filter filter;
-		private Annotation annotation;
+		private final io.varhttp.Filter filter;
+		private final Annotation annotation;
 
 		public FilterTuple(io.varhttp.Filter filter, Annotation annotation) {
 			this.filter = filter;

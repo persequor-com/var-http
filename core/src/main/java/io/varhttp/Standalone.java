@@ -1,10 +1,10 @@
 package io.varhttp;
 
 import com.sun.net.httpserver.HttpServer;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class Standalone implements Runnable {
 	protected VarServlet servlet;
@@ -13,14 +13,15 @@ public class Standalone implements Runnable {
 	private HttpServer server;
 
 	@Inject
-	public Standalone(VarServlet servlet, ControllerMapper controllerMapper, VarConfig varConfig) {
-		this.servlet = servlet;
+	public Standalone(ControllerMapper controllerMapper, VarConfig varConfig,
+					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory) {
+		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, "/");
 		this.controllerMapper = controllerMapper;
 		this.varConfig = varConfig;
 	}
 
 	public void addControllerPackage(Package controllerPackage) {
-		controllerMapper.map(controllerPackage.getName());
+		controllerMapper.map(servlet, controllerPackage.getName());
 	}
 
 	@Override
