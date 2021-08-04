@@ -3,7 +3,7 @@ allprojects {
     apply plugin: 'maven-publish'
 
     group 'io.var-http'
-    version '0.1'
+    version = project.findProperty('projVersion') ?: '1.0'
 
     repositories {
         mavenCentral()
