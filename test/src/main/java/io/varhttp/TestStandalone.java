@@ -1,16 +1,17 @@
 package io.varhttp;
 
-import io.varhttp.performance.Class1;
-
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class TestStandalone extends Standalone {
 	private ControllerFactory controllerFactory;
 	private ExceptionRegistry exceptionRegistry;
 
 	@Inject
-	public TestStandalone(VarServlet servlet, ControllerMapper controllerMapper, VarConfig varConfig, ControllerFactory controllerFactory, ExceptionRegistry exceptionRegistry) {
-		super(servlet, controllerMapper, varConfig);
+	public TestStandalone(ControllerMapper controllerMapper, VarConfig varConfig,
+						  ControllerFactory controllerFactory, ExceptionRegistry exceptionRegistry,
+						  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory) {
+		super(controllerMapper, varConfig, parameterHandlerProvider, filterFactory);
 		this.controllerFactory = controllerFactory;
 		this.exceptionRegistry = exceptionRegistry;
 	}
