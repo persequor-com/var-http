@@ -37,6 +37,11 @@ public class MyTestController {
 		return "muh";
 	}
 
+	@Controller(path = "/")
+	public String root() {
+		return "Who am i";
+	}
+
 	private class TestResponse {
 		private String string;
 

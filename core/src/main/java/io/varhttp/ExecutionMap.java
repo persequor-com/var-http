@@ -32,6 +32,9 @@ public class ExecutionMap {
 
 	public ControllerExecution get(String[] path, HttpMethod httpMethod) {
 		ArrayDeque<String> ar = new ArrayDeque<>(Arrays.asList(path));
+		if (!ar.isEmpty() && ar.peekFirst().equals("")) {
+			ar.pollFirst();
+		}
 		ar.add("/"+httpMethod.name());
 		return get(ar);
 	}

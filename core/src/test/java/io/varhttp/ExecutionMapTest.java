@@ -45,6 +45,17 @@ public class ExecutionMapTest {
 	public void notADuplicate_ifDifferentHttpMethods_forBaseUrl() {
 		executionMap.put(new Request(HttpMethod.PUT, "/"), execution1);
 		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
+
+		ControllerExecution actual = executionMap.get(new String[]{}, HttpMethod.GET);
+		assertSame(execution2, actual);
+	}
+
+	@Test
+	public void passingEmptyStringPath() {
+		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
+
+		ControllerExecution actual = executionMap.get(new String[]{""}, HttpMethod.GET);
+		assertSame(execution2, actual);
 	}
 
 	@Test(expected = RuntimeException.class)

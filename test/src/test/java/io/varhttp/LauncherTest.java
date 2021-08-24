@@ -92,4 +92,11 @@ public class LauncherTest {
 		assertEquals("muh", response);
 	}
 
+	@Test
+	public void rootController() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("Who am i", response);
+	}
 }
