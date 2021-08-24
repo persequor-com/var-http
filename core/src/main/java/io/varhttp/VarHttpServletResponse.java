@@ -52,6 +52,11 @@ public class VarHttpServletResponse extends HttpServletResponseWrapper {
 	}
 
 	@Override
+	public void addHeader(String name, String value) {
+		ex.getResponseHeaders().add(name, value);
+	}
+
+	@Override
 	public javax.servlet.ServletOutputStream getOutputStream() throws IOException {
 		return servletOutputStream;
 	}

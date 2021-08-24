@@ -81,4 +81,16 @@ public class LauncherTest {
 
 	}
 
+	@Test
+	public void headers() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/header", "");
+		con.addRequestProperty("My", "Input header");
+
+
+		HttpClient.readContent(con);
+		String outputHeader = con.getHeaderField("My");
+
+		assertEquals("Input header", outputHeader);
+	}
+
 }
