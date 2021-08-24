@@ -4,7 +4,7 @@ dependencies {
     implementation group: 'javax.inject', name: 'javax.inject', version: '1'
     implementation group: 'javax', name: 'javaee-web-api', version: '8.0.1'
     implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
-    implementation group: 'org.reflections', name: 'reflections', version: '0.9.12'
+    implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 
 }

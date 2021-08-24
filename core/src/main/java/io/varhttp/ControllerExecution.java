@@ -30,7 +30,6 @@ public class ControllerExecution {
 	private final Function<ControllerContext, Object>[] args;
 	private final ParameterHandler parameterHandler;
 	private final ExceptionRegistry exceptionRegistry;
-	private final Serializer serializer;
 	private final List<Filter> filters;
 
 	public ControllerExecution(Provider<Object> controllerImplementation
@@ -38,7 +37,6 @@ public class ControllerExecution {
 			, Function<ControllerContext, Object>[] args
 			, ParameterHandler parameterHandler
 			, ExceptionRegistry exceptionRegistry
-			, Serializer serializer
 			, List<Filter> filters
 	) {
 		this.controllerImplementation = controllerImplementation;
@@ -46,7 +44,6 @@ public class ControllerExecution {
 		this.args = args;
 		this.parameterHandler = parameterHandler;
 		this.exceptionRegistry = exceptionRegistry;
-		this.serializer = serializer;
 		this.filters = filters;
 	}
 
@@ -75,10 +72,8 @@ public class ControllerExecution {
 					, cause
 					, context.response()
 			);
-			return;
 		} catch (ExceptionInInitializerError | RuntimeException | IOException e) {
 			fail(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e, context.response());
-			return;
 		}
 
 	}

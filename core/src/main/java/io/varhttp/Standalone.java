@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -44,8 +46,9 @@ public class Standalone implements Runnable {
 	private SSLContext sslContext = null;
 
 	@Inject
-	public Standalone(VarServlet servlet, ControllerMapper controllerMapper, VarConfig varConfig) {
-		this.servlet = servlet;
+	public Standalone(ControllerMapper controllerMapper, VarConfig varConfig,
+					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory) {
+		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, "");
 		this.controllerMapper = controllerMapper;
 		this.varConfig = varConfig;
 	}

@@ -3,6 +3,7 @@ package io.varhttp;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +14,15 @@ public class ExecutionMap {
 	private final ExecutionMap parent;
 	Map<String, ExecutionMap> map = new HashMap<>();
 	boolean isWildCard = false;
-	ControllerExecution thisExecution = null;
+	private ControllerExecution thisExecution = null;
 
 	public ExecutionMap() {
 		parent = null;
+	}
+
+	public ExecutionMap(String part) {
+		this.part = part;
+		this.parent = null;
 	}
 
 	public ExecutionMap(String part, ExecutionMap parent) {
@@ -25,7 +31,7 @@ public class ExecutionMap {
 	}
 
 	public ControllerExecution get(String[] path, HttpMethod httpMethod) {
-		ArrayDeque<String> ar = new ArrayDeque<String>(Arrays.asList(path));
+		ArrayDeque<String> ar = new ArrayDeque<>(Arrays.asList(path));
 		ar.add("/"+httpMethod.name());
 		return get(ar);
 	}
@@ -41,17 +47,17 @@ public class ExecutionMap {
 		if (isWildCard) {
 			part = WILDCARD;
 		}
-		return map.get(part).get(path);
+		ExecutionMap executionMap = map.get(part);
+		return executionMap != null ? executionMap.get(path) : null;
 	}
 
 
 	public void put(Request request, ControllerExecution controllerExecution) {
 		ArrayDeque<String> pathParts = new ArrayDeque<>(Arrays.asList(request.path.split("/")));
-		if (pathParts.peekFirst().isEmpty()) {
+		if (!pathParts.isEmpty() && pathParts.peekFirst().isEmpty()) {
 			pathParts.pollFirst();
 		}
 		pathParts.add("/"+request.method.name());
-		List<String> pathPartsDebug = new ArrayList<>(pathParts);
 		put(request.path, pathParts, controllerExecution);
 	}
 
@@ -67,10 +73,6 @@ public class ExecutionMap {
 		if (part.startsWith("{") && part.endsWith("}")) {
 			isWildCard = true;
 			part = WILDCARD;
-			if (part == null) {
-				this.thisExecution = controllerExecution;
-				return;
-			}
 			if (!map.isEmpty() && !map.containsKey(WILDCARD)) {
 				throw new RuntimeException("Controller already exists for path: "+path);
 			}

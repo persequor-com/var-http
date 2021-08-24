@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VarHttpContext implements HttpHandler {
-	private final Map<Request, ControllerExecution> executions = new HashMap<>();
-	private HttpServlet servlet;
+	private final HttpServlet servlet;
 
 	public VarHttpContext(HttpServlet servlet) {
 		this.servlet = servlet;
