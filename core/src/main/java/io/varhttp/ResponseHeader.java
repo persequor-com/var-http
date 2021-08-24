@@ -27,7 +27,14 @@ public interface ResponseHeader {
 	 */
 	void addHeader(String name, String value);
 
+	/**
+	 * Explicitly set (override) a http header to the response
+	 * @param name the header name
+	 * @param value the header value
+	 */
+	void setHeader(String name, String value);
+
 	default void setContentType(String s) {
-		addHeader("Content-Type", s);
+		setHeader("Content-Type", s);
 	}
 }

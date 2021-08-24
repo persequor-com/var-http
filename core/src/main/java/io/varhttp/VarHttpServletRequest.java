@@ -34,6 +34,9 @@ public class VarHttpServletRequest extends HttpServletRequestWrapper {
 
 	@Override
 	public Enumeration<String> getHeaders(String name) {
+		if (ex.getRequestHeaders().get(name) == null) {
+			return new Vector<String>(0).elements();
+		}
 		return new Vector<String>(ex.getRequestHeaders().get(name)).elements();
 	}
 

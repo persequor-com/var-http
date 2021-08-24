@@ -185,7 +185,6 @@ public class ParameterHandler {
 		@Override
 		public void write(Object content, String contentType) {
 			try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), "UTF-8")) {
-				response.setContentType(contentType);
 				if (content instanceof String) {
 					streamWriter.write((String) content);
 				} else {
@@ -235,6 +234,11 @@ public class ParameterHandler {
 		@Override
 		public void addHeader(String name, String value) {
 			response.addHeader(name, value);
+		}
+
+		@Override
+		public void setHeader(String name, String value) {
+			response.setHeader(name, value);
 		}
 	}
 

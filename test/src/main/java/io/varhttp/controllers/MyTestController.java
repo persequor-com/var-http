@@ -31,8 +31,10 @@ public class MyTestController {
 	}
 
 	@Controller(path = "/header")
-	public void header(ResponseHeader responseHeader, RequestHeader requestHeader) {
+	public String header(ResponseHeader responseHeader, RequestHeader requestHeader) {
 		responseHeader.addHeader("My", requestHeader.getHeader("My"));
+		responseHeader.setContentType("text/plainish");
+		return "muh";
 	}
 
 	private class TestResponse {
