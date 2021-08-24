@@ -68,7 +68,7 @@ public class VarServlet extends HttpServlet {
 			exe.execute(new ControllerContext(request, response));
 		} else {
 			// Strange error message
-			return;
+			throw new RuntimeException("HttpMethod " + request.getMethod() + " is not allowed for " + request.getPathInfo());
 		}
 
 		try {

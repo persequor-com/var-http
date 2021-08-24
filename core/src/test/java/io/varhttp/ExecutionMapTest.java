@@ -34,10 +34,29 @@ public class ExecutionMapTest {
 		assertSame(execution2, actual);
 	}
 
+	@Test
+	public void notADuplicate_ifDifferentHttpMethods() {
+		executionMap.put(new Request(HttpMethod.PUT, "/my/path"), execution1);
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+	}
+
+
+	@Test
+	public void notADuplicate_ifDifferentHttpMethods_forBaseUrl() {
+		executionMap.put(new Request(HttpMethod.PUT, "/"), execution1);
+		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
+	}
+
 	@Test(expected = RuntimeException.class)
 	public void duplicate() {
 		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
 		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void duplicate_forBaseUrl() {
+		executionMap.put(new Request(HttpMethod.GET, "/"), execution1);
+		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
 	}
 
 	@Test

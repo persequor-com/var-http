@@ -53,19 +53,12 @@ public class ExecutionMap {
 
 
 	public void put(Request request, ControllerExecution controllerExecution) {
-		String path = request.path;
-		ArrayDeque<String> pathParts;
-		if (!path.equals("/")) {
-			pathParts = new ArrayDeque<>(Arrays.asList(path.split("/")));
-			if (pathParts.peekFirst().isEmpty()) {
-				pathParts.pollFirst();
-			}
-			pathParts.add("/"+request.method.name());
-		} else {
-			pathParts = new ArrayDeque<>(Collections.singleton("/"));
+		ArrayDeque<String> pathParts = new ArrayDeque<>(Arrays.asList(request.path.split("/")));
+		if (!pathParts.isEmpty() && pathParts.peekFirst().isEmpty()) {
+			pathParts.pollFirst();
 		}
-
-		put(path, pathParts, controllerExecution);
+		pathParts.add("/"+request.method.name());
+		put(request.path, pathParts, controllerExecution);
 	}
 
 	private void put(String path, ArrayDeque<String> pathParts, ControllerExecution controllerExecution) {
