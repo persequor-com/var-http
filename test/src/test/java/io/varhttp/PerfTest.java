@@ -6,6 +6,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,16 +33,32 @@ public class PerfTest {
 
 	@Test
 	public void simple() throws Throwable {
-		int reps = 300;
-		long s = System.currentTimeMillis();
-		for(int i=0;i<reps;i++) {
-			int classnum = (int) (Math.random() * 39)+1;
-			int methodNum = (int) (Math.random() * 39)+1;
-			HttpURLConnection con = HttpClient.get("http://localhost:8088/controller" + classnum + "/method" + methodNum, "");
+		int reps = 10;
 
-			HttpClient.readContent(con);
+		List<Runnable> threads = new ArrayList<>();
+		for(int j=0;j<8;j++) {
+			Runnable t = () -> {
+				for (int i = 0; i < reps; i++) {
+					try {
+						int classnum = (int) (Math.random() * 39) + 1;
+						int methodNum = (int) (Math.random() * 39) + 1;
+						HttpURLConnection con = HttpClient.get("http://localhost:8088/controller" + classnum + "/method" + methodNum, "");
+
+						HttpClient.readContent(con);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+			};
+			threads.add(t);
 		}
-		System.out.println("avg time to run: "+((System.currentTimeMillis()-s)/(reps*1.0d)));
+		long s = System.currentTimeMillis();
+		ExecutorService tp = Executors.newCachedThreadPool();
+
+		threads.forEach(tp::execute);
+		tp.shutdown();
+		tp.awaitTermination(10, TimeUnit.SECONDS);
+		System.out.println("avg time to run: "+((System.currentTimeMillis()-s)/(reps*8*1.0d)));
 	}
 
 
