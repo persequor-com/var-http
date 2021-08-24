@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import javax.inject.Inject;
 import javax.inject.Provider;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -29,11 +28,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -47,8 +43,8 @@ public class Standalone implements Runnable {
 
 	@Inject
 	public Standalone(ControllerMapper controllerMapper, VarConfig varConfig,
-					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory) {
-		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, "");
+					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory, ControllerFilter controllerFilter) {
+		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, "", controllerFilter);
 		this.controllerMapper = controllerMapper;
 		this.varConfig = varConfig;
 	}
@@ -97,7 +93,6 @@ public class Standalone implements Runnable {
 			text = text.replaceAll("-----(BEGIN|END) PRIVATE KEY-----","").replace("\n","");
 			text = text.replaceAll("","");
 			byte[] dec = Base64.getDecoder().decode(text);
-//			byte[] dec = Base64.decode(text);
 
 			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(dec);
 

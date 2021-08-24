@@ -11,7 +11,7 @@ public class TestStandalone extends Standalone {
 	public TestStandalone(ControllerMapper controllerMapper, VarConfig varConfig,
 						  ControllerFactory controllerFactory, ExceptionRegistry exceptionRegistry,
 						  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory) {
-		super(controllerMapper, varConfig, parameterHandlerProvider, filterFactory);
+		super(controllerMapper, varConfig, parameterHandlerProvider, filterFactory, new ControllerFilter());
 		this.controllerFactory = controllerFactory;
 		this.exceptionRegistry = exceptionRegistry;
 	}

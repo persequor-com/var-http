@@ -33,7 +33,7 @@ public class PerfTest {
 
 	@Test
 	public void simple() throws Throwable {
-		int reps = 10;
+		int reps = 300;
 
 		List<Runnable> threads = new ArrayList<>();
 		for(int j=0;j<8;j++) {
@@ -46,6 +46,7 @@ public class PerfTest {
 
 						HttpClient.readContent(con);
 					} catch (Exception e) {
+						e.printStackTrace();
 						throw new RuntimeException(e);
 					}
 				}

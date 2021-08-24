@@ -4,17 +4,13 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,13 +22,15 @@ public class VarServlet extends HttpServlet {
 	private final FilterFactory filterFactory;
 	private final ExecutionMap executions;
 	private final String basePath;
+	private final ControllerFilter controllerFilter;
 
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
 			FilterFactory filterFactory,
-			String basePath) {
+			String basePath, ControllerFilter controllerFilter) {
 		this.parameterHandlerProvider = parameterHandlerProvider;
 		this.filterFactory = filterFactory;
+		this.controllerFilter = controllerFilter;
 		this.executions = new ExecutionMap();
 		this.basePath = basePath;
 	}
@@ -68,7 +66,8 @@ public class VarServlet extends HttpServlet {
 			exe.execute(new ControllerContext(request, response));
 		} else {
 			// Strange error message
-			throw new RuntimeException("HttpMethod " + request.getMethod() + " is not allowed for " + request.getPathInfo());
+			response.setStatus(404);
+			return;
 		}
 
 		try {
@@ -85,7 +84,11 @@ public class VarServlet extends HttpServlet {
 		Set<HttpMethod> httpMethods = parameterHandler.initializeHttpMethods(method);
 		Function<ControllerContext, Object>[] args = parameterHandler.initializeHandlers(method, baseUri);
 		for (HttpMethod httpMethod : httpMethods) {
-			executions.put(new Request(httpMethod, baseUri), new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, getFilters(method)));
+			Request request = new Request(httpMethod, baseUri);
+			ControllerExecution execution = new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, getFilters(method));
+			if (controllerFilter.accepts(request, execution)) {
+				executions.put(request, execution);
+			}
 		}
 	}
 

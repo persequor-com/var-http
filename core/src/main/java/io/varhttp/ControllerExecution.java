@@ -26,6 +26,7 @@ public class ControllerExecution {
 	private final static Logger logger = Logger.getLogger(ControllerExecution.class.getName());
 
 	private final Provider<Object> controllerImplementation;
+
 	private final Method method;
 	private final Function<ControllerContext, Object>[] args;
 	private final ParameterHandler parameterHandler;
@@ -90,6 +91,10 @@ public class ControllerExecution {
 		} catch (IOException e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	public Method getMethod() {
+		return method;
 	}
 
 	private static class VarFilterChain implements FilterChain {
