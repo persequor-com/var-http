@@ -2,7 +2,7 @@ package io.varhttp;
 
 import java.util.regex.Pattern;
 
-class Request {
+public class Request {
 	HttpMethod method;
 	String path;
 
