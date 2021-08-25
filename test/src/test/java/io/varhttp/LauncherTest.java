@@ -99,4 +99,12 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("Who am i", response);
 	}
+
+	@Test
+	public void prefixedController() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/packageprefix/classprefix/controller", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("prefixed", response);
+	}
 }

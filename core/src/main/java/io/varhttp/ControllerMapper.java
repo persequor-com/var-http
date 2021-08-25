@@ -11,12 +11,15 @@ public class ControllerMapper {
 
 	private final ControllerFactory injector;
 	private final ExceptionRegistry exceptionRegistry;
+	private final AnnotationsHelper annotationsHelper;
 
 	@Inject
 	public ControllerMapper(ControllerFactory injector,
-							ExceptionRegistry exceptionRegistry) {
+							ExceptionRegistry exceptionRegistry
+							, AnnotationsHelper annotationsHelper) {
 		this.injector = injector;
 		this.exceptionRegistry = exceptionRegistry;
+		this.annotationsHelper = annotationsHelper;
 	}
 
 	public void map(VarServlet varServlet, String basePackage) {
@@ -30,6 +33,7 @@ public class ControllerMapper {
 					.filter(m -> m.getAnnotation(Controller.class) != null)
 					.forEach(method -> {
 						Controller controllerAnnotation = method.getAnnotation(Controller.class);
+						AnnotationsHelper.Annotations annotations = annotationsHelper.getCumulativeAnnotations(method);
 
 						String controllerPath = controllerAnnotation.path();
 						if (!controllerPath.startsWith("/")) {
@@ -38,7 +42,9 @@ public class ControllerMapper {
 						}
 
 						String baseUri = varServlet.getBasePath();
-						String urlMapKey = baseUri + controllerPath;
+						String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
+						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
+						String urlMapKey = baseUri + packagePrefix + classPrefix + controllerPath;
 						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
 					});
 		}

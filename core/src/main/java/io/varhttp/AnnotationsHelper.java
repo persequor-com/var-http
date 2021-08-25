@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 
 public class AnnotationsHelper {
 	public Annotations getCumulativeAnnotations(Method method) {
@@ -39,6 +40,10 @@ public class AnnotationsHelper {
 		public Annotations add(Annotations annotations) {
 			addAll(annotations);
 			return this;
+		}
+
+		public <T> Optional<T> get(Class<T> clazz) {
+			return (Optional<T>)stream().filter(a -> clazz.isAssignableFrom(a.annotationType())).findFirst();
 		}
 	}
 }
