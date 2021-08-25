@@ -124,4 +124,37 @@ public class LauncherTest {
 		assertEquals("Nothing passed in", response);
 	}
 
+	@Test
+	public void primitiveParameters() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitives?bool=true&integer=43&longer=234423&doubler=0.4&floater=0.43", null);
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("true:43:234423:0.4:0.43", response);
+	}
+
+	@Test
+	public void primitiveParameters_default() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitives", null);
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("false:0:0:0.0:0.0", response);
+	}
+
+
+	@Test
+	public void primitivesBoxedParameters() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitivesBoxed?bool=true&integer=43&longer=234423&doubler=0.4&floater=0.43", null);
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("true:43:234423:0.4:0.43", response);
+	}
+
+	@Test
+	public void primitivesBoxedParameters_default() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitivesBoxed", null);
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("false:0:0:0.0:0.0", response);
+	}
+
 }

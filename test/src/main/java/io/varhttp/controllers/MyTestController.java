@@ -50,6 +50,28 @@ public class MyTestController {
 		return param.orElse("Nothing passed in");
 	}
 
+	@Controller(path = "/primitives")
+	public String primitives(
+			@RequestParameter(name = "bool") boolean bool
+			, @RequestParameter(name = "integer") int integer
+			, @RequestParameter(name = "longer") long longer
+			, @RequestParameter(name = "doubler") double doubler
+			, @RequestParameter(name = "floater") float floater
+	) {
+		return String.valueOf(bool)+":"+String.valueOf(integer)+":"+String.valueOf(longer)+":"+String.valueOf(doubler)+":"+String.valueOf(floater);
+	}
+
+	@Controller(path = "/primitivesBoxed")
+	public String primitivesBoxed(
+			@RequestParameter(name = "bool") Boolean bool
+			, @RequestParameter(name = "integer") Integer integer
+			, @RequestParameter(name = "longer") Long longer
+			, @RequestParameter(name = "doubler") Double doubler
+			, @RequestParameter(name = "floater") Float floater
+	) {
+		return String.valueOf(bool)+":"+String.valueOf(integer)+":"+String.valueOf(longer)+":"+String.valueOf(doubler)+":"+String.valueOf(floater);
+	}
+
 	@Controller(path = "/")
 	public String root() {
 		return "Who am i";

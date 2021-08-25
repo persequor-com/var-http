@@ -1,6 +1,5 @@
 package io.varhttp;
 
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -129,10 +128,14 @@ public class ParameterHandler {
 
 	private Object convert(String parameter, Class<?> type, String defaultValue) {
 		if (parameter == null) {
-			return defaultValue != null ? defaultValue : parameter;
+			if (defaultValue != null && !"".equals(defaultValue)) {
+				return defaultValue;
+			} else {
+				return TypeHelper.defaultValue(type);
+			}
 		}
-		if (type.equals(String.class)) {
-			return parameter;
+		if (TypeHelper.isStandardType(type)) {
+			return TypeHelper.parse(type, parameter);
 		}
 		if (type.equals(Optional.class)) {
 			return Optional.ofNullable(parameter);
