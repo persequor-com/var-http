@@ -21,18 +21,16 @@ public class VarServlet extends HttpServlet {
 	private final Provider<ParameterHandler> parameterHandlerProvider;
 	private final FilterFactory filterFactory;
 	private final ExecutionMap executions;
-	private final String basePath;
 	private final ControllerFilter controllerFilter;
 
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
 			FilterFactory filterFactory,
-			String basePath, ControllerFilter controllerFilter) {
+			ControllerFilter controllerFilter) {
 		this.parameterHandlerProvider = parameterHandlerProvider;
 		this.filterFactory = filterFactory;
 		this.controllerFilter = controllerFilter;
 		this.executions = new ExecutionMap();
-		this.basePath = basePath;
 	}
 
 	@Override
@@ -127,10 +125,6 @@ public class VarServlet extends HttpServlet {
 				return null;
 			}
 		}).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
-	}
-
-	public String getBasePath() {
-		return basePath;
 	}
 
 	private static class FilterTuple {

@@ -4,6 +4,7 @@ import org.reflections.Reflections;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -41,10 +42,9 @@ public class ControllerMapper {
 									" should have a leading forward slash");
 						}
 
-						String baseUri = varServlet.getBasePath();
 						String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
-						String urlMapKey = baseUri + packagePrefix + classPrefix + controllerPath;
+						String urlMapKey = packagePrefix + classPrefix + controllerPath;
 						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
 					});
 		}
