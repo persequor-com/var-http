@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -61,7 +62,7 @@ public class ParameterHandler {
 				}
 				String lambdaName = name;
 				Class<?> type = parameter.getType();
-				args[i] = (context -> convert(context.request().getParameter(lambdaName), type));
+				args[i] = (context -> convert(context.request().getParameter(lambdaName), type, parameterAnnotation.defaultValue()));
 			}
 			RequestBody bodyAnnotation = parameter.getAnnotation(RequestBody.class);
 			if (bodyAnnotation != null) {
@@ -122,9 +123,15 @@ public class ParameterHandler {
 		}
 	}
 
-	private Object convert(String parameter, Class<?> type) {
+	private Object convert(String parameter, Class<?> type, String defaultValue) {
+		if (parameter == null) {
+			return defaultValue != null ? defaultValue : parameter;
+		}
 		if (type.equals(String.class)) {
 			return parameter;
+		}
+		if (type.equals(Optional.class)) {
+			return Optional.ofNullable(parameter);
 		}
 		throw new RuntimeException("Unhandled conversion type: "+type.getName());
 	}
@@ -250,7 +257,7 @@ public class ParameterHandler {
 			for (int i = 0; i < pathVariables.size(); i++) {
 				Class<?> type = pathVariables.get(i).getType();
 				String value = m.group(i + 1);
-				args[pathVariables.get(i).getArgno()] = (r -> convert(value, type));
+				args[pathVariables.get(i).getArgno()] = (r -> convert(value, type, null));
 			}
 		}
 		return args;

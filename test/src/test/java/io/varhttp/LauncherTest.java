@@ -107,4 +107,13 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("prefixed", response);
 	}
+
+	@Test
+	public void defaultValueInParameter() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/defaultValue", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("muh", response);
+	}
+
 }

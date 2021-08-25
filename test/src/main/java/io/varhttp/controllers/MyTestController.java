@@ -37,6 +37,11 @@ public class MyTestController {
 		return "muh";
 	}
 
+	@Controller(path = "/defaultValue")
+	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh") String param) {
+		return param;
+	}
+
 	@Controller(path = "/")
 	public String root() {
 		return "Who am i";
