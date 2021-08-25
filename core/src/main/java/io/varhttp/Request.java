@@ -32,4 +32,12 @@ public class Request {
 	public boolean matchPath(String path) {
 		return Pattern.compile(this.path.replaceAll("\\{[a-zA-Z]+}", "[^\\/]+")).matcher(path).matches();
 	}
+
+	public HttpMethod getMethod() {
+		return method;
+	}
+
+	public String getPath() {
+		return path;
+	}
 }
