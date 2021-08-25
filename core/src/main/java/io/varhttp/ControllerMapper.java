@@ -42,9 +42,10 @@ public class ControllerMapper {
 									" should have a leading forward slash");
 						}
 
+						String basePrefix = varServlet.getBasePath();
 						String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
-						String urlMapKey = packagePrefix + classPrefix + controllerPath;
+						String urlMapKey =  basePrefix + packagePrefix + classPrefix + controllerPath;
 						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
 					});
 		}
