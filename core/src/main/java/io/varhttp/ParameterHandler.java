@@ -73,7 +73,11 @@ public class ParameterHandler {
 							return toString(body);
 						}
 
-						return serializer.deserialize(body, parameter.getType(), context.request().getContentType());
+						Object bodyString = serializer.deserialize(body, parameter.getType(), context.request().getContentType());
+						if (Optional.class.isAssignableFrom(parameter.getType())) {
+							return Optional.ofNullable(bodyString);
+						}
+						return bodyString;
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}

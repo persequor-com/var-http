@@ -5,6 +5,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -81,6 +82,28 @@ public class HttpClient {
 
 			con.setSSLSocketFactory(getSslContext().getSocketFactory());
 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static HttpURLConnection post(String path, String parameters) {
+		try {
+			URL url = new URL(path);
+
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			if (con instanceof HttpsURLConnection) {
+				setTrustStore((HttpsURLConnection) con);
+			}
+			con.setRequestMethod("POST");
+			if (parameters != null) {
+				con.setDoOutput(true);
+				DataOutputStream out = new DataOutputStream(con.getOutputStream());
+				out.writeBytes(parameters);
+				out.flush();
+				out.close();
+			}
+			return con;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

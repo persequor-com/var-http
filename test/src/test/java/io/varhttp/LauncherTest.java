@@ -116,4 +116,12 @@ public class LauncherTest {
 		assertEquals("muh", response);
 	}
 
+	@Test
+	public void optionalBody() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/optionalBody", null);
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("Nothing passed in", response);
+	}
+
 }

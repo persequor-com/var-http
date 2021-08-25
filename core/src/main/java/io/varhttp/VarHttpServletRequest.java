@@ -102,6 +102,11 @@ public class VarHttpServletRequest extends HttpServletRequestWrapper {
 	}
 
 	@Override
+	public String getContentType() {
+		return ex.getRequestHeaders().getFirst("Content-Type");
+	}
+
+	@Override
 	public String getServletPath() {
 		String path = ex.getHttpContext().getPath().substring(1);
 

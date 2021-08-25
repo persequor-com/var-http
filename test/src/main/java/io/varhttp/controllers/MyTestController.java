@@ -4,9 +4,12 @@ import io.varhttp.Controller;
 import io.varhttp.ControllerClass;
 import io.varhttp.HttpMethod;
 import io.varhttp.PathVariable;
+import io.varhttp.RequestBody;
 import io.varhttp.RequestHeader;
 import io.varhttp.RequestParameter;
 import io.varhttp.ResponseHeader;
+
+import java.util.Optional;
 
 @ControllerClass
 public class MyTestController {
@@ -40,6 +43,11 @@ public class MyTestController {
 	@Controller(path = "/defaultValue")
 	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh") String param) {
 		return param;
+	}
+
+	@Controller(path = "/optionalBody")
+	public String optionalBody(@RequestBody() Optional<String> param) {
+		return param.orElse("Nothing passed in");
 	}
 
 	@Controller(path = "/")
