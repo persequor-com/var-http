@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 public class AnnotationsHelper {
-	Annotations getCumulativeAnnotations(Method method) {
+	public Annotations getCumulativeAnnotations(Method method) {
 		return getAnnotations(method.getDeclaringClass().getPackage())
 				.add(getAnnotations(method.getClass().getPackage()))
 				.add(getAnnotations(method.getDeclaringClass()))
@@ -15,19 +15,19 @@ public class AnnotationsHelper {
 				.add(new Annotations(method.getAnnotations()));
 	}
 
-	Annotations getAnnotations(Method method) {
+	public Annotations getAnnotations(Method method) {
 		return new Annotations(method.getAnnotations());
 	}
 
-	Annotations getCumulativeAnnotations(Class<?> clazz) {
+	public Annotations getCumulativeAnnotations(Class<?> clazz) {
 		return getAnnotations(clazz.getPackage()).add(new Annotations(clazz.getAnnotations()));
 	}
 
-	Annotations getAnnotations(Class<?> clazz) {
+	public Annotations getAnnotations(Class<?> clazz) {
 		return new Annotations(clazz.getAnnotations());
 	}
 
-	Annotations getAnnotations(Package pack) {
+	public Annotations getAnnotations(Package pack) {
 		return new Annotations(pack.getAnnotations());
 	}
 
