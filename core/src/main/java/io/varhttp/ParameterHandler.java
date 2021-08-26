@@ -129,7 +129,7 @@ public class ParameterHandler {
 	private Object convert(String parameter, Class<?> type, String defaultValue) {
 		if (parameter == null) {
 			if (defaultValue != null && !"".equals(defaultValue)) {
-				return defaultValue;
+				return TypeHelper.parse(type, defaultValue);
 			} else {
 				return TypeHelper.defaultValue(type);
 			}

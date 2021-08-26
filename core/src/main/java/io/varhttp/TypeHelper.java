@@ -32,7 +32,12 @@ public class TypeHelper {
 	}
 
 	public static Object parse(Class<?> type, String stringValue) {
-		return typesHashMap.get(type).converter.apply(stringValue);
+		if (isStandardType(type)) {
+			return typesHashMap.get(type).converter.apply(stringValue);
+		} else {
+			return stringValue;
+		}
+
 	}
 
 	public static boolean isStandardType(Class<?> type) {
