@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class ParameterHandler {
 		return new HashSet<>(Arrays.asList(allowedMethods));
 	}
 
-	public Function<ControllerContext, Object>[] initializeHandlers(Method method, String baseUri){
+	public Function<ControllerContext, Object>[] initializeHandlers(Method method, String baseUri, String classPath){
 		Function<ControllerContext, Object>[] args = new Function[method.getParameterCount()];
 		Controller controller = method.getAnnotation(Controller.class);
 		if(controller == null){
@@ -94,11 +95,11 @@ public class ParameterHandler {
 			}
 
 			if (RequestHeader.class == parameter.getType()) {
-				args[i] = context -> new ExtensionPointRequestHeader(context.request());
+				args[i] = context -> new VarRequestHeader(context.request());
 			}
 
 			if (ResponseHeader.class == parameter.getType()) {
-				args[i] = context -> new ExtensionPointResponseHeader(context.response());
+				args[i] = context -> new VarResponseHeader(context.response(), classPath);
 			}
 
 			if (ResponseStream.class == parameter.getType()) {
@@ -210,10 +211,10 @@ public class ParameterHandler {
 		}
 	}
 
-	private class ExtensionPointRequestHeader implements RequestHeader {
+	private class VarRequestHeader implements RequestHeader {
 		private HttpServletRequest request;
 
-		ExtensionPointRequestHeader(HttpServletRequest request) {
+		VarRequestHeader(HttpServletRequest request) {
 			this.request = request;
 		}
 
@@ -233,11 +234,13 @@ public class ParameterHandler {
 		}
 	}
 
-	private class ExtensionPointResponseHeader implements ResponseHeader {
+	private class VarResponseHeader implements ResponseHeader {
 		private HttpServletResponse response;
+		private String classPath;
 
-		private ExtensionPointResponseHeader(HttpServletResponse response) {
+		private VarResponseHeader(HttpServletResponse response, String classPath) {
 			this.response = response;
+			this.classPath = classPath;
 		}
 
 		@Override
@@ -253,6 +256,21 @@ public class ParameterHandler {
 		@Override
 		public void setHeader(String name, String value) {
 			response.setHeader(name, value);
+		}
+
+		@Override
+		public void redirect(String path) {
+			response.setHeader("Location", path);
+		}
+
+		@Override
+		public void redirectRelative(String path) {
+			response.setHeader("Location", classPath+"/"+path);
+		}
+
+		@Override
+		public void redirect(URL url) {
+			response.setHeader("Location", url.toString());
 		}
 	}
 

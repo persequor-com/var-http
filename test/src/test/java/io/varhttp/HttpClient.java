@@ -13,6 +13,8 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.util.List;
+import java.util.Map;
 
 public class HttpClient {
 
@@ -107,5 +109,9 @@ public class HttpClient {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static Map<String, List<String>> readHeaders(HttpURLConnection con) {
+		return con.getHeaderFields();
 	}
 }

@@ -32,6 +32,7 @@ public class ControllerExecution {
 	private final ParameterHandler parameterHandler;
 	private final ExceptionRegistry exceptionRegistry;
 	private final List<Filter> filters;
+	private String classPath;
 
 	public ControllerExecution(Provider<Object> controllerImplementation
 			, Method method
@@ -39,6 +40,7 @@ public class ControllerExecution {
 			, ParameterHandler parameterHandler
 			, ExceptionRegistry exceptionRegistry
 			, List<Filter> filters
+			, String classPath
 	) {
 		this.controllerImplementation = controllerImplementation;
 		this.method = method;
@@ -46,6 +48,7 @@ public class ControllerExecution {
 		this.parameterHandler = parameterHandler;
 		this.exceptionRegistry = exceptionRegistry;
 		this.filters = filters;
+		this.classPath = classPath;
 	}
 
 	public void execute(ControllerContext context) {

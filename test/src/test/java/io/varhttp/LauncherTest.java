@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -155,6 +157,30 @@ public class LauncherTest {
 
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("false:0:0:0.0:0.0", response);
+	}
+
+	@Test
+	public void redirectRelative() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/redirects/redirectRelative", null);
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		assertEquals("/redirects/target", headers.get("Location").get(0));
+	}
+
+	@Test
+	public void redirect() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/redirects/redirect", null);
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		assertEquals("/redirects/target", headers.get("Location").get(0));
+	}
+
+	@Test
+	public void redirectUrl() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/redirects/url", null);
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		assertEquals("http://github.com", headers.get("Location").get(0));
 	}
 
 }

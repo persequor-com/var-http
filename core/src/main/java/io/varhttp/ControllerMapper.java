@@ -45,8 +45,9 @@ public class ControllerMapper {
 						String basePrefix = varServlet.getBasePath();
 						String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
-						String urlMapKey =  basePrefix + packagePrefix + classPrefix + controllerPath;
-						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry);
+						String classPath = basePrefix + packagePrefix + classPrefix;
+						String urlMapKey =  classPath + controllerPath;
+						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry, classPath);
 					});
 		}
 	}

@@ -1,5 +1,7 @@
 package io.varhttp;
 
+import java.net.URL;
+
 /**
  * <p>
  * Carrier for http response headers to be injected into extension point controller methods, to allow the methods
@@ -33,6 +35,21 @@ public interface ResponseHeader {
 	 * @param value the header value
 	 */
 	void setHeader(String name, String value);
+
+	/**
+	 * @param path relative to the root of the domain
+	 */
+	void redirect(String path);
+
+	/**
+	 * @param path relative to this controller class
+	 */
+	void redirectRelative(String path);
+
+	/**
+	 * @param url
+	 */
+	void redirect(URL url);
 
 	default void setContentType(String s) {
 		setHeader("Content-Type", s);
