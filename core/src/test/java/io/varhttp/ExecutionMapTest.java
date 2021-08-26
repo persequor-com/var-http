@@ -82,6 +82,30 @@ public class ExecutionMapTest {
 		assertSame(execution2, actual);
 	}
 
+	@Test
+	public void wildcardAndEmptyOnSameHttpMethod() {
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+
+		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
+		assertSame(execution2, actual);
+
+		actual = executionMap.get("my/path/blah".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
+	}
+
+	@Test
+	public void wildcardAndEmptyOnSameHttpMethod_reversed() {
+		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+
+		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
+		assertSame(execution2, actual);
+
+		actual = executionMap.get("my/path/blah".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
+	}
+
 	@Test(expected = RuntimeException.class)
 	public void deepWildcard_clashesWithNonWildcard() {
 		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
