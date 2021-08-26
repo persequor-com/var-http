@@ -26,4 +26,8 @@ public class Launcher implements Runnable {
 	public void stop() {
 		standalone.stop();
 	}
+
+	public VarServlet getServlet() {
+		return standalone.servlet;
+	}
 }

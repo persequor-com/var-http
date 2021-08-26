@@ -3,6 +3,7 @@ package io.varhttp;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -23,6 +24,7 @@ public class VarServlet extends HttpServlet {
 	private final ExecutionMap executions;
 	private final String basePath;
 	private final ControllerFilter controllerFilter;
+	private final List<Class<? extends Filter>> defaultFilters = new ArrayList<>();
 
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
@@ -33,6 +35,10 @@ public class VarServlet extends HttpServlet {
 		this.controllerFilter = controllerFilter;
 		this.executions = new ExecutionMap();
 		this.basePath = basePath;
+	}
+
+	public void addDefaultFilter(Class<? extends Filter> filter) {
+		defaultFilters.add(filter);
 	}
 
 	@Override
@@ -108,13 +114,17 @@ public class VarServlet extends HttpServlet {
 	}
 
 	private List<Filter> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		return filterAnnotations.stream().map(f -> {
+		List<Filter> filters = defaultFilters.stream().map(filterFactory::getInstance).collect(Collectors.toList());
+
+		filters.addAll(filterAnnotations.stream().map(f -> {
 			Filter filter = filterFactory.getInstance(f.filter.value());
 			if (filter instanceof VarFilter) {
 				((VarFilter) filter).init(method, f.filter, f.annotation);
 			}
 			return filter;
-		}).collect(Collectors.toList());
+		}).collect(Collectors.toList()));
+
+		return filters;
 	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {
