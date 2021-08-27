@@ -31,6 +31,7 @@ public class ControllerExecution {
 	private final Function<ControllerContext, Object>[] args;
 	private final ParameterHandler parameterHandler;
 	private final ExceptionRegistry exceptionRegistry;
+	private Controller controller;
 	private final List<Filter> filters;
 	private String classPath;
 
@@ -39,6 +40,7 @@ public class ControllerExecution {
 			, Function<ControllerContext, Object>[] args
 			, ParameterHandler parameterHandler
 			, ExceptionRegistry exceptionRegistry
+			, Controller controller
 			, List<Filter> filters
 			, String classPath
 	) {
@@ -47,6 +49,7 @@ public class ControllerExecution {
 		this.args = args;
 		this.parameterHandler = parameterHandler;
 		this.exceptionRegistry = exceptionRegistry;
+		this.controller = controller;
 		this.filters = filters;
 		this.classPath = classPath;
 	}
@@ -60,7 +63,11 @@ public class ControllerExecution {
 			filters.add((request, response, chain) -> {
 				try {
 					Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
+					if (!"".equals(controller.contentType()) && context.response().getHeader("Content-Type") == null) {
+						context.response().setHeader("Content-Type", controller.contentType());
+					}
 					parameterHandler.handleReturnResponse(responseObject, context);
+
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new ServletException(e);
 				}

@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface Controller {
 	String path();
 	HttpMethod[] httpMethods() default {};
+	String contentType() default "";
 }

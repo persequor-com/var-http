@@ -91,7 +91,7 @@ public class VarServlet extends HttpServlet {
 		Function<ControllerContext, Object>[] args = parameterHandler.initializeHandlers(method, baseUri, classPath);
 		for (HttpMethod httpMethod : httpMethods) {
 			Request request = new Request(httpMethod, baseUri);
-			ControllerExecution execution = new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, getFilters(method), classPath);
+			ControllerExecution execution = new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, method.getAnnotation(Controller.class), getFilters(method), classPath);
 			if (controllerFilter.accepts(request, execution)) {
 				executions.put(request, execution);
 			}
