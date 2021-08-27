@@ -48,7 +48,7 @@ public class ExecutionMap {
 			return executions.get(httpMethod);
 		}
 		String part = path.pollFirst();
-		if (isWildCard) {
+		if (!map.containsKey(part) && isWildCard) {
 			part = WILDCARD;
 		}
 		ExecutionMap executionMap = map.get(part);
@@ -78,12 +78,13 @@ public class ExecutionMap {
 		if (part.startsWith("{") && part.endsWith("}")) {
 			isWildCard = true;
 			part = WILDCARD;
-			if (!map.isEmpty() && !map.containsKey(WILDCARD)) {
-				throw new ControllerAlreadyExistsException(request);
-			}
-		} else if (isWildCard) {
-			throw new ControllerAlreadyExistsException(request);
+//			if (!map.isEmpty() && !map.containsKey(WILDCARD)) {
+//				throw new ControllerAlreadyExistsException(request);
+//			}
 		}
+//		else if (isWildCard) {
+//			throw new ControllerAlreadyExistsException(request);
+//		}
 
 
 		String finalPart = part;
