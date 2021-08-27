@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 public class ParameterHandler {
 	private final List<PathVariableInfo> pathVariables = new ArrayList<>();
 	private Pattern pattern;
+	private Pattern pathVariablePattern = Pattern.compile("\\{(.*)\\}");
 	private final Serializer serializer;
 
 	@Inject
@@ -108,6 +109,10 @@ public class ParameterHandler {
 		}
 
 		pathVariables.sort(Comparator.comparingInt(PathVariableInfo::getSortOffset));
+		Matcher pathPatternMatcher = pathVariablePattern.matcher(pathPattern);
+		if (pathPatternMatcher.find()) {
+			throw new VarInitializationException("Path variable missing as a parameter to controller method: "+pathPatternMatcher.group(1));
+		}
 		pattern = Pattern.compile(pathPattern);
 
 		return args;
