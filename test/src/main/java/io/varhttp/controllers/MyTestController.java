@@ -94,7 +94,9 @@ public class MyTestController {
 	public String requestParameters(
 			RequestParameters requestParameters
 	) {
-		requestParameters.remove("where");
+		if (requestParameters.contains("where")) {
+			requestParameters.remove("where");
+		}
 		return requestParameters.get("what")+" is "+requestParameters.get("where");
 	}
 }

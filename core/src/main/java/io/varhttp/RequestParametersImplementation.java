@@ -19,4 +19,9 @@ public class RequestParametersImplementation implements RequestParameters {
 	public void remove(String name) {
 		request.getParameterMap().remove(name);
 	}
+
+	@Override
+	public boolean contains(String name) {
+		return request.getParameterMap().containsKey(name);
+	}
 }
