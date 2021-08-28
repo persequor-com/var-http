@@ -96,6 +96,10 @@ public class VarHttpServletRequest extends HttpServletRequestWrapper {
 		return new Vector<String>(postData.keySet()).elements();
 	}
 
+	public String[] getParameterValues(String name) {
+		return postData.get(name);
+	}
+
 	@Override
 	public String getRequestURI() {
 		return ex.getRequestURI().toString();

@@ -10,6 +10,8 @@ import io.varhttp.RequestParameter;
 import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @ControllerClass
@@ -71,6 +73,11 @@ public class MyTestController {
 			, @RequestParameter(name = "floater") Float floater
 	) {
 		return String.valueOf(bool)+":"+String.valueOf(integer)+":"+String.valueOf(longer)+":"+String.valueOf(doubler)+":"+String.valueOf(floater);
+	}
+
+	@Controller(path = "/listController")
+	public List<String> listController(@RequestParameter(name = "list") List<String> list) {
+		return list;
 	}
 
 	@Controller(path = "/")

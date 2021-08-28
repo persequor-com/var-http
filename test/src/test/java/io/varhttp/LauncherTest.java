@@ -198,4 +198,13 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("theFuture is null", response);
 	}
+
+	@Test
+	public void listController() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/listController?list=Muh&list=Miaw", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("[\"Muh\",\"Miaw\"]", response);
+	}
+
 }

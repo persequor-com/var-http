@@ -1,5 +1,6 @@
 package io.varhttp;
 
+import javax.enterprise.util.TypeLiteral;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +13,9 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -25,6 +29,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ParameterHandler {
 	private final List<PathVariableInfo> pathVariables = new ArrayList<>();
@@ -63,7 +68,17 @@ public class ParameterHandler {
 				}
 				String lambdaName = name;
 				Class<?> type = parameter.getType();
-				args[i] = (context -> convert(context.request().getParameter(lambdaName), type, parameterAnnotation.defaultValue()));
+				if (List.class.isAssignableFrom(type)) {
+					ParameterizedType pType = (ParameterizedType)parameter.getParameterizedType();
+
+					args[i] = (context -> {
+						Type listElementType = pType.getActualTypeArguments()[0];
+
+						return Arrays.asList(context.request().getParameterValues(lambdaName)).stream().map(p -> convert(p, (Class<?>) listElementType, parameterAnnotation.defaultValue())).collect(Collectors.toList());
+					});
+				} else {
+					args[i] = (context -> convert(context.request().getParameter(lambdaName), type, parameterAnnotation.defaultValue()));
+				}
 			}
 			RequestBody bodyAnnotation = parameter.getAnnotation(RequestBody.class);
 			if (bodyAnnotation != null) {
