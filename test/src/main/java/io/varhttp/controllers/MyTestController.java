@@ -10,7 +10,10 @@ import io.varhttp.RequestParameter;
 import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
 
+import java.text.DateFormat;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,5 +108,13 @@ public class MyTestController {
 			requestParameters.remove("where");
 		}
 		return requestParameters.get("what")+" is "+requestParameters.get("where");
+	}
+
+	@Controller(path = "/dates")
+	public String requestParameters(
+			@RequestParameter(name = "zonedDateTime")  ZonedDateTime zonedDateTime,
+			@RequestParameter(name = "date") Date date
+	) {
+		return date.toInstant().toString()+"-"+zonedDateTime.toInstant().toString();
 	}
 }

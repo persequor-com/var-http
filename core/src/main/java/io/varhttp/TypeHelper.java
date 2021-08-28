@@ -2,10 +2,16 @@ package io.varhttp;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.function.Function;
 
 public class TypeHelper {
+	private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
 	private static HashMap<Class<?>, Primitive> typesHashMap = new HashMap<>();
 	static {
 		typesHashMap.put(boolean.class   , new Primitive(Boolean::parseBoolean, false));
@@ -19,8 +25,10 @@ public class TypeHelper {
 		typesHashMap.put(Double.class    , new Primitive(Double::valueOf, Double.valueOf(0)));
 		typesHashMap.put(Float.class     , new Primitive(Float::valueOf, Float.valueOf(0)));
 		typesHashMap.put(String.class    , new Primitive(String::valueOf, null));
-		typesHashMap.put(BigDecimal.class, new Primitive(BigDecimal::new, null));
-		typesHashMap.put(BigInteger.class, new Primitive(BigInteger::new, null));
+		typesHashMap.put(BigDecimal.class      , new Primitive(BigDecimal::new, null));
+		typesHashMap.put(BigInteger.class      , new Primitive(BigInteger::new, null));
+		typesHashMap.put(Date.class            , new Primitive(z -> Date.from(ZonedDateTime.parse(z, dateTimeFormatter).toInstant()), null));
+		typesHashMap.put(ZonedDateTime.class   , new Primitive(z -> ZonedDateTime.parse(z, dateTimeFormatter),null));
 	}
 
 	public static Object defaultValue(Class<?> type) {
