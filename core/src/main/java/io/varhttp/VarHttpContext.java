@@ -59,7 +59,9 @@ public class VarHttpContext implements HttpHandler {
 		Map<String, String[]> parsePostData = new HashMap<>();
 
 		try {
-			parsePostData.putAll(HttpUtils.parseQueryString(ex.getRequestURI().getQuery()));
+			if (ex.getRequestURI().getQuery() != null) {
+				parsePostData.putAll(HttpUtils.parseQueryString(ex.getRequestURI().getQuery()));
+			}
 
 			// check if any postdata to parse
 			parsePostData.putAll(HttpUtils.parsePostData(inBytes.length, is));

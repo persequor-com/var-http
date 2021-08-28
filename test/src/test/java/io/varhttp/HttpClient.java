@@ -99,6 +99,8 @@ public class HttpClient {
 			}
 			con.setRequestMethod("POST");
 			if (parameters != null) {
+				con.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded");
+
 				con.setDoOutput(true);
 				DataOutputStream out = new DataOutputStream(con.getOutputStream());
 				out.writeBytes(parameters);

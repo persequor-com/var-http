@@ -106,6 +106,10 @@ public class ParameterHandler {
 			if (ResponseStream.class == parameter.getType()) {
 				args[i] = context ->  new ExtensionPointResponseStream(context.response(), serializer);
 			}
+
+			if (RequestParameters.class == parameter.getType()) {
+				args[i] = ControllerContext::getParameters;
+			}
 		}
 
 		pathVariables.sort(Comparator.comparingInt(PathVariableInfo::getSortOffset));

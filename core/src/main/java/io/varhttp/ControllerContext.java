@@ -19,4 +19,8 @@ public class ControllerContext {
 	public HttpServletResponse response() {
 		return response;
 	}
+
+	public RequestParameters getParameters() {
+		return new RequestParametersImplementation(request);
+	}
 }

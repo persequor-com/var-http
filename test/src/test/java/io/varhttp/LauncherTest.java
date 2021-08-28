@@ -183,4 +183,19 @@ public class LauncherTest {
 		assertEquals("http://github.com", headers.get("Location").get(0));
 	}
 
+	@Test
+	public void requestParametersGet() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameters?what=theFuture&where=here", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("theFuture is null", response);
+	}
+
+	@Test
+	public void requestParametersPost() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestParameters", "what=theFuture&where=here");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("theFuture is null", response);
+	}
 }

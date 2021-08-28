@@ -7,6 +7,7 @@ import io.varhttp.PathVariable;
 import io.varhttp.RequestBody;
 import io.varhttp.RequestHeader;
 import io.varhttp.RequestParameter;
+import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
 
 import java.util.Optional;
@@ -87,5 +88,13 @@ public class MyTestController {
 		public String getString() {
 			return string;
 		}
+	}
+
+	@Controller(path = "/requestParameters")
+	public String requestParameters(
+			RequestParameters requestParameters
+	) {
+		requestParameters.remove("where");
+		return requestParameters.get("what")+" is "+requestParameters.get("where");
 	}
 }
