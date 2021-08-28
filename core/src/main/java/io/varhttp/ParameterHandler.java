@@ -70,11 +70,14 @@ public class ParameterHandler {
 				Class<?> type = parameter.getType();
 				if (List.class.isAssignableFrom(type)) {
 					ParameterizedType pType = (ParameterizedType)parameter.getParameterizedType();
-
+					Type listElementType = pType.getActualTypeArguments()[0];
 					args[i] = (context -> {
-						Type listElementType = pType.getActualTypeArguments()[0];
-
-						return Arrays.asList(context.request().getParameterValues(lambdaName)).stream().map(p -> convert(p, (Class<?>) listElementType, parameterAnnotation.defaultValue())).collect(Collectors.toList());
+						String[] parameterValues = context.request().getParameterValues(lambdaName);
+						if (parameterValues != null) {
+							return Arrays.asList(parameterValues).stream().map(p -> convert(p, (Class<?>) listElementType, parameterAnnotation.defaultValue())).collect(Collectors.toList());
+						} else {
+							return null;
+						}
 					});
 				} else {
 					args[i] = (context -> convert(context.request().getParameter(lambdaName), type, parameterAnnotation.defaultValue()));

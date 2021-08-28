@@ -207,4 +207,11 @@ public class LauncherTest {
 		assertEquals("[\"Muh\",\"Miaw\"]", response);
 	}
 
+	@Test
+	public void listController_listNotSet() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/listController", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("", response);
+	}
 }
