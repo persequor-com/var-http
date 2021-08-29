@@ -128,6 +128,14 @@ public class ParameterHandler {
 			if (RequestParameters.class == parameter.getType()) {
 				args[i] = ControllerContext::getParameters;
 			}
+
+			if (HttpServletRequest.class == parameter.getType()) {
+				args[i] = ControllerContext::request;
+			}
+
+			if (HttpServletResponse.class == parameter.getType()) {
+				args[i] = ControllerContext::response;
+			}
 		}
 
 		pathVariables.sort(Comparator.comparingInt(PathVariableInfo::getSortOffset));
