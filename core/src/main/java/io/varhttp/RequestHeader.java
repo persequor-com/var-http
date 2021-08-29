@@ -37,4 +37,9 @@ public interface RequestHeader {
 	 * @return header names
 	 */
 	Set<String> getHeaderNames();
+
+	/**
+	 * @return The path of the current controller
+	 */
+	String getPath();
 }

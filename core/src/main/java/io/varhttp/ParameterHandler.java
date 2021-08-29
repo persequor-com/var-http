@@ -259,6 +259,11 @@ public class ParameterHandler {
 		public Set<String> getHeaderNames() {
 			return new HashSet<>(Collections.list(request.getHeaderNames()));
 		}
+
+		@Override
+		public String getPath() {
+			return request.getServletPath();
+		}
 	}
 
 	private class VarResponseHeader implements ResponseHeader {
