@@ -264,6 +264,11 @@ public class ParameterHandler {
 		public String getPath() {
 			return request.getServletPath();
 		}
+
+		@Override
+		public String getMethod() {
+			return request.getMethod();
+		}
 	}
 
 	private class VarResponseHeader implements ResponseHeader {

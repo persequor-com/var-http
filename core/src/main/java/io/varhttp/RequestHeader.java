@@ -42,4 +42,6 @@ public interface RequestHeader {
 	 * @return The path of the current controller
 	 */
 	String getPath();
+
+	String getMethod();
 }
