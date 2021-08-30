@@ -7,5 +7,4 @@ dependencies {
     implementation group: 'org.reflections', name: 'reflections', version: '0.9.11'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     implementation 'org.slf4j:slf4j-api:1.7.26'
-    implementation 'org.slf4j:slf4j-simple:1.7.26'
 }
