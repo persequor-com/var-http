@@ -1,10 +1,14 @@
 package io.varhttp;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class VarServlet extends HttpServlet {
-
+	Logger logger = LoggerFactory.getLogger(VarServlet.class);
 	private final Provider<ParameterHandler> parameterHandlerProvider;
 	private final FilterFactory filterFactory;
 	private final ExecutionMap executions;
@@ -57,30 +61,35 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void handle(HttpServletRequest request, HttpServletResponse response) {
-		final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
-		String servletPath = request.getRequestURI();
-		if (servletPath.contains("?")) {
-			servletPath = servletPath.substring(0,servletPath.indexOf("?"));
-		}
-		Request r = new Request(httpMethod, servletPath);
-
-		ControllerExecution exe = null;
-
-		exe = executions.get(r.path.substring(1).split("/"), r.method);
-
-		if(exe != null) {
-			exe.execute(new ControllerContext(request, response));
-		} else {
-			// Strange error message
-			response.setStatus(404);
-			return;
-		}
-
+		long s = System.currentTimeMillis();
 		try {
-			response.getOutputStream().flush();
-			response.setStatus(200);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
+			String servletPath = request.getRequestURI();
+			if (servletPath.contains("?")) {
+				servletPath = servletPath.substring(0, servletPath.indexOf("?"));
+			}
+			Request r = new Request(httpMethod, servletPath);
+
+			ControllerExecution exe = null;
+
+			exe = executions.get(r.path.substring(1).split("/"), r.method);
+
+			if (exe != null) {
+				exe.execute(new ControllerContext(request, response));
+			} else {
+				// Strange error message
+				response.setStatus(404);
+				return;
+			}
+
+			try {
+				response.getOutputStream().flush();
+				response.setStatus(200);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		} finally {
+			logger.trace("Timing of: "+request.getServletPath()+": "+(System.currentTimeMillis()-s)+"ms");
 		}
 	}
 
