@@ -16,7 +16,7 @@ public class PerfLauncher implements Runnable {
 		for(int i=1;i<40;i++) {
 			for(int y=1;y<40;y++) {
 				try {
-					standalone.addController("/controller"+i+"/method"+y, Class.forName("io.varhttp.performance.Class"+(((int)i%7)+1)));
+					standalone.addController("/controller"+i+"/method"+y+"/{muh}", Class.forName("io.varhttp.performance.Class"+(((int)i%7)+1)));
 				} catch (ClassNotFoundException e) {
 					throw new RuntimeException(e);
 				}

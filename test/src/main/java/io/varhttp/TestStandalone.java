@@ -18,7 +18,7 @@ public class TestStandalone extends Standalone {
 
 	public void addController(String path, Class<?> clazz) {
 		try {
-			servlet.addExecution(() -> controllerFactory.getInstance(clazz), clazz.getMethod("c2"), path, exceptionRegistry, "");
+			servlet.addExecution(() -> controllerFactory.getInstance(clazz), clazz.getMethod("c2", String.class, String.class, String.class), path, exceptionRegistry, "");
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		}

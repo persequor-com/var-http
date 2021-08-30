@@ -56,16 +56,9 @@ public class ControllerExecution {
 	}
 
 	public void execute(ControllerContext context) {
-		long s = System.currentTimeMillis();
 		Function<ControllerContext, Object>[] args = parameterHandler.addPathVariables(this.args, context.request());
-		logger.trace("Path Parameter handling: "+(System.currentTimeMillis()-s));
-		s = System.currentTimeMillis();
 		Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.apply(context)).toArray();
-		logger.trace("Parameter handling: "+(System.currentTimeMillis()-s));
-
-
 		try {
-			s = System.currentTimeMillis();
 			List<Filter> filters = new ArrayList<>(this.filters);
 			filters.add((request, response, chain) -> {
 				long c = System.currentTimeMillis();
@@ -85,9 +78,6 @@ public class ControllerExecution {
 			Iterator<Filter> iterator = filters.iterator();
 			VarFilterChain chain = new VarFilterChain(iterator.next(), iterator);
 			chain.doFilter(context.request(), context.response());
-			logger.trace("Filter execution: "+(System.currentTimeMillis()-s));
-
-
 		} catch (ServletException e) {
 			// Controller logic threw exception
 			Throwable cause = e.getCause() == null ? e : e.getCause();

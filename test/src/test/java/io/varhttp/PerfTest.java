@@ -8,9 +8,12 @@ import org.junit.Test;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,13 +39,16 @@ public class PerfTest {
 		int reps = 300;
 
 		List<Runnable> threads = new ArrayList<>();
+
+		String body = IntStream.range(0,200).mapToObj(in -> UUID.randomUUID().toString()).collect(Collectors.joining("-"));
 		for(int j=0;j<8;j++) {
 			Runnable t = () -> {
 				for (int i = 0; i < reps; i++) {
 					try {
 						int classnum = (int) (Math.random() * 39) + 1;
 						int methodNum = (int) (Math.random() * 39) + 1;
-						HttpURLConnection con = HttpClient.get("http://localhost:8088/controller" + classnum + "/method" + methodNum, "");
+
+						HttpURLConnection con = HttpClient.post("http://localhost:8088/controller" + classnum + "/method" + methodNum+"/muhbuh?name="+classnum+methodNum, body);
 
 						HttpClient.readContent(con);
 					} catch (Exception e) {

@@ -89,7 +89,13 @@ public class HttpClient {
 		}
 	}
 
+
+
 	public static HttpURLConnection post(String path, String parameters) {
+		return post(path, parameters, "application/x-www-form-urlencoded");
+	}
+
+	public static HttpURLConnection post(String path, String parameters, String contentType) {
 		try {
 			URL url = new URL(path);
 
@@ -99,7 +105,7 @@ public class HttpClient {
 			}
 			con.setRequestMethod("POST");
 			if (parameters != null) {
-				con.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded");
+				con.setRequestProperty( "Content-Type", contentType);
 
 				con.setDoOutput(true);
 				DataOutputStream out = new DataOutputStream(con.getOutputStream());

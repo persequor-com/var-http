@@ -64,9 +64,9 @@ public class VarHttpContext implements HttpHandler {
 			}
 
 			// check if any postdata to parse
-			parsePostData.putAll(HttpUtils.parsePostData(inBytes.length, is));
-		} catch (IllegalArgumentException e) {
-			// no postData - just reset inputstream
+			if ("application/x-www-form-urlencoded".equals(ex.getRequestHeaders().getFirst("Content-Type"))) {
+				parsePostData.putAll(HttpUtils.parsePostData(inBytes.length, is));
+			}
 		} finally {
 			newInput.reset();
 		}

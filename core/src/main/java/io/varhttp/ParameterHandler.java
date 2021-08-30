@@ -150,15 +150,22 @@ public class ParameterHandler {
 
 	private String toString(Reader reader) {
 		try {
-			int intValueOfChar;
-			String targetString = "";
-			while ((intValueOfChar = reader.read()) != -1) {
-				targetString += (char) intValueOfChar;
+			char[] arr = new char[1024];
+			StringBuilder buffer = new StringBuilder();
+			int numCharsRead;
+			while ((numCharsRead = reader.read(arr, 0, arr.length)) != -1) {
+				buffer.append(arr, 0, numCharsRead);
 			}
-			reader.close();
-			return targetString;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+
+			return buffer.toString();
+		} catch (IOException exception) {
+			throw new RuntimeException(exception);
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException exception) {
+				throw new RuntimeException(exception);
+			}
 		}
 	}
 

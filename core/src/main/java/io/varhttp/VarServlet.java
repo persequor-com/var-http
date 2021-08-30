@@ -61,38 +61,30 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void handle(HttpServletRequest request, HttpServletResponse response) {
-		long s = System.currentTimeMillis();
+		final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
+		String servletPath = request.getRequestURI();
+		if (servletPath.contains("?")) {
+			servletPath = servletPath.substring(0, servletPath.indexOf("?"));
+		}
+		Request r = new Request(httpMethod, servletPath);
+
+		ControllerExecution exe = null;
+
+		exe = executions.get(r.path.substring(1).split("/"), r.method);
+
+		if (exe != null) {
+			exe.execute(new ControllerContext(request, response));
+		} else {
+			// Strange error message
+			response.setStatus(404);
+			return;
+		}
+
 		try {
-			final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
-			String servletPath = request.getRequestURI();
-			if (servletPath.contains("?")) {
-				servletPath = servletPath.substring(0, servletPath.indexOf("?"));
-			}
-			Request r = new Request(httpMethod, servletPath);
-
-			ControllerExecution exe = null;
-
-			exe = executions.get(r.path.substring(1).split("/"), r.method);
-
-			if (exe != null) {
-				long ex = System.currentTimeMillis();
-				exe.execute(new ControllerContext(request, response));
-				logger.trace("Timing of: "+request.getServletPath()+" execution: "+(System.currentTimeMillis()-ex)+"ms");
-
-			} else {
-				// Strange error message
-				response.setStatus(404);
-				return;
-			}
-
-			try {
-				response.getOutputStream().flush();
-				response.setStatus(200);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		} finally {
-			logger.trace("Timing of: "+request.getServletPath()+": "+(System.currentTimeMillis()-s)+"ms");
+			response.getOutputStream().flush();
+			response.setStatus(200);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
