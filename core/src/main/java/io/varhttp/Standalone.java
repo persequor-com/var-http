@@ -154,4 +154,8 @@ public class Standalone implements Runnable {
 	public void stop() {
 		server.stop(0);
 	}
+
+	public VarServlet getServlet() {
+		return servlet;
+	}
 }
