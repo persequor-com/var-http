@@ -225,7 +225,7 @@ public class LauncherTest {
 
 	@Test
 	public void requestBodyString() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestBodyString?otherParameter=param", "This is a string, the only string my friend");
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestBodyString?otherParameter=param", "This is a string, the only string my friend", "text/plain");
 
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("This is a string, the only string my friend", response);
