@@ -117,4 +117,12 @@ public class MyTestController {
 	) {
 		return date.toInstant().toString()+"-"+zonedDateTime.toInstant().toString();
 	}
+
+	@Controller(path = "/requestBodyString")
+	public String requestBodyString(
+			@RequestBody String string,
+			@RequestParameter(name = "otherParameter") String otherParameter
+	) {
+		return string;
+	}
 }

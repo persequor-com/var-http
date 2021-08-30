@@ -87,7 +87,7 @@ public class ParameterHandler {
 			if (bodyAnnotation != null) {
 				args[i] = (context -> {
 					try {
-						Reader body = new InputStreamReader(context.request().getInputStream());
+						Reader body = context.request().getReader();
 						if (String.class.isAssignableFrom(parameter.getType())) {
 							return toString(body);
 						}

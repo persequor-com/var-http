@@ -222,4 +222,12 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("2020-01-01T12:30:15Z-2020-01-01T12:30:45Z", response);
 	}
+
+	@Test
+	public void requestBodyString() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestBodyString?otherParameter=param", "This is a string, the only string my friend");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("This is a string, the only string my friend", response);
+	}
 }

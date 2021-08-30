@@ -67,6 +67,7 @@ public class VarHttpContext implements HttpHandler {
 			parsePostData.putAll(HttpUtils.parsePostData(inBytes.length, is));
 		} catch (IllegalArgumentException e) {
 			// no postData - just reset inputstream
+		} finally {
 			newInput.reset();
 		}
 		final Map<String, String[]> postData = parsePostData;
