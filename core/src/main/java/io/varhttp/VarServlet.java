@@ -77,7 +77,7 @@ public class VarServlet extends HttpServlet {
 			if (exe != null) {
 				long ex = System.currentTimeMillis();
 				exe.execute(new ControllerContext(request, response));
-				logger.trace("Timing of: "+request.getServletPath()+" execution: "+(System.currentTimeMillis()-s)+"ms");
+				logger.trace("Timing of: "+request.getServletPath()+" execution: "+(System.currentTimeMillis()-ex)+"ms");
 
 			} else {
 				// Strange error message

@@ -1,5 +1,7 @@
 package io.varhttp;
 
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Provider;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -22,8 +24,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class ControllerExecution {
-
-	private final static Logger logger = Logger.getLogger(ControllerExecution.class.getName());
+	org.slf4j.Logger logger = LoggerFactory.getLogger(ControllerExecution.class);
 
 	private final Provider<Object> controllerImplementation;
 
@@ -55,12 +56,16 @@ public class ControllerExecution {
 	}
 
 	public void execute(ControllerContext context) {
+		long s = System.currentTimeMillis();
 		Function<ControllerContext, Object>[] args = parameterHandler.addPathVariables(this.args, context.request());
 		Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.apply(context)).toArray();
+		logger.trace("Parameter handling: "+(System.currentTimeMillis()-s));
 
 		try {
+			s = System.currentTimeMillis();
 			List<Filter> filters = new ArrayList<>(this.filters);
 			filters.add((request, response, chain) -> {
+				long c = System.currentTimeMillis();
 				try {
 					Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
 					if (!"".equals(controller.contentType()) && context.response().getHeader("Content-Type") == null) {
@@ -70,11 +75,15 @@ public class ControllerExecution {
 
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new ServletException(e);
+				} finally {
+					logger.trace("Controller execution: "+(System.currentTimeMillis()-c));
 				}
 			});
 			Iterator<Filter> iterator = filters.iterator();
 			VarFilterChain chain = new VarFilterChain(iterator.next(), iterator);
 			chain.doFilter(context.request(), context.response());
+			logger.trace("Filter execution: "+(System.currentTimeMillis()-s));
+
 
 		} catch (ServletException e) {
 			// Controller logic threw exception
@@ -90,7 +99,7 @@ public class ControllerExecution {
 	}
 
 	private void fail(int responseCode, Throwable e, HttpServletResponse response) {
-		logger.log(Level.SEVERE, "Extension erred", e);
+		logger.error("Controller execution failed", e);
 		fail(responseCode, e.getClass().getName() + " \n" + e.getMessage(), response);
 	}
 
