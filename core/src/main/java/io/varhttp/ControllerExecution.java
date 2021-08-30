@@ -58,8 +58,11 @@ public class ControllerExecution {
 	public void execute(ControllerContext context) {
 		long s = System.currentTimeMillis();
 		Function<ControllerContext, Object>[] args = parameterHandler.addPathVariables(this.args, context.request());
+		logger.trace("Path Parameter handling: "+(System.currentTimeMillis()-s));
+		s = System.currentTimeMillis();
 		Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.apply(context)).toArray();
 		logger.trace("Parameter handling: "+(System.currentTimeMillis()-s));
+
 
 		try {
 			s = System.currentTimeMillis();
