@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.ByteArrayOutputStream;
@@ -102,6 +103,16 @@ public class VarHttpServletResponse extends HttpServletResponseWrapper {
 		} finally {
 			ex.close();
 		}
+	}
+
+	@Override
+	public void addCookie(Cookie cookie) {
+		ex.getResponseHeaders().add("Set-Cookie",
+				cookie.getName()+"="+cookie.getValue()
+				+(cookie.getMaxAge() > 0 ? "; Max-Age="+cookie.getMaxAge(): "")
+				+(cookie.getSecure()?"; Secure":"")
+				+(cookie.isHttpOnly()?"; HttpOnly":"")
+		);
 	}
 
 	@Override

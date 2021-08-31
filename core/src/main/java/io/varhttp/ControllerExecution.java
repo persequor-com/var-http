@@ -61,7 +61,6 @@ public class ControllerExecution {
 		try {
 			List<Filter> filters = new ArrayList<>(this.filters);
 			filters.add((request, response, chain) -> {
-				long c = System.currentTimeMillis();
 				try {
 					Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
 					if (!"".equals(controller.contentType()) && context.response().getHeader("Content-Type") == null) {
@@ -71,8 +70,6 @@ public class ControllerExecution {
 
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new ServletException(e);
-				} finally {
-					logger.trace("Controller execution: "+(System.currentTimeMillis()-c));
 				}
 			});
 			Iterator<Filter> iterator = filters.iterator();

@@ -3,6 +3,7 @@ package io.varhttp;
 import com.sun.net.httpserver.HttpExchange;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.BufferedReader;
@@ -115,5 +116,12 @@ public class VarHttpServletRequest extends HttpServletRequestWrapper {
 		String path = ex.getHttpContext().getPath().substring(1);
 
 		return path;
+	}
+
+	@Override
+	public Cookie[] getCookies() {
+		String cookieString = ex.getRequestHeaders().getFirst("Cookie");
+		String[] cookies = cookieString.split(";");
+		return Arrays.stream(cookies).map(s -> s.split("=")).map(a -> new Cookie(a[0].trim(),a[1].trim())).toArray(Cookie[]::new);
 	}
 }
