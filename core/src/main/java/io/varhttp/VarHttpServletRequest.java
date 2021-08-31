@@ -121,6 +121,9 @@ public class VarHttpServletRequest extends HttpServletRequestWrapper {
 	@Override
 	public Cookie[] getCookies() {
 		String cookieString = ex.getRequestHeaders().getFirst("Cookie");
+		if (cookieString == null) {
+			return new Cookie[0];
+		}
 		String[] cookies = cookieString.split(";");
 		return Arrays.stream(cookies).map(s -> s.split("=")).map(a -> new Cookie(a[0].trim(),a[1].trim())).toArray(Cookie[]::new);
 	}

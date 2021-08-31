@@ -48,4 +48,11 @@ public class VarHttpServletRequestTest {
 		assertEquals("is", actual[1].getName());
 		assertEquals("yours", actual[1].getValue());
 	}
+
+	@Test
+	public void getCookies_null() {
+		when(headers.getFirst("Cookie")).thenReturn(null);
+		Cookie[] actual = request.getCookies();
+		assertEquals(0, actual.length);
+	}
 }
