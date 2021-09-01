@@ -53,6 +53,11 @@ public class Standalone implements Runnable {
 		controllerMapper.map(servlet, controllerPackage.getName());
 	}
 
+	public void addController(Class<?> controller) {
+		controllerMapper.map(servlet, controller);
+	}
+
+
 	public void setSslContext(SSLContext sslContext) {
 		this.sslContext = sslContext;
 	}
