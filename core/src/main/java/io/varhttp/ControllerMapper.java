@@ -24,32 +24,34 @@ public class ControllerMapper {
 	}
 
 	public void map(VarServlet varServlet, String basePackage) {
-
 		Reflections reflections = new Reflections(basePackage);
 
 		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(ControllerClass.class);
 		for (Class<?> controllerClass : typesAnnotatedWith) {
-
-			Arrays.stream(controllerClass.getMethods())
-					.filter(m -> m.getAnnotation(Controller.class) != null)
-					.forEach(method -> {
-						Controller controllerAnnotation = method.getAnnotation(Controller.class);
-						AnnotationsHelper.Annotations annotations = annotationsHelper.getCumulativeAnnotations(method);
-
-						String controllerPath = controllerAnnotation.path();
-						if (!controllerPath.startsWith("/")) {
-							throw new RuntimeException("Controller path for " + controllerPath +
-									" should have a leading forward slash");
-						}
-
-						String basePrefix = varServlet.getBasePath();
-						String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
-						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
-						String classPath = basePrefix + packagePrefix + classPrefix;
-						String urlMapKey =  classPath + controllerPath;
-						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry, classPath);
-					});
+			map(varServlet, controllerClass);
 		}
+	}
+
+	public void map(VarServlet varServlet, Class<?> controllerClass) {
+		Arrays.stream(controllerClass.getMethods())
+				.filter(m -> m.getAnnotation(Controller.class) != null)
+				.forEach(method -> {
+					Controller controllerAnnotation = method.getAnnotation(Controller.class);
+					AnnotationsHelper.Annotations annotations = annotationsHelper.getCumulativeAnnotations(method);
+
+					String controllerPath = controllerAnnotation.path();
+					if (!controllerPath.startsWith("/")) {
+						throw new RuntimeException("Controller path for " + controllerPath +
+								" should have a leading forward slash");
+					}
+
+					String basePrefix = varServlet.getBasePath();
+					String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
+					String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
+					String classPath = basePrefix + packagePrefix + classPrefix;
+					String urlMapKey =  classPath + controllerPath;
+					varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry, classPath);
+				});
 	}
 
 }
