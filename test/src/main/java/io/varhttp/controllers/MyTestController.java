@@ -9,7 +9,9 @@ import io.varhttp.RequestHeader;
 import io.varhttp.RequestParameter;
 import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
+import io.varhttp.ResponseStream;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -124,5 +126,16 @@ public class MyTestController {
 			@RequestParameter(name = "otherParameter") String otherParameter
 	) {
 		return string;
+	}
+
+	@Controller(path = "/responseStream_getOutputStream_contentType")
+	public void responseStream_getOutputStream_contentType(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
+		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());
+	}
+
+	@Controller(path = "/getOutputStream_addiionalContentType")
+	public void getOutputStream_addiionalContentType(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
+		responseHeader.setContentType("text/other");
+		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());
 	}
 }

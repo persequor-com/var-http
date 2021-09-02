@@ -44,7 +44,7 @@ public class VarHttpServletResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public void setContentType(String type) {
-		ex.getResponseHeaders().add("Content-Type", type);
+		ex.getResponseHeaders().set("Content-Type", type);
 	}
 
 	@Override

@@ -230,4 +230,26 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("This is a string, the only string my friend", response);
 	}
+
+	@Test
+	public void responseStream_getOutputStream_contentType() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/responseStream_getOutputStream_contentType", "");
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		String response = HttpClient.readContent(con).toString();
+		assertEquals(1, headers.get("Content-type").size());
+		assertEquals("text/test", headers.get("Content-type").get(0));
+		assertEquals("tadaaa", response);
+	}
+
+	@Test
+	public void getOutputStream_addiionalContentType() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/getOutputStream_addiionalContentType", "");
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		String response = HttpClient.readContent(con).toString();
+		assertEquals(1, headers.get("Content-type").size());
+		assertEquals("text/test", headers.get("Content-type").get(0));
+		assertEquals("tadaaa", response);
+	}
 }
