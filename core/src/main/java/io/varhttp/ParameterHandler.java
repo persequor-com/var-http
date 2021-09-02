@@ -279,7 +279,7 @@ public class ParameterHandler {
 
 		@Override
 		public String getPath() {
-			return request.getServletPath();
+			return request.getPathInfo();
 		}
 
 		@Override
