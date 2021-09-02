@@ -90,6 +90,11 @@ public class VarHttpServletResponse extends HttpServletResponseWrapper {
 		return printWriter;
 	}
 
+	@Override
+	public String getContentType() {
+		return ex.getResponseHeaders().getFirst("Content-Type");
+	}
+
 	public void complete() throws IOException {
 		try {
 			printWriter.flush();

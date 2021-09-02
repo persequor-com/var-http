@@ -149,6 +149,9 @@ public class ExecutionMapTest {
 
 		actual = executionMap.get("and/yet/another/different/path".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
+
+		actual = executionMap.get("".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
 	}
 
 	@Test
@@ -167,6 +170,9 @@ public class ExecutionMapTest {
 		assertSame(execution1, actual);
 
 		actual = executionMap.get("and/yet/another/different/path".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
+
+		actual = executionMap.get("".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
 	}
 }

@@ -189,7 +189,9 @@ public class ParameterHandler {
 	public void handleReturnResponse(Object response, ControllerContext context) {
 		if (response != null && !(response instanceof Void)) {
 			String contentType = "text/html";
-			if (!(response instanceof String)) {
+			if (context.response().getContentType() != null) {
+				contentType = context.response().getContentType();
+			} else if (!(response instanceof String)) {
 				contentType = "application/json";
 			}
 			new ExtensionPointResponseStream(context.response(), serializer).write(response, contentType);
