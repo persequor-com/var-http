@@ -54,7 +54,7 @@ public class ExecutionMap {
 		ExecutionMap executionMap = map.get(part);
 		if (executionMap != null) {
 			return executionMap.get(path, httpMethod);
-		} else if (executions.containsKey(httpMethod)) {
+		} else if (executions.containsKey(httpMethod) && isWildCard) {
 			return executions.get(httpMethod);
 		} else {
 			return null;
@@ -77,6 +77,9 @@ public class ExecutionMap {
 				throw new ControllerAlreadyExistsException(request);
 			}
 
+			if (pathParts.size() > 0 && pathParts.peekFirst().equals("*")) {
+				isWildCard = true;
+			}
 			executions.put(request.method, controllerExecution);
 			return;
 		}

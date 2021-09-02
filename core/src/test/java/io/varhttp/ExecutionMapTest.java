@@ -157,7 +157,7 @@ public class ExecutionMapTest {
 		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
 		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
 
-		ControllerExecution actual = executionMap.get("my/path/something/something".split("/"), HttpMethod.GET);
+		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
 		assertSame(execution2, actual);
 
 		actual = executionMap.get("other/path".split("/"), HttpMethod.GET);
