@@ -16,6 +16,8 @@ public class ExecutionMapTest {
 	private ControllerExecution execution1;
 	@Mock
 	private ControllerExecution execution2;
+	@Mock
+	private ControllerExecution execution3;
 
 	@Before
 	public void setup() {
@@ -128,5 +130,43 @@ public class ExecutionMapTest {
 
 		actual = executionMap.get("my/path/something/sub".split("/"), HttpMethod.GET);
 		assertSame(execution2, actual);
+	}
+
+	@Test
+	public void multilevelWildcard() {
+		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(new Request(HttpMethod.GET, "/other/path"), execution3);
+
+		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
+		assertSame(execution2, actual);
+
+		actual = executionMap.get("other/path".split("/"), HttpMethod.GET);
+		assertSame(execution3, actual);
+
+		actual = executionMap.get("something/else/entirely".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
+
+		actual = executionMap.get("and/yet/another/different/path".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
+	}
+
+	@Test
+	public void multilevelWildcard_reversed() {
+		executionMap.put(new Request(HttpMethod.GET, "/other/path"), execution3);
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
+
+		ControllerExecution actual = executionMap.get("my/path/something/something".split("/"), HttpMethod.GET);
+		assertSame(execution2, actual);
+
+		actual = executionMap.get("other/path".split("/"), HttpMethod.GET);
+		assertSame(execution3, actual);
+
+		actual = executionMap.get("something/else/entirely".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
+
+		actual = executionMap.get("and/yet/another/different/path".split("/"), HttpMethod.GET);
+		assertSame(execution1, actual);
 	}
 }

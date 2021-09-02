@@ -52,7 +52,13 @@ public class ExecutionMap {
 			part = WILDCARD;
 		}
 		ExecutionMap executionMap = map.get(part);
-		return executionMap != null ? executionMap.get(path, httpMethod) : null;
+		if (executionMap != null) {
+			return executionMap.get(path, httpMethod);
+		} else if (executions.containsKey(httpMethod)) {
+			return executions.get(httpMethod);
+		} else {
+			return null;
+		}
 	}
 
 
@@ -66,7 +72,7 @@ public class ExecutionMap {
 	}
 
 	private void put(Request request, ArrayDeque<String> pathParts, ControllerExecution controllerExecution) {
-		if (pathParts.size() == 0) {
+		if (pathParts.size() == 0 || pathParts.peekFirst().equals("*")) {
 			if (executions.containsKey(request.method)) {
 				throw new ControllerAlreadyExistsException(request);
 			}
@@ -81,6 +87,9 @@ public class ExecutionMap {
 //			if (!map.isEmpty() && !map.containsKey(WILDCARD)) {
 //				throw new ControllerAlreadyExistsException(request);
 //			}
+		}
+		if (part.equals("*")) {
+			isWildCard = true;
 		}
 //		else if (isWildCard) {
 //			throw new ControllerAlreadyExistsException(request);
