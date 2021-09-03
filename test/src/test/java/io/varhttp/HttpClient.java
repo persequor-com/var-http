@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
@@ -122,5 +123,21 @@ public class HttpClient {
 
 	public static Map<String, List<String>> readHeaders(HttpURLConnection con) {
 		return con.getHeaderFields();
+	}
+
+	public static HttpURLConnection head(String urlString) throws IOException {
+		URL url = new URL(urlString);
+
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		if (con instanceof HttpsURLConnection) {
+			setTrustStore((HttpsURLConnection) con);
+		}
+		con.setRequestMethod("HEAD");
+//		con.setDoOutput(true);
+//		DataOutputStream out = new DataOutputStream(con.getOutputStream());
+//		out.writeBytes(s1);
+//		out.flush();
+//		out.close();
+		return con;
 	}
 }

@@ -198,8 +198,8 @@ public class VarHttpServletResponse implements HttpServletResponse {
 			ex.sendResponseHeaders(status, outputStream.size());
 			if (outputStream.size() > 0) {
 				ex.getResponseBody().write(outputStream.toByteArray());
+				ex.getResponseBody().flush();
 			}
-			ex.getResponseBody().flush();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

@@ -150,4 +150,9 @@ public class MyTestController {
 		responseHeader.setContentType("application/javascript");
 		responseStream.write("alert('hello darkness my old friend')");
 	}
+
+	@Controller(path = "/headController", httpMethods = HttpMethod.HEAD)
+	public void headController(ResponseHeader responseHeader) throws IOException {
+		responseHeader.setStatus(200);
+	}
 }

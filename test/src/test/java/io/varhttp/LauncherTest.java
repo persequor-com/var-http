@@ -275,4 +275,12 @@ public class LauncherTest {
 		assertEquals("alert('hello darkness my old friend')", response);
 	}
 
+	@Test
+	public void headController() throws Throwable {
+		HttpURLConnection con = HttpClient.head("http://localhost:8088/headController");
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+
+	}
+
 }
