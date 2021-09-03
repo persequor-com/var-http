@@ -26,15 +26,13 @@ public class VarHttpServletRequestTest {
 	private HttpExchange ex;
 	@Mock
 	private ServletInputStream inputStream;
-	@Mock
-	private HttpServletRequest innerRequest;
 	private Map<String, String[]> postData = new HashMap<>();
 	@Mock
 	private Headers headers;
 
 	@Before
 	public void setup() {
-		request = new VarHttpServletRequest(innerRequest, ex, postData, inputStream);
+		request = new VarHttpServletRequest(ex, postData, inputStream, new VarServletContext(ex));
 		when(ex.getRequestHeaders()).thenReturn(headers);
 	}
 

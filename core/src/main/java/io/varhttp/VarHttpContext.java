@@ -72,9 +72,9 @@ public class VarHttpContext implements HttpHandler {
 		}
 		final Map<String, String[]> postData = parsePostData;
 
-		VarHttpServletRequest req = new VarHttpServletRequest(createUnimplementAdapter(HttpServletRequest.class), ex, postData, is);
+		VarHttpServletRequest req = new VarHttpServletRequest(ex, postData, is, new VarServletContext(ex));
 
-		VarHttpServletResponse resp = new VarHttpServletResponse(createUnimplementAdapter(HttpServletResponse.class), ex);
+		VarHttpServletResponse resp = new VarHttpServletResponse(ex);
 
 		try {
 			servlet.service(req, resp);
