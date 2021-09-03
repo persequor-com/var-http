@@ -3,6 +3,7 @@ package io.varhttp;
 import com.google.gson.Gson;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -20,7 +21,15 @@ public class GsonSerializer implements Serializer {
 	}
 
 	public void serialize(Writer writer, Object content, String contentType) {
-		gson.toJson(content, writer);
+		if (contentType.equals("application/json")) {
+			gson.toJson(content, writer);
+		} else {
+			try {
+				writer.write(content.toString());
+			} catch (IOException exception) {
+				throw new RuntimeException(exception);
+			}
+		}
 	}
 
 	public <T> T deserialize(String content, Class<T> clazz, String contentType) {

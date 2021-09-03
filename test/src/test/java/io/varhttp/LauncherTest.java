@@ -252,4 +252,27 @@ public class LauncherTest {
 		assertEquals("text/test", headers.get("Content-type").get(0));
 		assertEquals("tadaaa", response);
 	}
+
+	@Test
+	public void returnJavascriptString() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/returnJavascriptString", "");
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		String response = HttpClient.readContent(con).toString();
+		assertEquals(1, headers.get("Content-type").size());
+		assertEquals("application/javascript", headers.get("Content-type").get(0));
+		assertEquals("alert('hello darkness my old friend')", response);
+	}
+
+	@Test
+	public void javascriptInResponseStream() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/javascriptInResponseStream", "");
+
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		String response = HttpClient.readContent(con).toString();
+		assertEquals(1, headers.get("Content-type").size());
+		assertEquals("application/javascript", headers.get("Content-type").get(0));
+		assertEquals("alert('hello darkness my old friend')", response);
+	}
+
 }

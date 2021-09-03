@@ -138,4 +138,16 @@ public class MyTestController {
 		responseHeader.setContentType("text/other");
 		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());
 	}
+
+	@Controller(path = "/returnJavascriptString")
+	public String returnJavascriptString(ResponseHeader responseHeader) throws IOException {
+		responseHeader.setContentType("application/javascript");
+		return "alert('hello darkness my old friend')";
+	}
+
+	@Controller(path = "/javascriptInResponseStream")
+	public void javascriptInResponseStream(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
+		responseHeader.setContentType("application/javascript");
+		responseStream.write("alert('hello darkness my old friend')");
+	}
 }
