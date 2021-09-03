@@ -81,7 +81,9 @@ public class VarServlet extends HttpServlet {
 		}
 
 		try {
-			response.getOutputStream().flush();
+			if (!"head".equals(request.getMethod().toLowerCase())) {
+				response.getOutputStream().flush();
+			}
 			response.setStatus(200);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
