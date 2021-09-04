@@ -195,10 +195,13 @@ public class VarHttpServletResponse implements HttpServletResponse {
 	public void complete() throws IOException {
 		try {
 			printWriter.flush();
-			ex.sendResponseHeaders(status, outputStream.size());
+
 			if (outputStream.size() > 0) {
+				ex.sendResponseHeaders(status, outputStream.size());
 				ex.getResponseBody().write(outputStream.toByteArray());
 				ex.getResponseBody().flush();
+			} else {
+				ex.sendResponseHeaders(status, -1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
