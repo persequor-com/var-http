@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Type;
 
 public class GsonSerializer implements Serializer {
 	public static final String TEXT_PLAIN = "text/plain";
@@ -38,5 +39,9 @@ public class GsonSerializer implements Serializer {
 
 	public <T> T deserialize(Reader content, Class<T> clazz, String contentType) {
 		return gson.fromJson(content, clazz);
+	}
+
+	public <T> T deserialize(Reader content, Type type, String contentType) {
+		return gson.fromJson(content, type);
 	}
 }

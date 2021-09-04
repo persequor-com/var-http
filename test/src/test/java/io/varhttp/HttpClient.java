@@ -37,7 +37,7 @@ public class HttpClient {
 
 
 	public static HttpURLConnection get(String urlString, String parameters) throws IOException {
-		URL url = new URL(urlString+"?"+parameters);
+		URL url = new URL(urlString+(parameters!= null && !parameters.equals("") ? "?"+parameters : ""));
 
 		HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		if (con instanceof HttpsURLConnection) {

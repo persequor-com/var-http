@@ -49,8 +49,8 @@ public class MyTestController {
 	}
 
 	@Controller(path = "/defaultValue")
-	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh") String param) {
-		return param;
+	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh", required = false) String param, @RequestParameter(name = "param2", defaultValue = "muh", required = false) String param2) {
+		return param+"-"+param2;
 	}
 
 	@Controller(path = "/optionalBody")
@@ -82,6 +82,12 @@ public class MyTestController {
 
 	@Controller(path = "/listController")
 	public List<String> listController(@RequestParameter(name = "list") List<String> list) {
+		return list;
+	}
+
+	@Controller(path = "/listObject", httpMethods = HttpMethod.POST)
+	public List<SerializableObject> listObject(@RequestBody List<SerializableObject> list) {
+		list.forEach(a -> a.setName(a.getName()+"!"));
 		return list;
 	}
 

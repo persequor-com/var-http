@@ -112,10 +112,10 @@ public class LauncherTest {
 
 	@Test
 	public void defaultValueInParameter() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/defaultValue", "");
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/defaultValue?param2=cat", "");
 
 		String response = HttpClient.readContent(con).toString();
-		assertEquals("muh", response);
+		assertEquals("muh-cat", response);
 	}
 
 	@Test
@@ -206,6 +206,16 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("[\"Muh\",\"Miaw\"]", response);
 	}
+
+
+	@Test
+	public void listObject() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/listObject", "[{\"id\":\"id1\",\"name\":\"name1\"},{\"id\":\"id2\",\"name\":\"name2\"}]", "application/json");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("[{\"id\":\"id1\",\"name\":\"name1!\"},{\"id\":\"id2\",\"name\":\"name2!\"}]", response);
+	}
+
 
 	@Test
 	public void listController_listNotSet() throws Throwable {
