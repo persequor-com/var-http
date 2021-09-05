@@ -16,5 +16,6 @@ public class OdinContext extends Context {
 		binder.bind(Serializer.class).to(GsonSerializer.class);
 		binder.bind(ControllerFactory.class).to(TestControllerFactory.class);
 		binder.bind(FilterFactory.class).to(TestFilterFactory.class);
+		binder.bind(ParameterHandlerMatcherFactory.class).to(TestParameterHandlerMatcherFactory.class);
 	}
 }

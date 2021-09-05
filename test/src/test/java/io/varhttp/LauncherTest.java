@@ -52,6 +52,15 @@ public class LauncherTest {
 	}
 
 	@Test
+	public void pathVariableMultiple() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/pathVar/string1/string2/string3", "");
+
+		StringBuffer content = HttpClient.readContent(con);
+
+		assertEquals("string1-string2-string3", content.toString());
+	}
+
+	@Test
 	public void requestParameter() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameter","var=my");
 

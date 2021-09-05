@@ -32,6 +32,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Standalone implements Runnable {
@@ -49,14 +50,9 @@ public class Standalone implements Runnable {
 		this.varConfig = varConfig;
 	}
 
-	public void addControllerPackage(Package controllerPackage) {
-		controllerMapper.map(servlet, controllerPackage.getName());
+	public void configure(Consumer<VarConfiguration> configuration) {
+		configuration.accept(new VarConfiguration(servlet, controllerMapper, varConfig));
 	}
-
-	public void addController(Class<?> controller) {
-		controllerMapper.map(servlet, controller);
-	}
-
 
 	public void setSslContext(SSLContext sslContext) {
 		this.sslContext = sslContext;

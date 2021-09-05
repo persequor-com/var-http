@@ -1,5 +1,6 @@
 package io.varhttp;
 
+import io.varhttp.parameterhandlers.IParameterHandler;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
@@ -29,7 +30,7 @@ public class ControllerExecution {
 	private final Provider<Object> controllerImplementation;
 
 	private final Method method;
-	private final Function<ControllerContext, Object>[] args;
+	private final IParameterHandler[] args;
 	private final ParameterHandler parameterHandler;
 	private final ExceptionRegistry exceptionRegistry;
 	private Controller controller;
@@ -38,7 +39,7 @@ public class ControllerExecution {
 
 	public ControllerExecution(Provider<Object> controllerImplementation
 			, Method method
-			, Function<ControllerContext, Object>[] args
+			, IParameterHandler[] args
 			, ParameterHandler parameterHandler
 			, ExceptionRegistry exceptionRegistry
 			, Controller controller
@@ -56,8 +57,7 @@ public class ControllerExecution {
 	}
 
 	public void execute(ControllerContext context) {
-		Function<ControllerContext, Object>[] args = parameterHandler.addPathVariables(this.args, context.request());
-		Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.apply(context)).toArray();
+		Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.handle(context)).toArray();
 		try {
 			List<Filter> filters = new ArrayList<>(this.filters);
 			filters.add((request, response, chain) -> {

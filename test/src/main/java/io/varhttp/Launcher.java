@@ -19,7 +19,9 @@ public class Launcher implements Runnable {
 
 	@Override
 	public void run() {
-		standalone.addControllerPackage(MyTestController.class.getPackage());
+		standalone.configure(config -> {
+			config.addControllerPackage(MyTestController.class.getPackage());
+		});
 		standalone.run();
 	}
 

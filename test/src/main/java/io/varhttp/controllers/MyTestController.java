@@ -36,6 +36,11 @@ public class MyTestController {
 		return pathVar;
 	}
 
+	@Controller(path = "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}")
+	public String myTestPathVarMultiLevel(@PathVariable(name = "pathVar1") String pathVar1, @PathVariable(name = "pathVar2") String pathVar2, @PathVariable(name = "pathVar3") String pathVar3) {
+		return pathVar1+"-"+pathVar2+"-"+pathVar3;
+	}
+
 	@Controller(path = "/requestParameter")
 	public String myTestRequestParameter(@RequestParameter(name = "var") String var) {
 		return var;

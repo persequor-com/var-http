@@ -1,5 +1,17 @@
 package io.varhttp;
 
+import io.varhttp.parameterhandlers.HttpServletRequestParameterHandler;
+import io.varhttp.parameterhandlers.HttpServletResponseParameterHandler;
+import io.varhttp.parameterhandlers.IParameterHandler;
+import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
+import io.varhttp.parameterhandlers.PathVariableParameterHandlerMatcher;
+import io.varhttp.parameterhandlers.RequestBodyHandlerMatcher;
+import io.varhttp.parameterhandlers.RequestHeaderParameterHandler;
+import io.varhttp.parameterhandlers.RequestParameterHandler;
+import io.varhttp.parameterhandlers.RequestParameterHandlerMatcher;
+import io.varhttp.parameterhandlers.RequestParametersHandler;
+import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
+import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +52,15 @@ public class VarServlet extends HttpServlet {
 		this.controllerFilter = controllerFilter;
 		this.executions = new ExecutionMap();
 		this.basePath = basePath;
+		parameterHandlerProvider.get().addParameterHandler(ResponseStreamParameterHandler.class);
+		parameterHandlerProvider.get().addParameterHandler(ResponseHeaderParameterHandler.class);
+		parameterHandlerProvider.get().addParameterHandler(RequestParametersHandler.class);
+		parameterHandlerProvider.get().addParameterHandler(RequestParameterHandlerMatcher.class);
+		parameterHandlerProvider.get().addParameterHandler(RequestHeaderParameterHandler.class);
+		parameterHandlerProvider.get().addParameterHandler(RequestBodyHandlerMatcher.class);
+		parameterHandlerProvider.get().addParameterHandler(PathVariableParameterHandlerMatcher.class);
+		parameterHandlerProvider.get().addParameterHandler(HttpServletRequestParameterHandler.class);
+		parameterHandlerProvider.get().addParameterHandler(HttpServletResponseParameterHandler.class);
 	}
 
 	public void addDefaultFilter(Class<? extends Filter> filter) {
@@ -120,7 +141,7 @@ public class VarServlet extends HttpServlet {
 		ParameterHandler parameterHandler = parameterHandlerProvider.get();
 
 		Set<HttpMethod> httpMethods = parameterHandler.initializeHttpMethods(method);
-		Function<ControllerContext, Object>[] args = parameterHandler.initializeHandlers(method, baseUri, classPath);
+		IParameterHandler[] args = parameterHandler.initializeHandlers(method, baseUri, classPath);
 		for (HttpMethod httpMethod : httpMethods) {
 			Request request = new Request(httpMethod, baseUri);
 			ControllerExecution execution = new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, method.getAnnotation(Controller.class), getFilters(method), classPath);
@@ -173,6 +194,10 @@ public class VarServlet extends HttpServlet {
 
 	public String getBasePath() {
 		return basePath;
+	}
+
+	public void addParameterHandler(Class<? extends IParameterHandlerMatcher> handlerMatcher) {
+		parameterHandlerProvider.get().addParameterHandler(handlerMatcher);
 	}
 
 	private static class FilterTuple {
