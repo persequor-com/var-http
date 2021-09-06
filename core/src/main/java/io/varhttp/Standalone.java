@@ -31,27 +31,28 @@ import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Standalone implements Runnable {
+	private CompletableFuture<Boolean> started = new CompletableFuture<>();
 	protected VarServlet servlet;
-	protected ControllerMapper controllerMapper;
+
 	protected VarConfig varConfig;
 	private HttpServer server;
 	private SSLContext sslContext = null;
 
 	@Inject
 	public Standalone(ControllerMapper controllerMapper, VarConfig varConfig,
-					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory, ControllerFilter controllerFilter, String basePath) {
-		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, basePath, controllerFilter);
-		this.controllerMapper = controllerMapper;
+					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory, ControllerFilter controllerFilter, String basePath, ControllerFactory controllerFactory, ExceptionRegistry exceptionRegistry) {
 		this.varConfig = varConfig;
+		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, basePath, controllerFilter, varConfig, controllerMapper, controllerFactory, exceptionRegistry);
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {
-		configuration.accept(new VarConfiguration(servlet, controllerMapper, varConfig));
+		servlet.configure(configuration);
 	}
 
 	public void setSslContext(SSLContext sslContext) {
@@ -150,6 +151,8 @@ public class Standalone implements Runnable {
 		server.createContext("/", new VarHttpContext(servlet));
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
+		started.complete(true);
+		System.out.println("Started completely");
 	}
 
 	public void stop() {
@@ -158,5 +161,9 @@ public class Standalone implements Runnable {
 
 	public VarServlet getServlet() {
 		return servlet;
+	}
+
+	public CompletableFuture<Boolean> getStarted() {
+		return started;
 	}
 }

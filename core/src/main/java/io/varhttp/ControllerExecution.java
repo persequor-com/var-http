@@ -90,6 +90,7 @@ public class ControllerExecution {
 
 	private void fail(int responseCode, Throwable e, HttpServletResponse response) {
 		logger.error("Controller execution failed", e);
+		response.setStatus(500);
 		fail(responseCode, e.getClass().getName() + " \n" + e.getMessage(), response);
 	}
 

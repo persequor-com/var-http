@@ -19,6 +19,12 @@ import javax.inject.Singleton;
 @Singleton
 public class Class6 {
 	private FilterCatcher filterCatcher;
+
+	@Inject
+	public Class6(FilterCatcher filterCatcher) {
+		this.filterCatcher = filterCatcher;
+	}
+
 	@Controller(path = "/class6/controller1/{muh}")
 	public String c1(@RequestParameter(name = "name") String name, @PathVariable(name = "muh") String path, @RequestBody String body) {
 		filterCatcher.add("Muh was called");

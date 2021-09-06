@@ -7,7 +7,6 @@ import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 import io.varhttp.parameterhandlers.PathVariableParameterHandlerMatcher;
 import io.varhttp.parameterhandlers.RequestBodyHandlerMatcher;
 import io.varhttp.parameterhandlers.RequestHeaderParameterHandler;
-import io.varhttp.parameterhandlers.RequestParameterHandler;
 import io.varhttp.parameterhandlers.RequestParameterHandlerMatcher;
 import io.varhttp.parameterhandlers.RequestParametersHandler;
 import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
@@ -20,12 +19,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Currency;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.inject.Provider;
 import javax.servlet.Filter;
@@ -42,14 +40,22 @@ public class VarServlet extends HttpServlet {
 	private final String basePath;
 	private final ControllerFilter controllerFilter;
 	private final List<Class<? extends Filter>> defaultFilters = new ArrayList<>();
+	private VarConfig varConfig;
+	private ControllerMapper controllerMapper;
+	private ControllerFactory controllerFactory;
+	private ExceptionRegistry exceptionRegistry;
 
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
 			FilterFactory filterFactory,
-			String basePath, ControllerFilter controllerFilter) {
+			String basePath, ControllerFilter controllerFilter, VarConfig varConfig, ControllerMapper controllerMapper, ControllerFactory controllerFactory, ExceptionRegistry exceptionRegistry) {
 		this.parameterHandlerProvider = parameterHandlerProvider;
 		this.filterFactory = filterFactory;
 		this.controllerFilter = controllerFilter;
+		this.varConfig = varConfig;
+		this.controllerMapper = controllerMapper;
+		this.controllerFactory = controllerFactory;
+		this.exceptionRegistry = exceptionRegistry;
 		this.executions = new ExecutionMap();
 		this.basePath = basePath;
 		parameterHandlerProvider.get().addParameterHandler(ResponseStreamParameterHandler.class);
@@ -120,7 +126,13 @@ public class VarServlet extends HttpServlet {
 		exe = executions.get(r.path.substring(1).split("/"), r.method);
 
 		if (exe != null) {
-			exe.execute(new ControllerContext(request, response));
+			try {
+				exe.execute(new ControllerContext(request, response));
+			} catch (Exception e) {
+				logger.error("Execution failed: "+e.getMessage(), e);
+				response.setStatus(500);
+				return;
+			}
 		} else {
 			// Strange error message
 			response.setStatus(404);
@@ -137,7 +149,7 @@ public class VarServlet extends HttpServlet {
 		}
 	}
 
-	public void addExecution(Provider<Object> controllerImplementation, Method method, String baseUri, ExceptionRegistry exceptionRegistry, String classPath) {
+	public void addExecution(Provider<Object> controllerImplementation, Method method, String baseUri, String classPath) {
 		ParameterHandler parameterHandler = parameterHandlerProvider.get();
 
 		Set<HttpMethod> httpMethods = parameterHandler.initializeHttpMethods(method);
@@ -198,6 +210,10 @@ public class VarServlet extends HttpServlet {
 
 	public void addParameterHandler(Class<? extends IParameterHandlerMatcher> handlerMatcher) {
 		parameterHandlerProvider.get().addParameterHandler(handlerMatcher);
+	}
+
+	public void configure(Consumer<VarConfiguration> configuration) {
+		configuration.accept(new VarConfiguration(this, controllerMapper, varConfig, controllerFactory, exceptionRegistry));
 	}
 
 	private static class FilterTuple {

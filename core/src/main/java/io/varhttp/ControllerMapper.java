@@ -5,37 +5,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Set;
 
 public class ControllerMapper {
 	Logger logger = LoggerFactory.getLogger(ControllerMapper.class);
 
-	private final ControllerFactory injector;
-	private final ExceptionRegistry exceptionRegistry;
 	private final AnnotationsHelper annotationsHelper;
 
 	@Inject
-	public ControllerMapper(ControllerFactory injector,
-							ExceptionRegistry exceptionRegistry
-							, AnnotationsHelper annotationsHelper) {
-		this.injector = injector;
-		this.exceptionRegistry = exceptionRegistry;
+	public ControllerMapper(AnnotationsHelper annotationsHelper) {
 		this.annotationsHelper = annotationsHelper;
 	}
 
-	public void map(VarServlet varServlet, String basePackage) {
+	public void map(VarServlet varServlet, String basePackage, ControllerFactory controllerFactory) {
 		Reflections reflections = new Reflections(basePackage);
 
 		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(ControllerClass.class);
 		for (Class<?> controllerClass : typesAnnotatedWith) {
-			map(varServlet, controllerClass);
+			map(varServlet, controllerClass, controllerFactory
+			);
 		}
 	}
 
-	public void map(VarServlet varServlet, Class<?> controllerClass) {
+	public void map(VarServlet varServlet, Class<?> controllerClass, ControllerFactory controllerFactory) {
 		Arrays.stream(controllerClass.getMethods())
 				.filter(m -> m.getAnnotation(Controller.class) != null)
 				.forEach(method -> {
@@ -54,7 +47,7 @@ public class ControllerMapper {
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
-						varServlet.addExecution(() -> injector.getInstance(controllerClass), method, urlMapKey, exceptionRegistry, classPath);
+						varServlet.addExecution(() -> controllerFactory.getInstance(controllerClass), method, urlMapKey, classPath);
 					} catch (Exception e) {
 						logger.error("Unable to register controller", e);
 					}

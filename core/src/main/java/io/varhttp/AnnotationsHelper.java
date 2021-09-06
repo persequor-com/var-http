@@ -42,6 +42,7 @@ public class AnnotationsHelper {
 			return this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public <T> Optional<T> get(Class<T> clazz) {
 			return (Optional<T>)stream().filter(a -> clazz.isAssignableFrom(a.annotationType())).findFirst();
 		}
