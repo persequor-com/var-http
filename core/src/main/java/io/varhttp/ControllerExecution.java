@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.MatchResult;
 import java.util.stream.Stream;
 
 public class ControllerExecution {
@@ -33,7 +34,7 @@ public class ControllerExecution {
 	private final IParameterHandler[] args;
 	private final ParameterHandler parameterHandler;
 	private final ExceptionRegistry exceptionRegistry;
-	private Controller controller;
+	private ControllerMatch matchResult;
 	private final List<Filter> filters;
 	private String classPath;
 
@@ -42,7 +43,7 @@ public class ControllerExecution {
 			, IParameterHandler[] args
 			, ParameterHandler parameterHandler
 			, ExceptionRegistry exceptionRegistry
-			, Controller controller
+			, ControllerMatch matchResult
 			, List<Filter> filters
 			, String classPath
 	) {
@@ -51,7 +52,7 @@ public class ControllerExecution {
 		this.args = args;
 		this.parameterHandler = parameterHandler;
 		this.exceptionRegistry = exceptionRegistry;
-		this.controller = controller;
+		this.matchResult = matchResult;
 		this.filters = filters;
 		this.classPath = classPath;
 	}
@@ -63,8 +64,8 @@ public class ControllerExecution {
 			filters.add((request, response, chain) -> {
 				try {
 					Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
-					if (!"".equals(controller.contentType()) && context.response().getHeader("Content-Type") == null) {
-						context.response().setHeader("Content-Type", controller.contentType());
+					if (!"".equals(matchResult.getContentType()) && context.response().getHeader("Content-Type") == null) {
+						context.response().setHeader("Content-Type", matchResult.getContentType());
 					}
 					parameterHandler.handleReturnResponse(responseObject, context);
 

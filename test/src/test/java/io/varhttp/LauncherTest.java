@@ -299,7 +299,14 @@ public class LauncherTest {
 		HttpURLConnection con = HttpClient.head("http://localhost:8088/headController");
 
 		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+	}
 
+	@Test
+	public void altControllerAnnotation() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/altControllerAnnotation","");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("Killroy was here", response);
 	}
 
 }

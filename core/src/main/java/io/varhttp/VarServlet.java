@@ -19,11 +19,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.MatchResult;
 import java.util.stream.Collectors;
 import javax.inject.Provider;
 import javax.servlet.Filter;
@@ -44,6 +46,7 @@ public class VarServlet extends HttpServlet {
 	private ControllerMapper controllerMapper;
 	private ControllerFactory controllerFactory;
 	private ExceptionRegistry exceptionRegistry;
+	private List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 
 	public VarServlet(
 			Provider<ParameterHandler> parameterHandlerProvider,
@@ -67,10 +70,15 @@ public class VarServlet extends HttpServlet {
 		parameterHandlerProvider.get().addParameterHandler(PathVariableParameterHandlerMatcher.class);
 		parameterHandlerProvider.get().addParameterHandler(HttpServletRequestParameterHandler.class);
 		parameterHandlerProvider.get().addParameterHandler(HttpServletResponseParameterHandler.class);
+		controllerMatchers.add(new VarControllerMatcher());
 	}
 
 	public void addDefaultFilter(Class<? extends Filter> filter) {
 		defaultFilters.add(filter);
+	}
+
+	public void addControllerMatcher(ControllerMatcher matcher) {
+		controllerMatchers.add(matcher);
 	}
 
 	@Override
@@ -149,14 +157,14 @@ public class VarServlet extends HttpServlet {
 		}
 	}
 
-	public void addExecution(Provider<Object> controllerImplementation, Method method, String baseUri, String classPath) {
+	public void addExecution(Provider<Object> controllerImplementation, Method method, String baseUri, String classPath, ControllerMatch matchResult) {
 		ParameterHandler parameterHandler = parameterHandlerProvider.get();
 
-		Set<HttpMethod> httpMethods = parameterHandler.initializeHttpMethods(method);
+		Set<HttpMethod> httpMethods = matchResult.getHttpMethods();
 		IParameterHandler[] args = parameterHandler.initializeHandlers(method, baseUri, classPath);
 		for (HttpMethod httpMethod : httpMethods) {
 			Request request = new Request(httpMethod, baseUri);
-			ControllerExecution execution = new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, method.getAnnotation(Controller.class), getFilters(method), classPath);
+			ControllerExecution execution = new ControllerExecution(controllerImplementation, method, args, parameterHandler, exceptionRegistry, matchResult, getFilters(method), classPath);
 			if (controllerFilter.accepts(request, execution)) {
 				executions.put(request, execution);
 			}
@@ -214,6 +222,10 @@ public class VarServlet extends HttpServlet {
 
 	public void configure(Consumer<VarConfiguration> configuration) {
 		configuration.accept(new VarConfiguration(this, controllerMapper, varConfig, controllerFactory, exceptionRegistry));
+	}
+
+	public Collection<ControllerMatcher> getControllerMatchers() {
+		return controllerMatchers;
 	}
 
 	private static class FilterTuple {

@@ -68,10 +68,6 @@ public class ParameterHandler {
 
 	public IParameterHandler[] initializeHandlers(Method method, String baseUri, String classPath){
 		IParameterHandler[] args = new IParameterHandler[method.getParameterCount()];
-		Controller controller = method.getAnnotation(Controller.class);
-		if(controller == null){
-			throw new RuntimeException("missing @Controller annotation on method: " + method.getDeclaringClass()+ "." + method.getName() + "()");
-		}
 		String path = baseUri; // + controller.path();
 		for (int i = 0; i < method.getParameterCount(); i++) {
 			Parameter parameter = method.getParameters()[i];

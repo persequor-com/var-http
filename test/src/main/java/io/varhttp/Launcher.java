@@ -20,6 +20,7 @@ public class Launcher implements Runnable {
 	@Override
 	public void run() {
 		standalone.configure(config -> {
+			config.addControllerMatcher(new AltControllerMatcher());
 			config.addControllerPackage(MyTestController.class.getPackage());
 		});
 		standalone.run();

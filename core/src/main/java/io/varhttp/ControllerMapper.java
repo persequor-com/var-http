@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 public class ControllerMapper {
@@ -30,13 +31,14 @@ public class ControllerMapper {
 
 	public void map(VarServlet varServlet, Class<?> controllerClass, ControllerFactory controllerFactory) {
 		Arrays.stream(controllerClass.getMethods())
-				.filter(m -> m.getAnnotation(Controller.class) != null)
 				.forEach(method -> {
 					try {
-						Controller controllerAnnotation = method.getAnnotation(Controller.class);
 						AnnotationsHelper.Annotations annotations = annotationsHelper.getCumulativeAnnotations(method);
-
-						String controllerPath = controllerAnnotation.path();
+						Optional<ControllerMatch> matchResult = varServlet.getControllerMatchers().stream().map(m -> m.find(method)).filter(Optional::isPresent).map(Optional::get).findFirst();
+						if (!matchResult.isPresent()) {
+							return;
+						}
+						String controllerPath = matchResult.get().getPath();
 						if (!controllerPath.startsWith("/")) {
 							throw new RuntimeException("Controller path for " + controllerPath +
 									" should have a leading forward slash");
@@ -47,7 +49,7 @@ public class ControllerMapper {
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
-						varServlet.addExecution(() -> controllerFactory.getInstance(controllerClass), method, urlMapKey, classPath);
+						varServlet.addExecution(() -> controllerFactory.getInstance(controllerClass), method, urlMapKey, classPath, matchResult.get());
 					} catch (Exception e) {
 						logger.error("Unable to register controller", e);
 					}

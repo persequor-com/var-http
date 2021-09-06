@@ -166,4 +166,9 @@ public class MyTestController {
 	public void headController(ResponseHeader responseHeader) throws IOException {
 		responseHeader.setStatus(200);
 	}
+
+	@AltControllerAnnotation(urlPath = "/altControllerAnnotation")
+	public String altControllerAnnotation() {
+		return "Killroy was here";
+	}
 }

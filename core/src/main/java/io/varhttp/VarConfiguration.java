@@ -38,4 +38,8 @@ public class VarConfiguration {
 	public void addDefaultFilter(Class<? extends Filter> filter) {
 		servlet.addDefaultFilter(filter);
 	}
+
+	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
+		servlet.addControllerMatcher(controllerMatcher);
+	}
 }
