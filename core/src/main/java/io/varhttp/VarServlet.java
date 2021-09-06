@@ -39,7 +39,7 @@ public class VarServlet extends HttpServlet {
 	private final Provider<ParameterHandler> parameterHandlerProvider;
 	private final FilterFactory filterFactory;
 	private final ExecutionMap executions;
-	private final String basePath;
+	private String basePath;
 	private final ControllerFilter controllerFilter;
 	private final List<Class<? extends Filter>> defaultFilters = new ArrayList<>();
 	private VarConfig varConfig;
@@ -214,6 +214,10 @@ public class VarServlet extends HttpServlet {
 
 	public String getBasePath() {
 		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 
 	public void addParameterHandler(Class<? extends IParameterHandlerMatcher> handlerMatcher) {

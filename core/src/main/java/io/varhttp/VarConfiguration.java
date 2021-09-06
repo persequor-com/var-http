@@ -42,4 +42,8 @@ public class VarConfiguration {
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
 		servlet.addControllerMatcher(controllerMatcher);
 	}
+
+	public void setBasePath(String basePath) {
+		servlet.setBasePath(basePath);
+	}
 }
