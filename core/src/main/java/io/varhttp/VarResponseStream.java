@@ -7,14 +7,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 public class VarResponseStream implements ResponseStream {
 	private final HttpServletResponse response;
 	private Serializer serializer;
+	private ContentTypes types = new ContentTypes();
 
 	public VarResponseStream(HttpServletResponse response, Serializer serializer) {
 		this.response = response;
 		this.serializer = serializer;
+	}
+
+	public VarResponseStream setTypes(ContentTypes types) {
+		this.types = types;
+		return this;
 	}
 
 	@Override
@@ -45,7 +52,16 @@ public class VarResponseStream implements ResponseStream {
 	@Override
 	public void write(Object object) {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), "UTF-8")) {
-			serializer.serialize(streamWriter, object, response.getHeaders("Content-Type").stream().findFirst().orElse("application/json"));
+			if (response.getHeader("Content-Type") != null) {
+				types.add(response.getHeader("Content-Type"));
+			}
+
+			if (object instanceof String) {
+				streamWriter.write((String) object);
+			} else {
+				Optional<String> type = types.getType(serializer.supportedTypes());
+				serializer.serialize(streamWriter, object, type.orElse("application/json"));
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

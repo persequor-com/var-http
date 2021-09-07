@@ -35,6 +35,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		parameterHandler.addParameterHandler(HttpServletRequestParameterHandler.class);
 		parameterHandler.addParameterHandler(HttpServletResponseParameterHandler.class);
 		controllerMatchers.add(new VarControllerMatcher());
+		exceptionRegistry = new ExceptionRegistry();
 	}
 
 	ParameterHandler getParameterHandler() {

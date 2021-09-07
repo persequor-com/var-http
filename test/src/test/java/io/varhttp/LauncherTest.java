@@ -317,4 +317,15 @@ public class LauncherTest {
 		assertEquals("Kilroy was here", response);
 	}
 
+
+	@Test
+	public void serializedReturnObject_toAcceptedContentType() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
+		con.setRequestProperty("Accept", "application/xml");
+
+		StringBuffer content = HttpClient.readContent(con);
+
+		assertEquals("<TestResponse><string>Simple string</string></TestResponse>", content.toString());
+	}
+
 }

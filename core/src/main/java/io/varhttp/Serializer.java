@@ -3,6 +3,7 @@ package io.varhttp;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.util.List;
 
 public interface Serializer {
 	String serialize(Object content, String contentType);
@@ -14,4 +15,6 @@ public interface Serializer {
 	<T> T deserialize(Reader content, Class<T> clazz, String contentType);
 
 	<T> T deserialize(Reader content, Type type, String contentType);
+
+	List<String> supportedTypes();
 }

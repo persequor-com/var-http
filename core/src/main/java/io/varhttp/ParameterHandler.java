@@ -83,15 +83,9 @@ public class ParameterHandler {
 		return args;
 	}
 
-	public void handleReturnResponse(Object response, ControllerContext context) {
+	public void handleReturnResponse(Object response, ControllerContext context, ContentTypes types) {
 		if (response != null && !(response instanceof Void)) {
-			String contentType = "text/html";
-			if (context.response().getContentType() != null) {
-				contentType = context.response().getContentType();
-			} else if (!(response instanceof String)) {
-				contentType = "application/json";
-			}
-			new VarResponseStream(context.response(), serializer).write(response, contentType);
+			new VarResponseStream(context.response(), serializer).setTypes(types).write(response);
 		}
 	}
 

@@ -1,20 +1,12 @@
 package io.varhttp.parameterhandlers;
 
-import io.varhttp.ParameterHandler;
 import io.varhttp.ResponseStream;
 import io.varhttp.Serializer;
 import io.varhttp.VarResponseStream;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.nio.charset.Charset;
 
 public class ResponseStreamParameterHandler implements IParameterHandlerMatcher {
 	private Serializer serializer;

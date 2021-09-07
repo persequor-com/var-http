@@ -12,7 +12,7 @@ public class AltControllerMatcher implements ControllerMatcher {
 	public Optional<ControllerMatch> find(Method method) {
 		AltControllerAnnotation annotation = method.getAnnotation(AltControllerAnnotation.class);
 		if (annotation != null) {
-			return Optional.of(new ControllerMatch(method, annotation.urlPath(), new HashSet<>(Arrays.asList(HttpMethod.GET)), ""));
+			return Optional.of(new ControllerMatch(method, annotation.urlPath(), new HashSet<>(Arrays.asList(HttpMethod.GET)), "text/plain"));
 		}
 		return Optional.empty();
 	}

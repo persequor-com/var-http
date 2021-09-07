@@ -16,9 +16,11 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,10 +66,17 @@ public class ControllerExecution {
 			filters.add((request, response, chain) -> {
 				try {
 					Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
-					if (!"".equals(matchResult.getContentType()) && context.response().getHeader("Content-Type") == null) {
-						context.response().setHeader("Content-Type", matchResult.getContentType());
+					ContentTypes types = new ContentTypes();
+
+					if (context.response().getHeader("Content-Type") == null) {
+						if (context.request().getHeader("Accept") != null) {
+							types.add(context.request().getHeader("Accept"));
+						}
+						if (!"".equals(matchResult.getContentType())) {
+							types.set(matchResult.getContentType());
+						}
 					}
-					parameterHandler.handleReturnResponse(responseObject, context);
+					parameterHandler.handleReturnResponse(responseObject, context, types);
 
 				} catch(IllegalAccessException | InvocationTargetException e) {
 					throw new ServletException(e);
@@ -124,4 +133,5 @@ public class ControllerExecution {
 			current.doFilter(request, response, chain);
 		}
 	}
+
 }
