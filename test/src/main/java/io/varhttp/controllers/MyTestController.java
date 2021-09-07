@@ -169,6 +169,11 @@ public class MyTestController {
 
 	@AltControllerAnnotation(urlPath = "/altControllerAnnotation")
 	public String altControllerAnnotation() {
-		return "Killroy was here";
+		return "Kilroy was here";
+	}
+
+	@Controller(path = "/enumParameter/{enum}", httpMethods = HttpMethod.GET)
+	public String altControllerAnnotation(@PathVariable(name = "enum") MyEnum myEnum) {
+		return myEnum.stringValue();
 	}
 }

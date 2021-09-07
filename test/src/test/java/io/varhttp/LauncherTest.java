@@ -306,7 +306,15 @@ public class LauncherTest {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/altControllerAnnotation","");
 
 		String response = HttpClient.readContent(con).toString();
-		assertEquals("Killroy was here", response);
+		assertEquals("Kilroy was here", response);
+	}
+
+	@Test
+	public void enumParameter() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/enumParameter/Kilroy","");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("Kilroy was here", response);
 	}
 
 }
