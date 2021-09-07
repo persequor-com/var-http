@@ -19,22 +19,21 @@ public class ControllerMapper {
 		this.annotationsHelper = annotationsHelper;
 	}
 
-	public void map(VarServlet varServlet, String basePackage, ControllerFactory controllerFactory) {
+	public void map(VarConfigurationContext context, String basePackage) {
 		Reflections reflections = new Reflections(basePackage);
 
 		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(ControllerClass.class);
 		for (Class<?> controllerClass : typesAnnotatedWith) {
-			map(varServlet, controllerClass, controllerFactory
-			);
+			map(context, controllerClass);
 		}
 	}
 
-	public void map(VarServlet varServlet, Class<?> controllerClass, ControllerFactory controllerFactory) {
+	public void map(VarConfigurationContext context, Class<?> controllerClass) {
 		Arrays.stream(controllerClass.getMethods())
 				.forEach(method -> {
 					try {
 						AnnotationsHelper.Annotations annotations = annotationsHelper.getCumulativeAnnotations(method);
-						Optional<ControllerMatch> matchResult = varServlet.getControllerMatchers().stream().map(m -> m.find(method)).filter(Optional::isPresent).map(Optional::get).findFirst();
+						Optional<ControllerMatch> matchResult = context.getControllerMatchers().stream().map(m -> m.find(method)).filter(Optional::isPresent).map(Optional::get).findFirst();
 						if (!matchResult.isPresent()) {
 							return;
 						}
@@ -44,12 +43,12 @@ public class ControllerMapper {
 									" should have a leading forward slash");
 						}
 
-						String basePrefix = varServlet.getBasePath();
+						String basePrefix = context.getBasePath();
 						String packagePrefix = annotations.get(ControllerPackage.class).map(ControllerPackage::pathPrefix).orElse("");
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
-						varServlet.addExecution(() -> controllerFactory.getInstance(controllerClass), method, urlMapKey, classPath, matchResult.get());
+						context.addExecution(controllerClass, method, urlMapKey, classPath, matchResult.get());
 					} catch (Exception e) {
 						logger.error("Unable to register controller", e);
 					}

@@ -45,10 +45,10 @@ public class Standalone implements Runnable {
 	private SSLContext sslContext = null;
 
 	@Inject
-	public Standalone(ControllerMapper controllerMapper, VarConfig varConfig,
-					  Provider<ParameterHandler> parameterHandlerProvider, FilterFactory filterFactory, ControllerFilter controllerFilter, String basePath, ControllerFactory controllerFactory, ExceptionRegistry exceptionRegistry) {
+	public Standalone(VarConfig varConfig,
+					  Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(parameterHandlerProvider, filterFactory, basePath, controllerFilter, varConfig, controllerMapper, controllerFactory, exceptionRegistry);
+		this.servlet = new VarServlet(parameterHandlerProvider.get(), varConfig, controllerMapper, filterFactory, controllerFactory, controllerFilter);
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {

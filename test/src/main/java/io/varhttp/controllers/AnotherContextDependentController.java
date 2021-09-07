@@ -14,7 +14,7 @@ public class AnotherContextDependentController {
 		this.myContext = myContext;
 	}
 
-	@Controller(path = "/anothercontextdependent")
+	@AltControllerAnnotation(urlPath = "/anothercontextdependent")
 	public String contextdependent() {
 		return myContext.contextResult();
 	}

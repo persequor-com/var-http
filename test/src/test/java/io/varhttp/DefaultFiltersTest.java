@@ -24,7 +24,9 @@ public class DefaultFiltersTest {
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
 
 		launcher = odinJector.getInstance(Launcher.class);
-		launcher.getServlet().addDefaultFilter(LoggingFilter.class);
+		launcher.configure(config -> {
+			config.addDefaultFilter(LoggingFilter.class);
+		});
 		thread = new Thread(launcher);
 		thread.run();
 	}
