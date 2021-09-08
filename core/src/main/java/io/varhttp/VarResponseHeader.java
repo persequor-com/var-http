@@ -1,7 +1,8 @@
 package io.varhttp;
 
-import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 public class VarResponseHeader implements ResponseHeader {
 	private HttpServletResponse response;
@@ -40,5 +41,10 @@ public class VarResponseHeader implements ResponseHeader {
 	@Override
 	public void redirect(URL url) {
 		response.setHeader("Location", url.toString());
+	}
+
+	@Override
+	public void addCookie(Cookie cookie) {
+		this.response.addCookie(cookie);
 	}
 }
