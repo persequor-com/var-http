@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import javax.inject.Provider;
+import javax.servlet.http.HttpServlet;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -31,6 +32,8 @@ import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -43,6 +46,7 @@ public class Standalone implements Runnable {
 	protected VarConfig varConfig;
 	private HttpServer server;
 	private SSLContext sslContext = null;
+	private final Map<String, HttpServlet> additionalServlets = new LinkedHashMap<>();
 
 	@Inject
 	public Standalone(VarConfig varConfig,
@@ -145,10 +149,17 @@ public class Standalone implements Runnable {
 		}
 	}
 
+	public void registerServlet(String path, HttpServlet servlet){
+		additionalServlets.put(path, servlet);
+	}
+
 	@Override
 	public void run() {
 		server = getServer();
 		server.createContext("/", new VarHttpContext(servlet));
+		for (Map.Entry<String, HttpServlet> servlet : additionalServlets.entrySet()) {
+			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue()));
+		}
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
 		started.complete(true);
