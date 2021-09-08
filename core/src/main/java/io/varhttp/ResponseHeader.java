@@ -1,6 +1,7 @@
 package io.varhttp;
 
 import java.net.URL;
+import javax.servlet.http.Cookie;
 
 /**
  * <p>
@@ -35,6 +36,12 @@ public interface ResponseHeader {
 	 * @param value the header value
 	 */
 	void setHeader(String name, String value);
+
+	/**
+	 * Explicitly add cookie to the response
+	 * @param cookie the cookie
+	 */
+	void addCookie(Cookie cookie);
 
 	/**
 	 * @param path relative to the root of the domain

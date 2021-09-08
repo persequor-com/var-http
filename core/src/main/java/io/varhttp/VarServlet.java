@@ -1,7 +1,4 @@
-	package io.varhttp;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package io.varhttp;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -9,20 +6,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VarServlet extends HttpServlet {
 	private final BaseVarConfigurationContext baseConfigurationContext;
 	Logger logger = LoggerFactory.getLogger(VarServlet.class);
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
-
-
-	private VarConfig varConfig;
 	private ControllerMapper controllerMapper;
 
-	public VarServlet(ParameterHandler parameterHandler, VarConfig varConfig, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
+	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
-		this.varConfig = varConfig;
 		this.controllerMapper = controllerMapper;
 		this.executions = new ExecutionMap();
 		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, filterFactory, controllerFactory, controllerFilter);
@@ -95,10 +90,9 @@ public class VarServlet extends HttpServlet {
 		}
 
 		try {
-			if (!"head".equals(request.getMethod().toLowerCase())) {
+			if (!"head".equalsIgnoreCase(request.getMethod())) {
 				response.getOutputStream().flush();
 			}
-			response.setStatus(200);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
