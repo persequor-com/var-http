@@ -165,7 +165,7 @@ public class LauncherTest {
 		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitivesBoxed", null);
 
 		String response = HttpClient.readContent(con).toString();
-		assertEquals("false:0:0:0.0:0.0", response);
+		assertEquals("null:null:null:null:null", response);
 	}
 
 	@Test
