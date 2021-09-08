@@ -5,8 +5,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 public class VarResponseHeader implements ResponseHeader {
-	private HttpServletResponse response;
-	private String classPath;
+	private final HttpServletResponse response;
+	private final String classPath;
 
 	public VarResponseHeader(HttpServletResponse response, String classPath) {
 		this.response = response;
@@ -45,6 +45,6 @@ public class VarResponseHeader implements ResponseHeader {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		this.response.addCookie(cookie);
+		this.response.setHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=" + cookie.getPath());
 	}
 }
