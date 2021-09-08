@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -29,6 +30,7 @@ public class TypeHelper {
 		typesHashMap.put(BigInteger.class      , new Primitive(BigInteger::new, null));
 		typesHashMap.put(Date.class            , new Primitive(z -> Date.from(ZonedDateTime.parse(z, dateTimeFormatter).toInstant()), null));
 		typesHashMap.put(ZonedDateTime.class   , new Primitive(z -> ZonedDateTime.parse(z, dateTimeFormatter),null));
+		typesHashMap.put(LocalDate.class   , new Primitive(LocalDate::parse,null));
 	}
 
 	public static Object defaultValue(Class<?> type) {
