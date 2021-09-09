@@ -5,8 +5,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 public class VarResponseHeader implements ResponseHeader {
-	private HttpServletResponse response;
-	private String classPath;
+	private final HttpServletResponse response;
+	private final String classPath;
 
 	public VarResponseHeader(HttpServletResponse response, String classPath) {
 		this.response = response;
