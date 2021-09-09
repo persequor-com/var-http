@@ -324,8 +324,38 @@ public class LauncherTest {
 		con.setRequestProperty("Accept", "application/xml");
 
 		StringBuffer content = HttpClient.readContent(con);
+		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
+
+		assertTrue(headers.containsKey("Content-type"));
+		assertEquals(headers.get("Content-type").get(0), "application/xml");
 
 		assertEquals("<TestResponse><string>Simple string</string></TestResponse>", content.toString());
 	}
 
+	@Test
+	public void serializedReturnObject_toAcceptedContentType_applicationJson() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
+		con.setRequestProperty("Accept", "application/json");
+
+		StringBuffer content = HttpClient.readContent(con);
+		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
+
+		assertTrue(headers.containsKey("Content-type"));
+		assertEquals(headers.get("Content-type").get(0), "application/json");
+
+		assertEquals("{\"string\":\"Simple string\"}", content.toString());
+	}
+
+	@Test
+	public void serializedReturnObject_toAcceptedContentType_withNoAccept() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
+
+		StringBuffer content = HttpClient.readContent(con);
+		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
+
+		assertTrue(headers.containsKey("Content-type"));
+		assertEquals(headers.get("Content-type").get(0), "application/json");
+
+		assertEquals("{\"string\":\"Simple string\"}", content.toString());
+	}
 }
