@@ -45,6 +45,6 @@ public class VarResponseHeader implements ResponseHeader {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		this.response.setHeader("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=" + cookie.getPath());
+		this.response.addCookie(cookie);
 	}
 }

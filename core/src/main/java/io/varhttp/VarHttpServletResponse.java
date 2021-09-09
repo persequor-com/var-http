@@ -217,6 +217,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 				+(cookie.getMaxAge() > 0 ? "; Max-Age="+cookie.getMaxAge(): "")
 				+(cookie.getSecure()?"; Secure":"")
 				+(cookie.isHttpOnly()?"; HttpOnly":"")
+				+(cookie.getPath() != null ? "; Path=" + cookie.getPath() : "")
 		);
 	}
 
