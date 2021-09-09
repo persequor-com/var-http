@@ -54,19 +54,24 @@ public class VarResponseStream implements ResponseStream {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), "UTF-8")) {
 			if (response.getHeader("Content-Type") != null) {
 				types.add(response.getHeader("Content-Type"));
-			} else {
-				Optional<String> type = types.getType(serializer.supportedTypes());
-				response.setContentType(type.orElse("application/json"));
 			}
 
 			if (object instanceof String) {
 				streamWriter.write((String) object);
+				setResponseContentType("text/plain");
 			} else {
-				Optional<String> type = types.getType(serializer.supportedTypes());
-				serializer.serialize(streamWriter, object, type.orElse("application/json"));
+				String contentType = types.getType(serializer.supportedTypes()).orElse("application/json");
+				serializer.serialize(streamWriter, object, contentType);
+				setResponseContentType(contentType);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void setResponseContentType(String contentType) {
+		if (response.getHeader("Content-Type") == null) {
+			response.setContentType(contentType);
 		}
 	}
 
