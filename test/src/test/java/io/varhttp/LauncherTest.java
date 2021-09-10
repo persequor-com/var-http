@@ -235,10 +235,10 @@ public class LauncherTest {
 
 	@Test
 	public void dates() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/dates?date=2020-01-01T12:30:15Z&zonedDateTime=2020-01-01T12:30:45Z", "");
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/dates?date=2020-01-01T12:30:15Z&zonedDateTime=2020-01-01T12:30:45Z&localDate=2020-01-10", "");
 
 		String response = HttpClient.readContent(con).toString();
-		assertEquals("2020-01-01T12:30:15Z-2020-01-01T12:30:45Z", response);
+		assertEquals("2020-01-01T12:30:15Z-2020-01-01T12:30:45Z-2020-01-10", response);
 	}
 
 	@Test

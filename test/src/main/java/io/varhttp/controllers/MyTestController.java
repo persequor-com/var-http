@@ -13,6 +13,7 @@ import io.varhttp.ResponseStream;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
@@ -126,9 +127,11 @@ public class MyTestController {
 	@Controller(path = "/dates")
 	public String requestParameters(
 			@RequestParameter(name = "zonedDateTime")  ZonedDateTime zonedDateTime,
-			@RequestParameter(name = "date") Date date
+			@RequestParameter(name = "date") Date date,
+			@RequestParameter(name = "localDate") LocalDate localDate
+
 	) {
-		return date.toInstant().toString()+"-"+zonedDateTime.toInstant().toString();
+		return date.toInstant().toString()+"-"+zonedDateTime.toInstant().toString()+"-"+localDate.toString();
 	}
 
 	@Controller(path = "/requestBodyString")
