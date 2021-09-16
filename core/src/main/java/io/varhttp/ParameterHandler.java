@@ -5,11 +5,11 @@ import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -17,7 +17,13 @@ import javax.inject.Singleton;
 public class ParameterHandler {
 	private final Serializer serializer;
 	private final ParameterHandlerMatcherFactory handlerMatcherFactory;
-	private final SortedSet<IParameterHandlerMatcher> parameterHandlers = new TreeSet<>();
+	private final SortedSet<IParameterHandlerMatcher> parameterHandlers = new TreeSet<>(new Comparator<IParameterHandlerMatcher>() {
+		@Override
+		public int compare(IParameterHandlerMatcher paramHandler1, IParameterHandlerMatcher paramHandler2) {
+			int i = paramHandler1.compareTo(paramHandler2);
+			return i != 0 ? i : 1; //not return 0 to always insert and not miss any param handler
+		}
+	});
 
 	@Inject
 	public ParameterHandler(Serializer serializer, ParameterHandlerMatcherFactory handlerMatcherFactory) {
@@ -26,11 +32,7 @@ public class ParameterHandler {
 	}
 
 	public void addParameterHandler(Class<? extends IParameterHandlerMatcher> handlerMatcher) {
-		if (!parameterHandlers.add(handlerMatcherFactory.get(handlerMatcher))) {
-			throw new IllegalArgumentException("Priority for: " + handlerMatcher.getName()
-					+ " already exists. The current parameter handler priorities are: \n"
-					+ parameterHandlers.stream().map(parameterHandler -> parameterHandler.getClass().getName() + " -> " + parameterHandler.getPriority()).collect(Collectors.joining("\n")));
-		}
+		parameterHandlers.add(handlerMatcherFactory.get(handlerMatcher));
 	}
 
 	public Set<HttpMethod> initializeHttpMethods(Method method) {
