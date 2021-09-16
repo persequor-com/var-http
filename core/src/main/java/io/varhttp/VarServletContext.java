@@ -77,7 +77,7 @@ public class VarServletContext implements ServletContext {
 
 	@Override
 	public InputStream getResourceAsStream(String path) {
-		throw new UnsupportedOperationException();
+		return getClass().getResourceAsStream(path);
 	}
 
 	@Override
