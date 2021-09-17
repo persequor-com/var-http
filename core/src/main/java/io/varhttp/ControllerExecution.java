@@ -38,7 +38,6 @@ public class ControllerExecution {
 	private final ExceptionRegistry exceptionRegistry;
 	private ControllerMatch matchResult;
 	private final List<Filter> filters;
-	private String classPath;
 
 	public ControllerExecution(Provider<Object> controllerImplementation
 			, Method method
@@ -47,7 +46,6 @@ public class ControllerExecution {
 			, ExceptionRegistry exceptionRegistry
 			, ControllerMatch matchResult
 			, List<Filter> filters
-			, String classPath
 	) {
 		this.controllerImplementation = controllerImplementation;
 		this.method = method;
@@ -56,7 +54,6 @@ public class ControllerExecution {
 		this.exceptionRegistry = exceptionRegistry;
 		this.matchResult = matchResult;
 		this.filters = filters;
-		this.classPath = classPath;
 	}
 
 	public void execute(ControllerContext context) {
