@@ -4,10 +4,7 @@ import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.inject.Inject;
@@ -15,6 +12,7 @@ import javax.inject.Singleton;
 
 @Singleton
 public class ParameterHandler {
+
 	private final Serializer serializer;
 	private final ParameterHandlerMatcherFactory handlerMatcherFactory;
 	private final SortedSet<IParameterHandlerMatcher> parameterHandlers = new TreeSet<>(new Comparator<IParameterHandlerMatcher>() {
@@ -35,15 +33,6 @@ public class ParameterHandler {
 		parameterHandlers.add(handlerMatcherFactory.get(handlerMatcher));
 	}
 
-	public Set<HttpMethod> initializeHttpMethods(Method method) {
-		Controller controller = method.getAnnotation(Controller.class);
-		HttpMethod[] allowedMethods = controller.httpMethods();
-		if (allowedMethods.length == 0) {
-			allowedMethods = HttpMethod.values();
-		}
-		return new HashSet<>(Arrays.asList(allowedMethods));
-	}
-
 	public IParameterHandler[] initializeHandlers(Method method, String baseUri, String classPath){
 		IParameterHandler[] args = new IParameterHandler[method.getParameterCount()];
 		String path = baseUri; // + controller.path();
@@ -53,7 +42,6 @@ public class ParameterHandler {
 				IParameterHandler handler = handlerMatcher.getHandlerIfMatches(method, parameter, path, classPath);
 				if (handler != null) {
 					args[i] = handler;
-					continue;
 				}
 			}
 		}

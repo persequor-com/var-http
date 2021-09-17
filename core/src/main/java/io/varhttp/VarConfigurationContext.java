@@ -88,7 +88,7 @@ public class VarConfigurationContext {
 		for (HttpMethod httpMethod : httpMethods) {
 			Request request = new Request(httpMethod, baseUri);
 			ControllerFactory factory = getControllerFactory();
-			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method), classPath);
+			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
 			if (getControllerFilter().accepts(request, execution)) {
 				varServlet.executions.put(request, execution);
 			}
