@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -174,5 +176,84 @@ public class ExecutionMapTest {
 
 		actual = executionMap.get("".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
+	}
+
+	@Test
+	public void getAllowedMethods_happyPath() {
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
+		executionMap.put(new Request(HttpMethod.PUT, "/my/path2"), execution2);
+
+		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.GET));
+
+		actual = executionMap.getAllowedMethods("my/path2".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.PUT));
+	}
+
+	@Test
+	public void getAllowedMethods_samePath() {
+		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
+		executionMap.put(new Request(HttpMethod.PUT, "/my/path"), execution2);
+
+		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(HttpMethod.GET));
+		assertTrue(actual.contains(HttpMethod.PUT));
+
+		actual = executionMap.getAllowedMethods("my/path2".split("/"));
+		assertTrue(actual.isEmpty());
+	}
+
+	@Test
+	public void getAllowedMethods_deepWildcard_clashesWithNonWildcard() {
+		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
+		executionMap.put(new Request(HttpMethod.POST, "/my/path/{wild1}/sub"), execution2);
+
+		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path/something/something".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.GET));
+
+		actual = executionMap.getAllowedMethods("my/path/something/sub".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.POST));
+	}
+
+	@Test
+	public void getAllowedMethods_multilevelWildcard() {
+		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
+		executionMap.put(new Request(HttpMethod.POST, "/my/path"), execution2);
+		executionMap.put(new Request(HttpMethod.PUT, "/other/path"), execution3);
+
+		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.POST));
+
+		actual = executionMap.getAllowedMethods("other/path".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.PUT));
+
+		actual = executionMap.getAllowedMethods("something/else/entirely".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.GET));
+
+		actual = executionMap.getAllowedMethods("and/yet/another/different/path".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.GET));
+
+		actual = executionMap.getAllowedMethods("".split("/"));
+		assertFalse(actual.isEmpty());
+		assertEquals(1, actual.size());
+		assertTrue(actual.contains(HttpMethod.GET));
 	}
 }

@@ -1,13 +1,6 @@
 package io.varhttp;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExecutionMap {
 	private static final String WILDCARD = "/{}";
@@ -40,12 +33,39 @@ public class ExecutionMap {
 		return get(ar, httpMethod);
 	}
 
+	public Set<HttpMethod> getAllowedMethods(String[] path) {
+		ArrayDeque<String> ar = new ArrayDeque<>(Arrays.asList(path));
+		if (!ar.isEmpty() && ar.peekFirst().equals("")) {
+			ar.pollFirst();
+		}
+
+		return getAllowedMethods(ar);
+	}
+
+	public Set<HttpMethod> getAllowedMethods(ArrayDeque<String> path) {
+		final Map<HttpMethod, ControllerExecution> mapController = getMapController(path);
+		if (mapController == null) {
+			return new HashSet<>();
+		}
+		return mapController.keySet();
+	}
+
 	private ControllerExecution get(ArrayDeque<String> path, HttpMethod httpMethod) {
+		final Map<HttpMethod, ControllerExecution> mapController = getMapController(path);
+
+		if(mapController == null) {
+			return null;
+		}
+
+		return mapController.get(httpMethod);
+	}
+
+	private Map<HttpMethod, ControllerExecution> getMapController(ArrayDeque<String> path) {
 		if (path.isEmpty()) {
 			if (executions.isEmpty()) {
 				throw new RuntimeException("Empty path, but no execution at: " + getPath());
 			}
-			return executions.get(httpMethod);
+			return executions;
 		}
 		String part = path.pollFirst();
 		if (!map.containsKey(part) && isWildCard) {
@@ -53,14 +73,13 @@ public class ExecutionMap {
 		}
 		ExecutionMap executionMap = map.get(part);
 		if (executionMap != null) {
-			return executionMap.get(path, httpMethod);
-		} else if (executions.containsKey(httpMethod) && isWildCard) {
-			return executions.get(httpMethod);
+			return executionMap.getMapController(path);
+		} else if (isWildCard) {
+			return executions;
 		} else {
 			return null;
 		}
 	}
-
 
 	public void put(Request request, ControllerExecution controllerExecution) {
 		ArrayDeque<String> pathParts = new ArrayDeque<>(Arrays.asList(request.path.split("/")));

@@ -1,11 +1,13 @@
 package io.varhttp;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.function.Consumer;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,22 +17,19 @@ public class VarServlet extends HttpServlet {
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
+	private CORSHandler corsHandler = null;
 
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
+
 		this.executions = new ExecutionMap();
 		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, filterFactory, controllerFactory, controllerFilter);
 	}
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			handle(request, response);
-		} catch (Throwable e) {
-			System.out.println(e.toString());
-			throw e;
-		}
+		handle(request, response);
 	}
 
 	@Override
@@ -71,9 +70,19 @@ public class VarServlet extends HttpServlet {
 		}
 		Request r = new Request(httpMethod, servletPath);
 
+		final String[] requestPath = r.path.substring(1).split("/");
+
 		ControllerExecution exe = null;
 
-		exe = executions.get(r.path.substring(1).split("/"), r.method);
+		exe = executions.get(requestPath, r.method);
+
+		if(corsHandler != null) {
+			try {
+				corsHandler.setHeaders(request, response, executions.getAllowedMethods(requestPath));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
 
 		if (exe != null) {
 			try {
@@ -83,6 +92,8 @@ public class VarServlet extends HttpServlet {
 				response.setStatus(500);
 				return;
 			}
+		} else if (corsHandler != null && request.getMethod().equals("OPTIONS")) {
+			return;
 		} else {
 			// Strange error message
 			response.setStatus(404);
@@ -102,4 +113,7 @@ public class VarServlet extends HttpServlet {
 		configuration.accept(new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler));
 	}
 
+	public void setCorsHandlers(CORSConfig config) {
+		corsHandler = new CORSHandler(config);
+	}
 }
