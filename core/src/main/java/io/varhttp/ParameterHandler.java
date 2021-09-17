@@ -2,20 +2,26 @@ package io.varhttp;
 
 import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class ParameterHandler {
 
 	private final Serializer serializer;
 	private final ParameterHandlerMatcherFactory handlerMatcherFactory;
-	private final SortedSet<IParameterHandlerMatcher> parameterHandlers = new TreeSet<>();
+	private final SortedSet<IParameterHandlerMatcher> parameterHandlers = new TreeSet<>(new Comparator<IParameterHandlerMatcher>() {
+		@Override
+		public int compare(IParameterHandlerMatcher paramHandler1, IParameterHandlerMatcher paramHandler2) {
+			int i = paramHandler1.compareTo(paramHandler2);
+			return i != 0 ? i : 1; //not return 0 to always insert and not miss any param handler
+		}
+	});
 
 	@Inject
 	public ParameterHandler(Serializer serializer, ParameterHandlerMatcherFactory handlerMatcherFactory) {
@@ -36,7 +42,6 @@ public class ParameterHandler {
 				IParameterHandler handler = handlerMatcher.getHandlerIfMatches(method, parameter, path, classPath);
 				if (handler != null) {
 					args[i] = handler;
-					continue;
 				}
 			}
 		}
@@ -50,23 +55,4 @@ public class ParameterHandler {
 		}
 	}
 
-
-
-
-
-
-
-//	public Function<ControllerContext, Object>[] addPathVariables(Function<ControllerContext, Object>[] handlers, HttpServletRequest request) {
-//		Function<ControllerContext, Object>[] args = handlers.clone();
-//		String fullPath = request.getServletPath()+request.getPathInfo();
-//		Matcher m = pattern.matcher(fullPath);
-//		if (m.matches()) {
-//			for (int i = 0; i < pathVariables.size(); i++) {
-//				Class<?> type = pathVariables.get(i).getType();
-//				String value = m.group(i + 1);
-//				args[pathVariables.get(i).getArgno()] = (r -> convert(value, type, null));
-//			}
-//		}
-//		return args;
-//	}
 }
