@@ -90,9 +90,11 @@ public class ControllerExecution {
 					, context.response()
 			);
 		} catch (ExceptionInInitializerError | RuntimeException | IOException e) {
-			fail(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e, context.response());
+			fail(exceptionRegistry.getResponseCode(e.getClass(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+					, e
+					, context.response()
+			);
 		}
-
 	}
 
 	private void fail(int responseCode, Throwable e, HttpServletResponse response) {

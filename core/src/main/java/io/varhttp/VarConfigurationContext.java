@@ -29,7 +29,8 @@ public class VarConfigurationContext {
 
 
 
-	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext, ParameterHandler parameterHandler) {
+	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
+								   ParameterHandler parameterHandler) {
 		this.varServlet = varServlet;
 		this.parameterHandler = parameterHandler;
 		this.parentContext = parentContext;
