@@ -6,18 +6,19 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManagerFactory;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import javax.inject.Provider;
-import javax.servlet.http.HttpServlet;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -46,13 +47,14 @@ public class Standalone implements Runnable {
 	protected VarConfig varConfig;
 	private HttpServer server;
 	private SSLContext sslContext = null;
-	private final Map<String, HttpServlet> additionalServlets = new LinkedHashMap<>();
+	private final Map<String, HttpServlet> servlets = new LinkedHashMap<>();
 
 	@Inject
 	public Standalone(VarConfig varConfig,
 					  Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.varConfig = varConfig;
 		this.servlet = new VarServlet(parameterHandlerProvider.get(), controllerMapper, filterFactory, controllerFactory, controllerFilter);
+		servlets.put("/", servlet);
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {
@@ -150,14 +152,18 @@ public class Standalone implements Runnable {
 	}
 
 	public void registerServlet(String path, HttpServlet servlet){
-		additionalServlets.put(path, servlet);
+		servlets.put(path, servlet);
 	}
 
 	@Override
 	public void run() {
 		server = getServer();
-		server.createContext("/", new VarHttpContext(servlet));
-		for (Map.Entry<String, HttpServlet> servlet : additionalServlets.entrySet()) {
+		for (Map.Entry<String, HttpServlet> servlet : servlets.entrySet()) {
+			try {
+				servlet.getValue().init(new VarServletConfig(servlet.getValue()));
+			} catch (ServletException e) {
+				throw new IllegalStateException(e);
+			}
 			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue()));
 		}
 		server.setExecutor(Executors.newCachedThreadPool());
