@@ -54,6 +54,11 @@ public class MyTestController {
 		return "muh";
 	}
 
+	@Controller(path = "/header-path-info/*")
+	public String headerPathInfo(ResponseHeader responseHeader, RequestHeader requestHeader) {
+		return requestHeader.getPath();
+	}
+
 	@Controller(path = "/defaultValue")
 	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh", required = false) String param, @RequestParameter(name = "param2", defaultValue = "muh", required = false) String param2) {
 		return param+"-"+param2;

@@ -103,6 +103,14 @@ public class LauncherTest {
 	}
 
 	@Test
+	public void headerPathInfo() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/header-path-info/xxx?key=value", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("/header-path-info/xxx", response);
+	}
+
+	@Test
 	public void rootController() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/", "");
 

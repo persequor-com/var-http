@@ -215,7 +215,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getPathInfo() {
-		return ex.getRequestURI().getPath().substring(ex.getHttpContext().getPath().length());
+		return ex.getRequestURI().getPath().substring(getServletPath().length());
 	}
 
 	@Override
@@ -310,9 +310,9 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getServletPath() {
-		String path = ex.getHttpContext().getPath().substring(1);
-
-		return path;
+		String contextPath = ex.getHttpContext().getPath();
+		//will return empty string for root context which is correct according to spec
+		return contextPath.endsWith("/") ? contextPath.substring(0, contextPath.length() - 1) : contextPath;
 	}
 
 	@Override
