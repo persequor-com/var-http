@@ -20,7 +20,7 @@ public class Launcher implements Runnable {
 	}
 
 	public void setCORS() {
-		standalone.setCors(new CORSConfig());
+		standalone.setCors(new CORSConfig().allowCredentials(true));
 	}
 
 	@Override

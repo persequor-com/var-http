@@ -9,7 +9,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
@@ -17,9 +16,9 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class HttpClient {
-
 	private static SSLContext sslContext;
 
 	public static StringBuffer readContent(HttpURLConnection con) throws IOException {
@@ -98,6 +97,11 @@ public class HttpClient {
 	}
 
 	public static HttpURLConnection post(String path, String parameters, String contentType) {
+		return post(path, parameters,
+				connection -> connection.setRequestProperty( "Content-Type", contentType));
+	}
+
+	public static HttpURLConnection post(String path, String parameters, Consumer<HttpURLConnection> consumer) {
 		try {
 			URL url = new URL(path);
 
@@ -107,8 +111,7 @@ public class HttpClient {
 			}
 			con.setRequestMethod("POST");
 			if (parameters != null) {
-				con.setRequestProperty( "Content-Type", contentType);
-
+				consumer.accept(con);
 				con.setDoOutput(true);
 				DataOutputStream out = new DataOutputStream(con.getOutputStream());
 				out.writeBytes(parameters);
@@ -138,6 +141,17 @@ public class HttpClient {
 //		out.writeBytes(s1);
 //		out.flush();
 //		out.close();
+		return con;
+	}
+
+	public static HttpURLConnection options(String urlString) throws IOException {
+		URL url = new URL(urlString);
+
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		if (con instanceof HttpsURLConnection) {
+			setTrustStore((HttpsURLConnection) con);
+		}
+		con.setRequestMethod("OPTIONS");
 		return con;
 	}
 }
