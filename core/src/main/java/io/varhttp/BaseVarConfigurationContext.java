@@ -70,7 +70,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	}
 
 	@Override
-	Collection<Class<? extends Filter>> getDefaultFilters() {
+	List<Object> getDefaultFilters() {
 		return defaultFilters;
 	}
 }

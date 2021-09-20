@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.MatchResult;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +27,7 @@ public class VarConfigurationContext {
 	FilterFactory filterFactory = null;
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
-	List<Class<? extends Filter>> defaultFilters = new ArrayList<>();
+	List<Object> defaultFilters = new ArrayList<>();
 
 
 
@@ -78,7 +79,7 @@ public class VarConfigurationContext {
 	}
 
 
-	Collection<Class<? extends Filter>> getDefaultFilters() {
+	List<Object> getDefaultFilters() {
 		return Stream.concat(defaultFilters.stream(),parentContext.getDefaultFilters().stream()).collect(Collectors.toList());
 	}
 
@@ -95,7 +96,7 @@ public class VarConfigurationContext {
 		}
 	}
 
-	private List<Filter> getFilters(Method method) {
+	private List<Object> getFilters(Method method) {
 		LinkedHashSet<FilterTuple> filters = new LinkedHashSet<>();
 		replaceAll(filters, getFilterAnnotations(method.getDeclaringClass().getPackage().getAnnotations()));
 		replaceAll(filters, getFilterAnnotations(method.getClass().getPackage().getAnnotations()));
@@ -111,11 +112,11 @@ public class VarConfigurationContext {
 		filters.addAll(filterAnnotations);
 	}
 
-	private List<Filter> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		List<Filter> filters = getDefaultFilters().stream().map(getFilterFactory()::getInstance).collect(Collectors.toList());
+	private List<Object> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
+		List<Object> filters = new ArrayList<>(getDefaultFilters());
 
 		filters.addAll(filterAnnotations.stream().map(f -> {
-			Filter filter = getFilterFactory().getInstance(f.getFilter().value());
+			Object filter = getFilterFactory().getInstance(f.getFilter().value());
 			if (filter instanceof VarFilter) {
 				((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
 			}
@@ -150,7 +151,15 @@ public class VarConfigurationContext {
 
 
 	public void addDefaultFilter(Class<? extends Filter> filter) {
-		defaultFilters.add(filter);
+		defaultFilters.add(getFilterFactory().getInstance(filter));
+	}
+
+	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
+		ControllerFactory factory = getControllerFactory();
+		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
+
+		VarFilterExecution filterExecution = new VarFilterExecution(() -> factory.getInstance(filterClass), method, args, parameterHandler, new ControllerMatch(method, null, null, ""));
+		defaultFilters.add(filterExecution);
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {

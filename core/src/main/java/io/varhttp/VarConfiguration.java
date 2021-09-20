@@ -3,6 +3,7 @@ package io.varhttp;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 
 import javax.servlet.Filter;
+import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 public class VarConfiguration {
@@ -36,6 +37,10 @@ public class VarConfiguration {
 
 	public void addDefaultFilter(Class<? extends Filter> filter) {
 		context.addDefaultFilter(filter);
+	}
+
+	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
+		context.addDefaultVarFilter(filterClass, method);
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
