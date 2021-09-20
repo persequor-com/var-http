@@ -69,7 +69,7 @@ public class CORSConfig {
     }
 
     /**
-     * Sets the allowed cache time in seconds for the prefight request. Default: 60 seconds.
+     * Sets the cache time in seconds for the preflight request. Default: 60 seconds.
      *
      * @param maxAge allowed cache time in seconds.
      */
