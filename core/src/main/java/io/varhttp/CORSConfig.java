@@ -86,7 +86,7 @@ public class CORSConfig {
      * Sets the configuration for CORS allowed headers. This can be:
      * <ul>
      *    <li><strong>Default:</strong> Wildcard <code>'*'</code>.</li>
-     *     <li>Specific origins like <code>content-type</code> or <code>x-requested-with</code>.</li>
+     *     <li>Specific headers like <code>content-type</code> or <code>x-requested-with</code>.</li>
      * </ul>
      *
      * <Strong>Note: If allowed credentials is enabled, the allowed headers must be an explicit list of headers.</Strong>
