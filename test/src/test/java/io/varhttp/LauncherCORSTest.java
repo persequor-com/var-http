@@ -34,7 +34,7 @@ public class LauncherCORSTest {
 
 	@Test
 	public void happyPath_prefightRequest() throws Throwable {
-		HttpURLConnection  con = HttpClient.options("http://localhost:8088/listObject");
+		HttpURLConnection  con = HttpClient.options(HTTP_ORIGIN_SAME_HOST + "/listObject");
 
 		con.setRequestProperty("Origin", HTTP_ORIGIN_SAME_HOST);
 		con.setRequestProperty("Host", "var:3000");
@@ -118,5 +118,32 @@ public class LauncherCORSTest {
 		assertFalse("Header Access-control-allow-methods is present", headers.containsKey("Access-control-allow-methods"));
 		assertFalse("Header Access-control-allow-headers is present", headers.containsKey("Access-control-allow-headers"));
 		assertFalse("Header Access-control-max-age is present", headers.containsKey("Access-control-max-age"));
+	}
+
+	@Test
+	public void prefightRequest_noValidController() throws Throwable {
+		HttpURLConnection  con = HttpClient.options(HTTP_ORIGIN_SAME_HOST + "/kraken");
+		final String request_method = "GET";
+
+		con.setRequestProperty("Origin", HTTP_ORIGIN_SAME_HOST);
+		con.setRequestProperty("Host", "var:3000");
+
+		con.setRequestProperty("Access-Control-Request-Headers","content-type,x-requested-with");
+		con.setRequestProperty("Access-Control-Request-Method", request_method);
+		assertTrue("No Origin", con.getRequestProperties().containsKey("Origin"));
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		con.disconnect();
+
+		assertTrue("Missing header Access-control-allow-credentials", headers.containsKey("Access-control-allow-credentials"));
+		assertTrue("Missing header Access-control-allow-origin", headers.containsKey("Access-control-allow-origin"));
+		assertTrue("Missing header Access-control-allow-methods", headers.containsKey("Access-control-allow-methods"));
+		assertTrue("Missing header Access-control-allow-headers", headers.containsKey("Access-control-allow-headers"));
+		assertTrue("Missing header Access-control-max-age", headers.containsKey("Access-control-max-age"));
+
+		assertEquals(headers.get("Access-control-allow-credentials").get(0), "true");
+		assertEquals(headers.get("Access-control-allow-origin").get(0), HTTP_ORIGIN_SAME_HOST);
+		assertEquals(headers.get("Access-control-allow-methods").get(0), request_method);
+		assertEquals(headers.get("Access-control-allow-headers").get(0), "content-type,x-requested-with");
+		assertEquals(headers.get("Access-control-max-age").get(0), "60");
 	}
 }

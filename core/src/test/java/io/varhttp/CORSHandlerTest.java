@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 public class CORSHandlerTest {
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
     public static final String HTTP_METHOD_GET = "GET";
+    public static final String HTTP_METHOD_PUT = "PUT";
     public static final int HTTP_STATUS_CODE = 405;
 
     public static final String HTTP_HOST = "localhost:3000";
@@ -32,18 +33,24 @@ public class CORSHandlerTest {
     @Mock
     private HttpServletResponse response;
 
+    private CORSConfig corsConfig;
+
+    Set<HttpMethod> allowedMethods;
+
     @Before
     public void setup() throws URISyntaxException {
         when(request.getHeader("Origin")).thenReturn(HTTP_ORIGIN);
         when(request.getHeader("Host")).thenReturn(HTTP_DIFF_HOST);
         when(request.getMethod()).thenReturn(HTTP_METHOD_OPTIONS);
+        corsConfig = new CORSConfig()
+                .allowCredentials(true)
+                .allowedHeaders("content-type,x-requested-with");
+        allowedMethods = new HashSet<>(Collections.singletonList(HttpMethod.GET));
     }
 
     @Test
     public void happyPath_options() throws URISyntaxException {
-        corsHandler= new CORSHandler(new CORSConfig());
-
-        Set<HttpMethod> allowedMethods = new HashSet<>(Collections.singletonList(HttpMethod.GET));
+        corsHandler= new CORSHandler(corsConfig);
         corsHandler.setHeaders(request, response, allowedMethods);
 
         verify(response, times(1)).addHeader("Access-Control-Allow-Credentials", "true");
@@ -55,10 +62,9 @@ public class CORSHandlerTest {
 
     @Test
     public void happyPath_get() throws URISyntaxException {
-        corsHandler= new CORSHandler(new CORSConfig());
+        corsHandler= new CORSHandler(corsConfig);
         when(request.getMethod()).thenReturn(HTTP_METHOD_GET);
 
-        Set<HttpMethod> allowedMethods = new HashSet<>(Collections.singletonList(HttpMethod.GET));
         corsHandler.setHeaders(request, response, allowedMethods);
 
         verify(response, times(1)).addHeader("Access-Control-Allow-Credentials", "true");
@@ -70,9 +76,9 @@ public class CORSHandlerTest {
 
     @Test
     public void noCors() throws URISyntaxException {
-        corsHandler= new CORSHandler(new CORSConfig());
+        corsHandler= new CORSHandler(corsConfig);
         when(request.getHeader("Host")).thenReturn(HTTP_HOST);
-        Set<HttpMethod> allowedMethods = new HashSet<>(Collections.singletonList(HttpMethod.GET));
+
         corsHandler.setHeaders(request, response, allowedMethods);
 
         verify(response, never()).addHeader("Access-Control-Allow-Credentials", "true");
@@ -84,7 +90,7 @@ public class CORSHandlerTest {
 
     @Test
     public void configuredAllowedOrigin_happyPath() throws URISyntaxException {
-        corsHandler= new CORSHandler(new CORSConfig().allowedOrigins(HTTP_ORIGIN));
+        corsHandler= new CORSHandler(corsConfig.allowedOrigins(HTTP_ORIGIN));
 
         Set<HttpMethod> allowedMethods = new HashSet<>(Collections.singletonList(HttpMethod.GET));
         corsHandler.setHeaders(request, response, allowedMethods);
@@ -99,7 +105,7 @@ public class CORSHandlerTest {
 
     @Test
     public void configuredAllowedOrigin_rejectOrigin() throws URISyntaxException {
-        corsHandler= new CORSHandler(new CORSConfig().allowedOrigins("http://localhost:5000"));
+        corsHandler= new CORSHandler(corsConfig.allowedOrigins("http://localhost:5000"));
 
         Set<HttpMethod> allowedMethods = new HashSet<>(Collections.singletonList(HttpMethod.GET));
         corsHandler.setHeaders(request, response, allowedMethods);
@@ -109,6 +115,19 @@ public class CORSHandlerTest {
         verify(response, never()).addHeader("Access-Control-Allow-Methods", "GET");
         verify(response, never()).addHeader("Access-Control-Allow-Headers", "content-type,x-requested-with");
         verify(response, never()).addHeader("Access-Control-Max-Age", "60");
-        verify(response, times(1)).setStatus(HTTP_STATUS_CODE);
+    }
+
+    @Test
+    public void cors_noAllowedMethods() throws URISyntaxException {
+        corsHandler= new CORSHandler(corsConfig);
+        when(request.getMethod()).thenReturn(HTTP_METHOD_PUT);
+
+        corsHandler.setHeaders(request, response, new HashSet<>());
+
+        verify(response, times(1)).addHeader("Access-Control-Allow-Credentials", "true");
+        verify(response, times(1)).addHeader("Access-Control-Allow-Origin", HTTP_ORIGIN);
+        verify(response, never()).addHeader("Access-Control-Allow-Methods", "PUT");
+        verify(response, never()).addHeader("Access-Control-Allow-Headers", "content-type,x-requested-with");
+        verify(response, never()).addHeader("Access-Control-Max-Age", "60");
     }
 }

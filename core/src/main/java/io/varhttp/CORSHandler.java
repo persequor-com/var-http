@@ -25,7 +25,7 @@ public class CORSHandler {
         String requestHeaders = request.getHeader("Access-Control-Request-Headers");
 
         if (originHeader != null && hostHeader != null && !isSameOriginAndHost(originHeader, hostHeader)) {
-            if (!allowedMethods.isEmpty() && isAllowedOrigin(originHeader)) {
+            if (isAllowedOrigin(originHeader)) {
                 if (config.isAllowCredentials()) {
                     response.addHeader("Access-Control-Allow-Credentials", String.valueOf(config.isAllowCredentials()));
                 }
@@ -33,14 +33,11 @@ public class CORSHandler {
                 response.addHeader("Access-Control-Allow-Origin", originHeader);
 
                 if (request.getMethod().equals("OPTIONS")) {
-                    response.addHeader("Access-Control-Allow-Methods", getAllowedMethods(allowedMethods));
+                    response.addHeader("Access-Control-Allow-Methods", getAllowedMethods(allowedMethods, requestMethod));
                     response.addHeader("Access-Control-Allow-Headers", config.getAllowedHeaders());
                     response.addHeader("Access-Control-Max-Age", String.valueOf(config.getMaxAge()));
                 }
-            } else {
-                response.setStatus(405);
             }
-
         }
     }
 
@@ -53,9 +50,13 @@ public class CORSHandler {
                 !(hostInfo.size() > 1 && !Objects.equals(String.valueOf(origin.getPort()), hostInfo.get(1)));
     }
 
-    private String getAllowedMethods(Set<HttpMethod> allowedMethods) {
+    private String getAllowedMethods(Set<HttpMethod> allowedMethods, String requestMethod) {
         if (config.getAllowedMethods() != null && config.getAllowedMethods().equals("*")) {
-            return String.join(",", allowedMethods.stream().map(Enum::toString).collect(Collectors.toSet()));
+            if(!allowedMethods.isEmpty()) {
+                return String.join(",", allowedMethods.stream().map(Enum::toString).collect(Collectors.toSet()));
+            } else {
+                return requestMethod;
+            }
         }
 
         return config.getAllowedMethods();
