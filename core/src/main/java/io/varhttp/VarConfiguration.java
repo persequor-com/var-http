@@ -10,7 +10,7 @@ public class VarConfiguration {
 	private VarServlet servlet = null;
 	private final VarConfigurationContext context;
 	private ControllerMapper controllerMapper = null;
-	private ParameterHandler parameterHandler;
+	private final ParameterHandler parameterHandler;
 
 	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler) {
 		this.servlet = servlet;
@@ -39,8 +39,20 @@ public class VarConfiguration {
 		context.addDefaultFilter(filter);
 	}
 
+	public void addDefaultVarFilter(Class<?> filterClass) {
+		context.addDefaultVarFilter(filterClass);
+	}
+
 	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
 		context.addDefaultVarFilter(filterClass, method);
+	}
+
+	public void setNotFoundController(Class<?> filterClass) {
+		context.setNotFoundController(filterClass);
+	}
+
+	public void setNotFoundController(Class<?> filterClass, Method method) {
+		context.setNotFoundController(filterClass, method);
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {

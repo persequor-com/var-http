@@ -26,11 +26,7 @@ public class DefaultFiltersTest {
 		launcher = odinJector.getInstance(Launcher.class);
 		launcher.configure(config -> {
 			config.addDefaultFilter(LoggingFilter.class);
-			try {
-				config.addDefaultVarFilter(DefaultFiltersTest.class, DefaultFiltersTest.class.getMethod("myFilter", RequestHeader.class));
-			} catch (NoSuchMethodException exception) {
-				throw new RuntimeException(exception);
-			}
+			config.addDefaultVarFilter(DefaultFiltersTest.class);
 		});
 		thread = new Thread(launcher);
 		thread.run();
@@ -54,6 +50,7 @@ public class DefaultFiltersTest {
 		assertEquals("Logging was called before\n/my-test\nLogging was called after", String.join("\n", result));
 	}
 
+	@FilterMethod
 	public void myFilter(RequestHeader requestHeader) {
 		filterCatcher.add(requestHeader.getPath());
 	}

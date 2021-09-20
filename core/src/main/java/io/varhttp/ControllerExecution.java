@@ -23,7 +23,6 @@ public class ControllerExecution  {
 	private final ExceptionRegistry exceptionRegistry;
 	private ControllerMatch matchResult;
 	private final List<Object> filters;
-	private String classPath;
 
 	public ControllerExecution(Provider<Object> controllerImplementation
 			, Method method
@@ -32,18 +31,15 @@ public class ControllerExecution  {
 			, ExceptionRegistry exceptionRegistry
 			, ControllerMatch matchResult
 			, List<Object> filters
-			, String classPath
 	) {
 		this.method = method;
 		this.exceptionRegistry = exceptionRegistry;
 		this.matchResult = matchResult;
 		this.filters = filters;
-		this.classPath = classPath;
 		this.filterExecution = new VarFilterExecution(controllerImplementation, method, args, parameterHandler, matchResult);
 	}
 
 	public void execute(ControllerContext context) {
-
 		try {
 			List<Object> filters = new ArrayList<>(this.filters);
 			filters.add((Filter)(request, response, chain) -> {
@@ -103,6 +99,7 @@ public class ControllerExecution  {
 				((Filter) current).doFilter(request, response, chain);
 			} else if(current instanceof VarFilterExecution) {
 				((VarFilterExecution) current).doFilter(context);
+				chain.doFilter(request, response);
 			} else {
 				throw new VarInitializationException("Invalid filter type: "+current.getClass().getName());
 			}

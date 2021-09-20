@@ -1,9 +1,7 @@
 package io.varhttp;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.function.Consumer;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +15,7 @@ public class VarServlet extends HttpServlet {
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
-	private CORSHandler corsHandler = null;
+	private ControllerExecution notFoundController;
 
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
@@ -38,27 +36,27 @@ public class VarServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
@@ -76,14 +74,6 @@ public class VarServlet extends HttpServlet {
 
 		exe = executions.get(requestPath, r.method);
 
-		if(corsHandler != null) {
-			try {
-				corsHandler.setHeaders(request, response, executions.getAllowedMethods(requestPath));
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			}
-		}
-
 		if (exe != null) {
 			try {
 				exe.execute(new ControllerContext(request, response));
@@ -92,11 +82,13 @@ public class VarServlet extends HttpServlet {
 				response.setStatus(500);
 				return;
 			}
-		} else if (corsHandler != null && request.getMethod().equals("OPTIONS")) {
-			return;
 		} else {
 			// Strange error message
-			response.setStatus(404);
+			if(notFoundController != null) {
+				notFoundController.execute(new ControllerContext(request, response));
+			} else {
+				response.setStatus(404);
+			}
 			return;
 		}
 
@@ -113,7 +105,7 @@ public class VarServlet extends HttpServlet {
 		configuration.accept(new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler));
 	}
 
-	public void setCorsHandlers(CORSConfig config) {
-		corsHandler = new CORSHandler(config);
+	public void setNotFoundController(ControllerExecution controllerExecution) {
+		notFoundController = controllerExecution;
 	}
 }

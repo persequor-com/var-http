@@ -6,14 +6,7 @@ import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 import javax.servlet.Filter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.regex.MatchResult;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,7 +21,6 @@ public class VarConfigurationContext {
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
 	List<Object> defaultFilters = new ArrayList<>();
-
 
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext, ParameterHandler parameterHandler) {
@@ -89,7 +81,7 @@ public class VarConfigurationContext {
 		for (HttpMethod httpMethod : httpMethods) {
 			Request request = new Request(httpMethod, baseUri);
 			ControllerFactory factory = getControllerFactory();
-			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method), classPath);
+			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
 			if (getControllerFilter().accepts(request, execution)) {
 				varServlet.executions.put(request, execution);
 			}
@@ -154,12 +146,44 @@ public class VarConfigurationContext {
 		defaultFilters.add(getFilterFactory().getInstance(filter));
 	}
 
+	public void addDefaultVarFilter(Class<?> controllerClass) {
+		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
+				.filter(method -> method.isAnnotationPresent(FilterMethod.class))
+				.findFirst();
+
+		if(!methodAnnotated.isPresent()) {
+			throw new RuntimeException("No method annotated with @FilterMethod");
+		}
+
+		addDefaultVarFilter(controllerClass, methodAnnotated.get());
+	}
+
 	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
 		ControllerFactory factory = getControllerFactory();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
 		VarFilterExecution filterExecution = new VarFilterExecution(() -> factory.getInstance(filterClass), method, args, parameterHandler, new ControllerMatch(method, null, null, ""));
 		defaultFilters.add(filterExecution);
+	}
+
+	public void setNotFoundController(Class<?> controllerClass) {
+		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
+				.filter(method -> method.isAnnotationPresent(NotFoundController.class))
+				.findFirst();
+
+		if(!methodAnnotated.isPresent()) {
+			throw new RuntimeException("No method annotated with @NotFoundController");
+		}
+
+		setNotFoundController(controllerClass, methodAnnotated.get());
+	}
+
+	public void setNotFoundController(Class<?> controllerClass, Method method) {
+		ControllerFactory factory = getControllerFactory();
+		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
+
+		ControllerMatch matchResult = new ControllerMatch(method, "", new HashSet<>(), "");
+		varServlet.setNotFoundController(new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method)));
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {

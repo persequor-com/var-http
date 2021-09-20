@@ -19,13 +19,6 @@ public class Launcher implements Runnable {
 		standalone.setSslContext(Launcher.class.getResourceAsStream("/test.pem"), Launcher.class.getResourceAsStream("/test.key"));
 	}
 
-	public void setCORS() {
-		final CORSConfig corsHandler = new CORSConfig()
-				.allowCredentials(true)
-				.allowedHeaders("content-type,x-requested-with");
-		standalone.setCors(corsHandler);
-	}
-
 	@Override
 	public void run() {
 		standalone.configure(config -> {

@@ -116,10 +116,6 @@ public class Standalone implements Runnable {
 		}
 	}
 
-	public void setCors(CORSConfig corsHandler) {
-		servlet.setCorsHandlers(corsHandler);
-	}
-
 	private HttpServer getServer() {
 		try {
 			if (sslContext != null) {
