@@ -111,6 +111,14 @@ public class LauncherTest {
 	}
 
 	@Test
+	public void servletRequest() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/http-servlet-request/xxx?key=value", "");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("/http-servlet-request/xxx", response);
+	}
+
+	@Test
 	public void rootController() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/", "");
 
