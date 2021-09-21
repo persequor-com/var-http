@@ -2,8 +2,6 @@ package io.varhttp;
 
 import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
-
-import javax.servlet.Filter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -15,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.Filter;
 
 public class VarConfigurationContext {
 	private VarServlet varServlet;
@@ -30,7 +29,8 @@ public class VarConfigurationContext {
 
 
 
-	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext, ParameterHandler parameterHandler) {
+	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
+								   ParameterHandler parameterHandler) {
 		this.varServlet = varServlet;
 		this.parameterHandler = parameterHandler;
 		this.parentContext = parentContext;
@@ -112,20 +112,28 @@ public class VarConfigurationContext {
 	}
 
 	private List<Filter> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		List<Filter> filters = getDefaultFilters().stream().map(getFilterFactory()::getInstance).collect(Collectors.toList());
+		List<Filter> filters = getDefaultFilters().stream().map(f -> getAndInitializeDefaultFilter(method, f)).collect(Collectors.toList());
 
-		filters.addAll(filterAnnotations.stream().map(f -> {
-			Filter filter = getFilterFactory().getInstance(f.getFilter().value());
-			if (filter instanceof VarFilter) {
-				((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
-			}
-			return filter;
-		}).collect(Collectors.toList()));
+		filters.addAll(filterAnnotations.stream().map(f -> getAndInitializeFilter(method, f)).collect(Collectors.toList()));
 
 		return filters;
 	}
 
+	private Filter getAndInitializeFilter(Method method, FilterTuple filterTuple) {
+		Filter filter = getFilterFactory().getInstance(filterTuple.getFilter().value());
+		if (filter instanceof VarFilter) {
+			((VarFilter) filter).init(method, filterTuple.getFilter(), filterTuple.getAnnotation());
+		}
+		return filter;
+	}
 
+	private Filter getAndInitializeDefaultFilter(Method method, Class<? extends Filter> filterTuple) {
+		Filter filter = getFilterFactory().getInstance(filterTuple);
+		if (filter instanceof VarFilter) {
+			((VarFilter) filter).init(method, null, null);
+		}
+		return filter;
+	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {
 		return Arrays.stream(annotations).map(annotation -> {
