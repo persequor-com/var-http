@@ -223,9 +223,10 @@ public class VarHttpServletRequest implements HttpServletRequest {
 		return null;
 	}
 
+	//In standalone mode all the servlets are run within the root context
 	@Override
 	public String getContextPath() {
-		return "/";
+		return "";
 	}
 
 	@Override
@@ -295,7 +296,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getRequestURI() {
-		return ex.getRequestURI().toString();
+		return ex.getRequestURI().getPath();
 	}
 
 	@Override
