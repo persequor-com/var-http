@@ -39,8 +39,8 @@ public class ExecutionMap {
 	}
 
 	private ResultExecutionMap getExecutionMap(ArrayDeque<String> path, ResultExecutionMap result) {
+		result.setExecutionMap(this);
 		if (path.isEmpty()) {
-			result.setExecutionMap(this);
 			return result;
 		}
 
@@ -52,13 +52,11 @@ public class ExecutionMap {
 
 		ExecutionMap executionMap = children.get(part);
 		if (executionMap != null) {
-			result.setExecutionMap(this);
 			return executionMap.getExecutionMap(path, result);
-		} else if (isWildCard) {
-			result.setExecutionMap(this);
-		} else {
+		} else if (!isWildCard) {
 			result.notFound();
 		}
+
 		return result;
 	}
 

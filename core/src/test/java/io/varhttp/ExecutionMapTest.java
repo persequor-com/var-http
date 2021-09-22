@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
@@ -23,7 +22,7 @@ public class ExecutionMapTest {
 	private ControllerExecution execution3;
 
 	private VarConfigurationContext context;
-	private VarConfigurationContext context1;
+	private VarConfigurationContext otherContext;
 
 	@Mock
 	private VarConfigurationContext parentContext;
@@ -44,7 +43,7 @@ public class ExecutionMapTest {
 		when(parentContext.getNotFoundController()).thenReturn(parentContextExe);
 		executionMap = new ExecutionMap(parentContext);
 		context = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
-		context1 = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
+		otherContext = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
 	}
 
 	@Test
@@ -232,10 +231,11 @@ public class ExecutionMapTest {
 
 	@Test
 	public void notFoundController_setOnLowerPath() throws NoSuchMethodException {
-		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
-		executionMap.put(context1, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
-
+		otherContext.parentContext = context; // only makes sense if we assume that the parent context of /my/path/{wild1} is /my/path
 		context.setNotFoundController(ExecutionMapTest.class);
+
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(otherContext, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
 
 		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
 		assertEquals(ExecutionMapTest.class.getMethod("notFoundController"), actual.getMethod());
@@ -244,9 +244,9 @@ public class ExecutionMapTest {
 	@Test
 	public void notFoundController_setOnHigherPath() throws NoSuchMethodException {
 		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
-		executionMap.put(context1, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+		executionMap.put(otherContext, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
 
-		context1.setNotFoundController(ExecutionMapTest.class);
+		otherContext.setNotFoundController(ExecutionMapTest.class);
 
 		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
 
@@ -256,7 +256,7 @@ public class ExecutionMapTest {
 	@Test
 	public void notFoundController_noController() {
 		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
-		executionMap.put(context1, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+		executionMap.put(otherContext, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
 
 		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
 		assertEquals(parentContextExe, actual);
