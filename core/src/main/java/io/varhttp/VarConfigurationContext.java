@@ -166,7 +166,7 @@ public class VarConfigurationContext {
 		defaultFilters.add(filterExecution);
 	}
 
-	public void addNotFoundController(Class<?> controllerClass) {
+	public void setNotFoundController(Class<?> controllerClass) {
 		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
 				.filter(method -> method.isAnnotationPresent(NotFoundController.class))
 				.findFirst();
@@ -175,10 +175,10 @@ public class VarConfigurationContext {
 			throw new RuntimeException("No method annotated with @NotFoundController");
 		}
 
-		addNotFoundController(controllerClass, methodAnnotated.get());
+		setNotFoundController(controllerClass, methodAnnotated.get());
 	}
 
-	public void addNotFoundController(Class<?> controllerClass, Method method) {
+	public void setNotFoundController(Class<?> controllerClass, Method method) {
 		ControllerFactory factory = getControllerFactory();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
@@ -188,7 +188,7 @@ public class VarConfigurationContext {
 
 	public ControllerExecution getNotFoundController() {
 		if(notFoundController == null) {
-			parentContext.getNotFoundController();
+			return parentContext.getNotFoundController();
 		}
 
 		return notFoundController;

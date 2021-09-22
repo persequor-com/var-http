@@ -1,5 +1,7 @@
 package io.varhttp;
 
+import com.google.common.base.Strings;
+
 import java.util.*;
 
 public class ExecutionMap {
@@ -62,24 +64,30 @@ public class ExecutionMap {
 
 	private ControllerExecution get(ArrayDeque<String> path, HttpMethod httpMethod) {
 		final ResultExecutionMap result = getExecutionMap(path, new ResultExecutionMap(this));
-		if(result.isFound()) {
-			Map<HttpMethod, ControllerExecution> mapController = result.getExecutionMap().executions;
+		Map<HttpMethod, ControllerExecution> mapController = result.getExecutionMap().executions;
 
-			if(mapController == null || mapController.isEmpty()) {
-				return result.getExecutionMap().context.getNotFoundController();
+		if (result.isFound() && !mapController.isEmpty()) {
+			ControllerExecution controllerExecution = mapController.get(httpMethod);
+
+			if(controllerExecution != null){
+				return controllerExecution;
 			}
-
-			return mapController.get(httpMethod);
 		}
 
 		return result.getExecutionMap().getNotFoundController();
 	}
 
 	public void createPathContext(VarConfigurationContext context, String path) {
+		if(Strings.isNullOrEmpty(path)) {
+			this.context = context;
+			return;
+		}
+
 		ArrayDeque<String> pathParts = new ArrayDeque<>(Arrays.asList(path.split("/")));
 		if (!pathParts.isEmpty() && pathParts.peekFirst().isEmpty()) {
 			pathParts.pollFirst();
 		}
+
 		ExecutionMap executionMap = this;
 		do {
 			String part = pathParts.pollFirst();

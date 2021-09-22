@@ -48,11 +48,11 @@ public class VarConfiguration {
 	}
 
 	public void setNotFoundController(Class<?> filterClass) {
-		context.addNotFoundController(filterClass);
+		context.setNotFoundController(filterClass);
 	}
 
 	public void setNotFoundController(Class<?> filterClass, Method method) {
-		context.addNotFoundController(filterClass, method);
+		context.setNotFoundController(filterClass, method);
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
