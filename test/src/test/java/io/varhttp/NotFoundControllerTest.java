@@ -71,7 +71,7 @@ public class NotFoundControllerTest {
 		Map<String, List<String>> headers = HttpClient.readHeaders(con);
 
 		assertEquals(200, con.getResponseCode());
-		assertTrue("Missing custom header", headers.containsKey(CUSTOM_HEADER));
+		assertTrue("Missing custom header", headers.containsKey("New-header"));
 	}
 
 	@NotFoundController
