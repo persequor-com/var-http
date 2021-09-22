@@ -48,11 +48,11 @@ public class VarConfiguration {
 	}
 
 	public void setNotFoundController(Class<?> filterClass) {
-		context.setNotFoundController(filterClass);
+		context.addNotFoundController(filterClass);
 	}
 
 	public void setNotFoundController(Class<?> filterClass, Method method) {
-		context.setNotFoundController(filterClass, method);
+		context.addNotFoundController(filterClass, method);
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
@@ -61,6 +61,7 @@ public class VarConfiguration {
 
 	public void setBasePath(String basePath) {
 		context.setBasePath(basePath);
+		servlet.executions.createPathContext(context, basePath);
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {

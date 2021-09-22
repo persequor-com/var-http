@@ -28,6 +28,15 @@ public class NotFoundControllerTest {
 		launcher.configure(config -> {
 			config.addDefaultVarFilter(NotFoundControllerTest.class);
 			config.setNotFoundController(NotFoundControllerTest.class);
+
+			config.configure(apiConfig-> {
+				apiConfig.setBasePath("/api/v2");
+				try {
+					apiConfig.setNotFoundController(NotFoundControllerTest.class, NotFoundControllerTest.class.getMethod("otherDefaultController", HttpServletResponse.class));
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				}
+			});
 		});
 		thread = new Thread(launcher);
 		thread.run();
@@ -56,6 +65,15 @@ public class NotFoundControllerTest {
 		assertTrue("Missing custom header", headers.containsKey(CUSTOM_HEADER));
 	}
 
+	@Test
+	public void controllerExitsNonExiting() throws Throwable {
+		HttpURLConnection  con = HttpClient.get(BASE_URL + "/api/v2" + "/kraken", "");
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+
+		assertEquals(200, con.getResponseCode());
+		assertTrue("Missing custom header", headers.containsKey(CUSTOM_HEADER));
+	}
+
 	@NotFoundController
 	public void defaultController(HttpServletRequest request, HttpServletResponse response) {
 		if(!request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
@@ -63,6 +81,9 @@ public class NotFoundControllerTest {
 		}
 	}
 
+	public void otherDefaultController(HttpServletResponse response) {
+		response.setHeader("New-header", "new-header");
+	}
 
 	@FilterMethod
 	public void hello(HttpServletResponse response) {

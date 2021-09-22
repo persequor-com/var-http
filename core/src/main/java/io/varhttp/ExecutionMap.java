@@ -6,12 +6,14 @@ public class ExecutionMap {
 	private static final String WILDCARD = "/{}";
 	private String part = "/";
 	private final ExecutionMap parent;
-	Map<String, ExecutionMap> map = new LinkedHashMap<>();
+	Map<String, ExecutionMap> children = new LinkedHashMap<>();
 	boolean isWildCard = false;
-	private Map<HttpMethod,ControllerExecution> executions = new HashMap<>();
+	private final Map<HttpMethod,ControllerExecution> executions = new HashMap<>();
+	private VarConfigurationContext context;
 
-	public ExecutionMap() {
+	public ExecutionMap(VarConfigurationContext context) {
 		parent = null;
+		this.context = context;
 	}
 
 	public ExecutionMap(String part) {
@@ -19,9 +21,10 @@ public class ExecutionMap {
 		this.parent = null;
 	}
 
-	public ExecutionMap(String part, ExecutionMap parent) {
+	public ExecutionMap(String part, ExecutionMap parent, VarConfigurationContext context) {
 		this.part = part;
 		this.parent = parent;
+		this.context = context;
 	}
 
 	public ControllerExecution get(String[] path, HttpMethod httpMethod) {
@@ -33,64 +36,67 @@ public class ExecutionMap {
 		return get(ar, httpMethod);
 	}
 
-	public Set<HttpMethod> getAllowedMethods(String[] path) {
-		ArrayDeque<String> ar = new ArrayDeque<>(Arrays.asList(path));
-		if (!ar.isEmpty() && ar.peekFirst().equals("")) {
-			ar.pollFirst();
+	private ResultExecutionMap getExecutionMap(ArrayDeque<String> path, ResultExecutionMap result) {
+		if (path.isEmpty()) {
+			result.setExecutionMap(this);
+			return result;
 		}
 
-		return getAllowedMethods(ar);
-	}
+		String part = path.pollFirst();
 
-	public Set<HttpMethod> getAllowedMethods(ArrayDeque<String> path) {
-		final Map<HttpMethod, ControllerExecution> mapController = getMapController(path);
-		if (mapController == null) {
-			return new HashSet<>();
+		if (!children.containsKey(part) && isWildCard) {
+			part = WILDCARD;
 		}
-		return mapController.keySet();
+
+		ExecutionMap executionMap = children.get(part);
+		if (executionMap != null) {
+			result.setExecutionMap(this);
+			return executionMap.getExecutionMap(path, result);
+		} else if (isWildCard) {
+			result.setExecutionMap(this);
+		} else {
+			result.notFound();
+		}
+		return result;
 	}
 
 	private ControllerExecution get(ArrayDeque<String> path, HttpMethod httpMethod) {
-		final Map<HttpMethod, ControllerExecution> mapController = getMapController(path);
+		final ResultExecutionMap result = getExecutionMap(path, new ResultExecutionMap(this));
+		if(result.isFound()) {
+			Map<HttpMethod, ControllerExecution> mapController = result.getExecutionMap().executions;
 
-		if(mapController == null) {
-			return null;
-		}
-
-		return mapController.get(httpMethod);
-	}
-
-	private Map<HttpMethod, ControllerExecution> getMapController(ArrayDeque<String> path) {
-		if (path.isEmpty()) {
-			if (executions.isEmpty()) {
-				throw new RuntimeException("Empty path, but no execution at: " + getPath());
+			if(mapController == null || mapController.isEmpty()) {
+				return result.getExecutionMap().context.getNotFoundController();
 			}
-			return executions;
+
+			return mapController.get(httpMethod);
 		}
-		String part = path.pollFirst();
-		if (!map.containsKey(part) && isWildCard) {
-			part = WILDCARD;
-		}
-		ExecutionMap executionMap = map.get(part);
-		if (executionMap != null) {
-			return executionMap.getMapController(path);
-		} else if (isWildCard) {
-			return executions;
-		} else {
-			return null;
-		}
+
+		return result.getExecutionMap().getNotFoundController();
 	}
 
-	public void put(Request request, ControllerExecution controllerExecution) {
+	public void createPathContext(VarConfigurationContext context, String path) {
+		ArrayDeque<String> pathParts = new ArrayDeque<>(Arrays.asList(path.split("/")));
+		if (!pathParts.isEmpty() && pathParts.peekFirst().isEmpty()) {
+			pathParts.pollFirst();
+		}
+		ExecutionMap executionMap = this;
+		do {
+			String part = pathParts.pollFirst();
+			executionMap = executionMap.children.computeIfAbsent(part, s -> new ExecutionMap(part, this, context));
+		} while (!pathParts.isEmpty());
+	}
+
+	public void put(VarConfigurationContext context, Request request, ControllerExecution controllerExecution) {
 		ArrayDeque<String> pathParts = new ArrayDeque<>(Arrays.asList(request.path.split("/")));
 		if (!pathParts.isEmpty() && pathParts.peekFirst().isEmpty()) {
 			pathParts.pollFirst();
 		}
 //		pathParts.add("/"+request.method.name());
-		put(request, pathParts, controllerExecution);
+		put(context, request, pathParts, controllerExecution);
 	}
 
-	private void put(Request request, ArrayDeque<String> pathParts, ControllerExecution controllerExecution) {
+	private void put(VarConfigurationContext context, Request request, ArrayDeque<String> pathParts, ControllerExecution controllerExecution) {
 		if (pathParts.size() == 0 || pathParts.peekFirst().equals("*")) {
 			if (executions.containsKey(request.method)) {
 				throw new ControllerAlreadyExistsException(request);
@@ -119,13 +125,40 @@ public class ExecutionMap {
 
 
 		String finalPart = part;
-		map.computeIfAbsent(part, s -> new ExecutionMap(finalPart, this))
-			.put(request, pathParts, controllerExecution);
+		children.computeIfAbsent(part, s -> new ExecutionMap(finalPart, this, context))
+			.put(context, request, pathParts, controllerExecution);
 	}
 
 	private String getPath() {
 		return parent != null ? parent.getPath()+"/"+part : "";
 	}
 
+	public ControllerExecution getNotFoundController() {
+		return context.getNotFoundController();
+	}
 
+	private static class ResultExecutionMap {
+		private ExecutionMap executionMap;
+		private boolean isFound = true;
+
+		public boolean isFound() {
+			return isFound;
+		}
+
+		ResultExecutionMap(ExecutionMap executionMap) {
+			this.executionMap = executionMap;
+		}
+
+		public void notFound() {
+			this.isFound = false;
+		}
+
+		public ExecutionMap getExecutionMap() {
+			return executionMap;
+		}
+
+		public void setExecutionMap(ExecutionMap executionMap) {
+			this.executionMap = executionMap;
+		}
+	}
 }

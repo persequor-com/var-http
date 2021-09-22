@@ -15,14 +15,13 @@ public class VarServlet extends HttpServlet {
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
-	private ControllerExecution notFoundController;
 
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
 
-		this.executions = new ExecutionMap();
 		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, filterFactory, controllerFactory, controllerFilter);
+		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 
 	@Override
@@ -83,12 +82,7 @@ public class VarServlet extends HttpServlet {
 				return;
 			}
 		} else {
-			// Strange error message
-			if(notFoundController != null) {
-				notFoundController.execute(new ControllerContext(request, response));
-			} else {
-				response.setStatus(404);
-			}
+			response.setStatus(404);
 			return;
 		}
 
@@ -103,9 +97,5 @@ public class VarServlet extends HttpServlet {
 
 	public void configure(Consumer<VarConfiguration> configuration) {
 		configuration.accept(new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler));
-	}
-
-	public void setNotFoundController(ControllerExecution controllerExecution) {
-		notFoundController = controllerExecution;
 	}
 }

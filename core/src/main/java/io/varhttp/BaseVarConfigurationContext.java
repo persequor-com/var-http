@@ -73,4 +73,9 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	List<Object> getDefaultFilters() {
 		return defaultFilters;
 	}
+
+	@Override
+	public ControllerExecution getNotFoundController() {
+		return notFoundController;
+	}
 }

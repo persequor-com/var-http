@@ -6,9 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Set;
-
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExecutionMapTest {
@@ -21,15 +20,24 @@ public class ExecutionMapTest {
 	@Mock
 	private ControllerExecution execution3;
 
+	@Mock
+	private VarConfigurationContext context;
+	@Mock
+	private VarConfigurationContext parentContext;
+	@Mock
+	private ControllerExecution controllerExe;
+	@Mock
+	private ControllerExecution parentContextExe;
+
 	@Before
 	public void setup() {
-		executionMap = new ExecutionMap();
+		executionMap = new ExecutionMap(parentContext);
 	}
 
 	@Test
 	public void happy() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path2"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path2"), execution2);
 
 		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
@@ -40,15 +48,15 @@ public class ExecutionMapTest {
 
 	@Test
 	public void notADuplicate_ifDifferentHttpMethods() {
-		executionMap.put(new Request(HttpMethod.PUT, "/my/path"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.PUT, "/my/path"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
 	}
 
 
 	@Test
 	public void notADuplicate_ifDifferentHttpMethods_forBaseUrl() {
-		executionMap.put(new Request(HttpMethod.PUT, "/"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
+		executionMap.put(context, new Request(HttpMethod.PUT, "/"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/"), execution2);
 
 		ControllerExecution actual = executionMap.get(new String[]{}, HttpMethod.GET);
 		assertSame(execution2, actual);
@@ -56,7 +64,7 @@ public class ExecutionMapTest {
 
 	@Test
 	public void passingEmptyStringPath() {
-		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/"), execution2);
 
 		ControllerExecution actual = executionMap.get(new String[]{""}, HttpMethod.GET);
 		assertSame(execution2, actual);
@@ -64,20 +72,20 @@ public class ExecutionMapTest {
 
 	@Test(expected = RuntimeException.class)
 	public void duplicate() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void duplicate_forBaseUrl() {
-		executionMap.put(new Request(HttpMethod.GET, "/"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/"), execution2);
 	}
 
 	@Test
 	public void simpleWildcard() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/sub"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}/sub"), execution2);
 
 		ControllerExecution actual = executionMap.get("my/path/muh".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
@@ -88,8 +96,8 @@ public class ExecutionMapTest {
 
 	@Test
 	public void wildcardAndEmptyOnSameHttpMethod() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
 
 		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
 		assertSame(execution2, actual);
@@ -100,8 +108,8 @@ public class ExecutionMapTest {
 
 	@Test
 	public void wildcardAndEmptyOnSameHttpMethod_reversed() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
 
 		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
 		assertSame(execution2, actual);
@@ -112,8 +120,8 @@ public class ExecutionMapTest {
 
 	@Test
 	public void deepWildcard_clashesWithNonWildcard() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/sub"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}/sub"), execution2);
 
 		ControllerExecution actual = executionMap.get("my/path/something/something".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
@@ -124,8 +132,8 @@ public class ExecutionMapTest {
 
 	@Test
 	public void deepWildcard_clashesWithNonWildcard_reverseOrder() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/sub"), execution2);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}/sub"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
 
 		ControllerExecution actual = executionMap.get("my/path/something/something".split("/"), HttpMethod.GET);
 		assertSame(execution1, actual);
@@ -136,9 +144,9 @@ public class ExecutionMapTest {
 
 	@Test
 	public void multilevelWildcard() {
-		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
-		executionMap.put(new Request(HttpMethod.GET, "/other/path"), execution3);
+		executionMap.put(context, new Request(HttpMethod.GET, "/*"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/other/path"), execution3);
 
 		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
 		assertSame(execution2, actual);
@@ -158,9 +166,9 @@ public class ExecutionMapTest {
 
 	@Test
 	public void multilevelWildcard_reversed() {
-		executionMap.put(new Request(HttpMethod.GET, "/other/path"), execution3);
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution2);
-		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
+		executionMap.put(context, new Request(HttpMethod.GET, "/other/path"), execution3);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/*"), execution1);
 
 		ControllerExecution actual = executionMap.get("my/path".split("/"), HttpMethod.GET);
 		assertSame(execution2, actual);
@@ -179,81 +187,24 @@ public class ExecutionMapTest {
 	}
 
 	@Test
-	public void getAllowedMethods_happyPath() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
-		executionMap.put(new Request(HttpMethod.PUT, "/my/path2"), execution2);
+	public void notFoundController() {
+		executionMap.put(context, new Request(HttpMethod.GET, "/other/path"), execution3);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
+		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
 
-		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.GET));
+		when(context.getNotFoundController()).thenReturn(controllerExe);
+		when(parentContext.getNotFoundController()).thenReturn(parentContextExe);
 
-		actual = executionMap.getAllowedMethods("my/path2".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.PUT));
-	}
+		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
+		assertSame(controllerExe, actual);
 
-	@Test
-	public void getAllowedMethods_samePath() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path"), execution1);
-		executionMap.put(new Request(HttpMethod.PUT, "/my/path"), execution2);
+		actual = executionMap.get("other/path/potatoes".split("/"), HttpMethod.GET);
+		assertSame(controllerExe, actual);
 
-		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(2, actual.size());
-		assertTrue(actual.contains(HttpMethod.GET));
-		assertTrue(actual.contains(HttpMethod.PUT));
+		actual = executionMap.get("other/".split("/"), HttpMethod.GET);
+		assertSame(controllerExe, actual);
 
-		actual = executionMap.getAllowedMethods("my/path2".split("/"));
-		assertTrue(actual.isEmpty());
-	}
-
-	@Test
-	public void getAllowedMethods_deepWildcard_clashesWithNonWildcard() {
-		executionMap.put(new Request(HttpMethod.GET, "/my/path/{wild1}/{wild2}"), execution1);
-		executionMap.put(new Request(HttpMethod.POST, "/my/path/{wild1}/sub"), execution2);
-
-		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path/something/something".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.GET));
-
-		actual = executionMap.getAllowedMethods("my/path/something/sub".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.POST));
-	}
-
-	@Test
-	public void getAllowedMethods_multilevelWildcard() {
-		executionMap.put(new Request(HttpMethod.GET, "/*"), execution1);
-		executionMap.put(new Request(HttpMethod.POST, "/my/path"), execution2);
-		executionMap.put(new Request(HttpMethod.PUT, "/other/path"), execution3);
-
-		Set<HttpMethod> actual = executionMap.getAllowedMethods("my/path".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.POST));
-
-		actual = executionMap.getAllowedMethods("other/path".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.PUT));
-
-		actual = executionMap.getAllowedMethods("something/else/entirely".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.GET));
-
-		actual = executionMap.getAllowedMethods("and/yet/another/different/path".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.GET));
-
-		actual = executionMap.getAllowedMethods("".split("/"));
-		assertFalse(actual.isEmpty());
-		assertEquals(1, actual.size());
-		assertTrue(actual.contains(HttpMethod.GET));
+		actual = executionMap.get("".split("/"), HttpMethod.GET);
+		assertSame(parentContextExe, actual);
 	}
 }

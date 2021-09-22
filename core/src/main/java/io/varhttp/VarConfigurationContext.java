@@ -21,7 +21,7 @@ public class VarConfigurationContext {
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
 	List<Object> defaultFilters = new ArrayList<>();
-
+	ControllerExecution notFoundController;
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext, ParameterHandler parameterHandler) {
 		this.varServlet = varServlet;
@@ -75,7 +75,7 @@ public class VarConfigurationContext {
 		return Stream.concat(defaultFilters.stream(),parentContext.getDefaultFilters().stream()).collect(Collectors.toList());
 	}
 
-	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult) {
+	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult, VarConfigurationContext context) {
 		Set<HttpMethod> httpMethods = matchResult.getHttpMethods();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, baseUri, classPath);
 		for (HttpMethod httpMethod : httpMethods) {
@@ -83,7 +83,7 @@ public class VarConfigurationContext {
 			ControllerFactory factory = getControllerFactory();
 			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
 			if (getControllerFilter().accepts(request, execution)) {
-				varServlet.executions.put(request, execution);
+				varServlet.executions.put(context, request, execution);
 			}
 		}
 	}
@@ -166,7 +166,7 @@ public class VarConfigurationContext {
 		defaultFilters.add(filterExecution);
 	}
 
-	public void setNotFoundController(Class<?> controllerClass) {
+	public void addNotFoundController(Class<?> controllerClass) {
 		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
 				.filter(method -> method.isAnnotationPresent(NotFoundController.class))
 				.findFirst();
@@ -175,15 +175,23 @@ public class VarConfigurationContext {
 			throw new RuntimeException("No method annotated with @NotFoundController");
 		}
 
-		setNotFoundController(controllerClass, methodAnnotated.get());
+		addNotFoundController(controllerClass, methodAnnotated.get());
 	}
 
-	public void setNotFoundController(Class<?> controllerClass, Method method) {
+	public void addNotFoundController(Class<?> controllerClass, Method method) {
 		ControllerFactory factory = getControllerFactory();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
 		ControllerMatch matchResult = new ControllerMatch(method, "", new HashSet<>(), "");
-		varServlet.setNotFoundController(new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method)));
+		notFoundController = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
+	}
+
+	public ControllerExecution getNotFoundController() {
+		if(notFoundController == null) {
+			parentContext.getNotFoundController();
+		}
+
+		return notFoundController;
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
