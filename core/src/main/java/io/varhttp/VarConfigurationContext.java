@@ -147,13 +147,7 @@ public class VarConfigurationContext {
 	}
 
 	public void addDefaultVarFilter(Class<?> controllerClass) {
-		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
-				.filter(method -> method.isAnnotationPresent(FilterMethod.class))
-				.findFirst();
-
-		if(!methodAnnotated.isPresent()) {
-			throw new RuntimeException("No method annotated with @FilterMethod");
-		}
+		final Optional<Method> methodAnnotated = getMethodByAnnotation(controllerClass, FilterMethod.class);
 
 		addDefaultVarFilter(controllerClass, methodAnnotated.get());
 	}
@@ -167,15 +161,20 @@ public class VarConfigurationContext {
 	}
 
 	public void setNotFoundController(Class<?> controllerClass) {
+		final Optional<Method> methodAnnotated = getMethodByAnnotation(controllerClass, NotFoundController.class);
+
+		setNotFoundController(controllerClass, methodAnnotated.get());
+	}
+
+	private Optional<Method> getMethodByAnnotation(Class<?> controllerClass, Class annotationClass) {
 		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
-				.filter(method -> method.isAnnotationPresent(NotFoundController.class))
+				.filter(method -> method.isAnnotationPresent(annotationClass))
 				.findFirst();
 
 		if(!methodAnnotated.isPresent()) {
-			throw new RuntimeException("No method annotated with @NotFoundController");
+			throw new RuntimeException("No method annotated with" + annotationClass.getName());
 		}
-
-		setNotFoundController(controllerClass, methodAnnotated.get());
+		return methodAnnotated;
 	}
 
 	public void setNotFoundController(Class<?> controllerClass, Method method) {
