@@ -11,11 +11,10 @@ import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
 import io.varhttp.ResponseStream;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +52,17 @@ public class MyTestController {
 		responseHeader.setContentType("text/plainish");
 		return "muh";
 	}
+
+	@Controller(path = "/header-path-info/*")
+	public String headerPathInfo(ResponseHeader responseHeader, RequestHeader requestHeader) {
+		return requestHeader.getPath();
+	}
+
+	@Controller(path = "/http-servlet-request/*")
+	public String servletRequest(HttpServletRequest servletRequest) {
+		return servletRequest.getRequestURI();
+	}
+
 
 	@Controller(path = "/defaultValue")
 	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh", required = false) String param, @RequestParameter(name = "param2", defaultValue = "muh", required = false) String param2) {

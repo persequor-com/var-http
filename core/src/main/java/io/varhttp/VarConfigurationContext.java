@@ -2,13 +2,12 @@ package io.varhttp;
 
 import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
-
-import javax.servlet.Filter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.Filter;
 
 public class VarConfigurationContext {
 	private VarServlet varServlet;
@@ -23,7 +22,8 @@ public class VarConfigurationContext {
 	List<Object> defaultFilters = new ArrayList<>();
 	ControllerExecution notFoundController;
 
-	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext, ParameterHandler parameterHandler) {
+	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
+								   ParameterHandler parameterHandler) {
 		this.varServlet = varServlet;
 		this.parameterHandler = parameterHandler;
 		this.parentContext = parentContext;
@@ -104,6 +104,7 @@ public class VarConfigurationContext {
 		filters.addAll(filterAnnotations);
 	}
 
+
 	private List<Object> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
 		List<Object> filters = new ArrayList<>(getDefaultFilters());
 
@@ -118,7 +119,21 @@ public class VarConfigurationContext {
 		return filters;
 	}
 
+	private Object getAndInitializeFilter(Method method, FilterTuple filterTuple) {
+		Object filter = getFilterFactory().getInstance(filterTuple.getFilter().value());
+		if (filter instanceof VarFilter) {
+			((VarFilter) filter).init(method, filterTuple.getFilter(), filterTuple.getAnnotation());
+		}
+		return filter;
+	}
 
+	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterTuple) {
+		Object filter = getFilterFactory().getInstance(filterTuple);
+		if (filter instanceof VarFilter) {
+			((VarFilter) filter).init(method, null, null);
+		}
+		return filter;
+	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {
 		return Arrays.stream(annotations).map(annotation -> {

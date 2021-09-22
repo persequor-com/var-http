@@ -11,6 +11,7 @@ public class VarConfiguration {
 	private final VarConfigurationContext context;
 	private ControllerMapper controllerMapper = null;
 	private final ParameterHandler parameterHandler;
+	private ExceptionRegistry exceptionRegistry;
 
 	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler) {
 		this.servlet = servlet;
@@ -57,6 +58,10 @@ public class VarConfiguration {
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
 		context.addControllerMatcher(controllerMatcher);
+	}
+
+	public void addExceptionMapper(ControllerExceptionMapper controllerExceptionMapper) {
+		context.getExceptionRegistry().registerException(controllerExceptionMapper);
 	}
 
 	public void setBasePath(String basePath) {

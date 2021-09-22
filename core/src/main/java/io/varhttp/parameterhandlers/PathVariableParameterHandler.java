@@ -18,7 +18,7 @@ public class PathVariableParameterHandler implements IParameterHandler {
 
 	@Override
 	public Object handle(ControllerContext controllerContext) {
-		Matcher matcher = pattern.matcher(controllerContext.request().getPathInfo());
+		Matcher matcher = pattern.matcher(controllerContext.request().getRequestURI());
 
 		if(matcher.find()) {
 			return convert.convert(matcher.group(1), matchContext.getType(), matchContext.getDefaultValue());

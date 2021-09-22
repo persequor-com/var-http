@@ -1,6 +1,7 @@
 package io.varhttp;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpsServer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -30,11 +31,12 @@ import java.util.Map;
 import java.util.Vector;
 
 public class VarHttpServletRequest implements HttpServletRequest {
+
 	private final HttpExchange ex;
 	private final Map<String, String[]> postData;
 	private final ServletInputStream is;
 	private final Map<String, Object> attributes = new HashMap<>();
-	private ServletContext context;
+	private final ServletContext context;
 
 	public VarHttpServletRequest(HttpExchange ex, Map<String, String[]> postData, ServletInputStream is, ServletContext context) {
 		this.ex = ex;
@@ -93,7 +95,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public boolean isSecure() {
-		return ex.getRequestURI().toString().startsWith("https");
+		return (ex.getHttpContext().getServer() instanceof HttpsServer);
 	}
 
 	@Override
@@ -213,7 +215,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getPathInfo() {
-		return ex.getRequestURI().getPath();
+		return ex.getRequestURI().getPath().substring(getServletPath().length());
 	}
 
 	@Override
@@ -221,9 +223,10 @@ public class VarHttpServletRequest implements HttpServletRequest {
 		return null;
 	}
 
+	//In standalone mode all the servlets are run within the root context
 	@Override
 	public String getContextPath() {
-		return "/";
+		return "";
 	}
 
 	@Override
@@ -238,12 +241,12 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public boolean isUserInRole(String role) {
-		throw new UnsupportedOperationException();
+		return false;
 	}
 
 	@Override
 	public Principal getUserPrincipal() {
-		throw new UnsupportedOperationException();
+		return () -> "Anonymous";
 	}
 
 	@Override
@@ -269,7 +272,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getScheme() {
-		return ex.getRequestURI().getScheme();
+		return isSecure() ? "https" : "http";
 	}
 
 	@Override
@@ -293,12 +296,12 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getRequestURI() {
-		return ex.getRequestURI().toString();
+		return ex.getRequestURI().getPath();
 	}
 
 	@Override
 	public StringBuffer getRequestURL() {
-		return new StringBuffer(ex.getRequestURI().toString());
+		return new StringBuffer(getScheme()).append(":/").append(ex.getLocalAddress()).append(ex.getRequestURI());
 	}
 
 	@Override
@@ -308,9 +311,9 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getServletPath() {
-		String path = ex.getHttpContext().getPath().substring(1);
-
-		return path;
+		String contextPath = ex.getHttpContext().getPath();
+		//will return empty string for root context which is correct according to spec
+		return contextPath.endsWith("/") ? contextPath.substring(0, contextPath.length() - 1) : contextPath;
 	}
 
 	@Override
@@ -390,7 +393,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 			return new Cookie[0];
 		}
 		String[] cookies = cookieString.split(";");
-		return Arrays.stream(cookies).map(s -> s.split("=")).map(a -> new Cookie(a[0].trim(),a[1].trim())).toArray(Cookie[]::new);
+		return Arrays.stream(cookies).map(s -> s.split("=")).map(a -> new Cookie(a[0].trim(), a[1].trim())).toArray(Cookie[]::new);
 	}
 
 	@Override

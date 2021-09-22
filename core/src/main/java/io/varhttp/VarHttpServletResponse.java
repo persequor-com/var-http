@@ -37,7 +37,6 @@ public class VarHttpServletResponse implements HttpServletResponse {
 	private final HttpExchange ex;
 	private final PrintWriter printWriter;
 	private int status = HttpServletResponse.SC_OK;
-	private int bufferSize;
 
 	public VarHttpServletResponse(HttpExchange ex) {
 		this.ex = ex;
@@ -61,7 +60,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void flushBuffer() throws IOException {
-		ex.getResponseBody().flush();
+		outputStream.flush();
 	}
 
 	@Override

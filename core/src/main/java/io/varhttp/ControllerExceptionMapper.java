@@ -1,8 +1,8 @@
 package io.varhttp;
 
 public class ControllerExceptionMapper {
-	private Class<? extends Throwable> clazz;
-	private int httpResponseCode;
+	private final Class<? extends Throwable> clazz;
+	private final int httpResponseCode;
 
 	public ControllerExceptionMapper(Class<? extends Throwable> clazz, int httpResponseCode) {
 		this.clazz = clazz;
