@@ -5,39 +5,24 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.MatchResult;
-import java.util.stream.Stream;
 
-public class ControllerExecution {
+public class ControllerExecution  {
+	private final VarFilterExecution filterExecution;
 	org.slf4j.Logger logger = LoggerFactory.getLogger(ControllerExecution.class);
 
-	private final Provider<Object> controllerImplementation;
-
 	private final Method method;
-	private final IParameterHandler[] args;
-	private final ParameterHandler parameterHandler;
 	private final ExceptionRegistry exceptionRegistry;
 	private ControllerMatch matchResult;
-	private final List<Filter> filters;
+	private final List<Object> filters;
 
 	public ControllerExecution(Provider<Object> controllerImplementation
 			, Method method
@@ -45,42 +30,23 @@ public class ControllerExecution {
 			, ParameterHandler parameterHandler
 			, ExceptionRegistry exceptionRegistry
 			, ControllerMatch matchResult
-			, List<Filter> filters
+			, List<Object> filters
 	) {
-		this.controllerImplementation = controllerImplementation;
 		this.method = method;
-		this.args = args;
-		this.parameterHandler = parameterHandler;
 		this.exceptionRegistry = exceptionRegistry;
 		this.matchResult = matchResult;
 		this.filters = filters;
+		this.filterExecution = new VarFilterExecution(controllerImplementation, method, args, parameterHandler, matchResult);
 	}
 
 	public void execute(ControllerContext context) {
-		Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.handle(context)).toArray();
 		try {
-			List<Filter> filters = new ArrayList<>(this.filters);
-			filters.add((request, response, chain) -> {
-				try {
-					Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
-					ContentTypes types = new ContentTypes();
-
-					if (context.response().getHeader("Content-Type") == null) {
-						if (context.request().getHeader("Accept") != null) {
-							types.add(context.request().getHeader("Accept"));
-						}
-						if (!"".equals(matchResult.getContentType())) {
-							types.set(matchResult.getContentType());
-						}
-					}
-					parameterHandler.handleReturnResponse(responseObject, context, types);
-
-				} catch(IllegalAccessException | InvocationTargetException e) {
-					throw new ServletException(e);
-				}
+			List<Object> filters = new ArrayList<>(this.filters);
+			filters.add((Filter)(request, response, chain) -> {
+				filterExecution.doFilter(context);
 			});
-			Iterator<Filter> iterator = filters.iterator();
-			VarFilterChain chain = new VarFilterChain(iterator.next(), iterator);
+			Iterator<Object> iterator = filters.iterator();
+			VarFilterChain chain = new VarFilterChain(context, iterator.next(), iterator);
 			chain.doFilter(context.request(), context.response());
 		} catch (ServletException e) {
 			// Controller logic threw exception
@@ -117,19 +83,28 @@ public class ControllerExecution {
 	}
 
 	private static class VarFilterChain implements FilterChain {
-		private final Filter current;
+		private ControllerContext context;
+		private final Object current;
 		private FilterChain chain = null;
 
-		public VarFilterChain(Filter current, Iterator<Filter> iterator) {
+		public VarFilterChain(ControllerContext context, Object current, Iterator<Object> iterator) {
+			this.context = context;
 			this.current = current;
 			if (iterator.hasNext()) {
-				chain = new VarFilterChain(iterator.next(), iterator);
+				chain = new VarFilterChain(context, iterator.next(), iterator);
 			}
 		}
 
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-			current.doFilter(request, response, chain);
+			if (current instanceof Filter) {
+				((Filter) current).doFilter(request, response, chain);
+			} else if(current instanceof VarFilterExecution) {
+				((VarFilterExecution) current).doFilter(context);
+				chain.doFilter(request, response);
+			} else {
+				throw new VarInitializationException("Invalid filter type: "+current.getClass().getName());
+			}
 		}
 	}
 

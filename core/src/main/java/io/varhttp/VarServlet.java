@@ -2,10 +2,10 @@ package io.varhttp;
 
 import java.io.IOException;
 import java.util.function.Consumer;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +19,14 @@ public class VarServlet extends HttpServlet {
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
-		this.executions = new ExecutionMap();
+
 		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, filterFactory, controllerFactory, controllerFilter);
+		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			handle(request, response);
-		} catch (Throwable e) {
-			System.out.println(e.toString());
-			throw e;
-		}
+		handle(request, response);
 	}
 
 	@Override
@@ -39,27 +35,27 @@ public class VarServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
 	@Override
-	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) {
 		handle(req, resp);
 	}
 
@@ -71,9 +67,11 @@ public class VarServlet extends HttpServlet {
 		}
 		Request r = new Request(httpMethod, servletPath);
 
+		final String[] requestPath = r.path.substring(1).split("/");
+
 		ControllerExecution exe = null;
 
-		exe = executions.get(r.path.substring(1).split("/"), r.method);
+		exe = executions.get(requestPath, r.method);
 
 		if (exe != null) {
 			try {
@@ -84,7 +82,6 @@ public class VarServlet extends HttpServlet {
 				return;
 			}
 		} else {
-			// Strange error message
 			response.setStatus(404);
 			return;
 		}
@@ -101,5 +98,4 @@ public class VarServlet extends HttpServlet {
 	public void configure(Consumer<VarConfiguration> configuration) {
 		configuration.accept(new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler));
 	}
-
 }

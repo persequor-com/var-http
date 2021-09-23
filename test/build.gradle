@@ -7,3 +7,7 @@ dependencies {
     compile project(':core');
     compile project(':serializer-guice');
 }
+
+test{
+    systemProperty("sun.net.http.allowRestrictedHeaders", true)  // Necessary to overcome with restricted Headers filter out by HttpURLConnection
+}

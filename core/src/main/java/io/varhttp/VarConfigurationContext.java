@@ -4,13 +4,7 @@ import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.Filter;
@@ -25,9 +19,8 @@ public class VarConfigurationContext {
 	FilterFactory filterFactory = null;
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
-	List<Class<? extends Filter>> defaultFilters = new ArrayList<>();
-
-
+	List<Object> defaultFilters = new ArrayList<>();
+	ControllerExecution notFoundController;
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
 								   ParameterHandler parameterHandler) {
@@ -78,11 +71,11 @@ public class VarConfigurationContext {
 	}
 
 
-	Collection<Class<? extends Filter>> getDefaultFilters() {
-		return Stream.concat(parentContext.getDefaultFilters().stream(), defaultFilters.stream()).collect(Collectors.toList());
+	List<Object> getDefaultFilters() {
+		return Stream.concat(defaultFilters.stream(),parentContext.getDefaultFilters().stream()).collect(Collectors.toList());
 	}
 
-	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult) {
+	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult, VarConfigurationContext context) {
 		Set<HttpMethod> httpMethods = matchResult.getHttpMethods();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, baseUri, classPath);
 		for (HttpMethod httpMethod : httpMethods) {
@@ -90,12 +83,12 @@ public class VarConfigurationContext {
 			ControllerFactory factory = getControllerFactory();
 			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
 			if (getControllerFilter().accepts(request, execution)) {
-				varServlet.executions.put(request, execution);
+				varServlet.executions.put(context, request, execution);
 			}
 		}
 	}
 
-	private List<Filter> getFilters(Method method) {
+	private List<Object> getFilters(Method method) {
 		LinkedHashSet<FilterTuple> filters = new LinkedHashSet<>();
 		replaceAll(filters, getFilterAnnotations(method.getDeclaringClass().getPackage().getAnnotations()));
 		replaceAll(filters, getFilterAnnotations(method.getClass().getPackage().getAnnotations()));
@@ -111,24 +104,31 @@ public class VarConfigurationContext {
 		filters.addAll(filterAnnotations);
 	}
 
-	private List<Filter> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		List<Filter> filters = getDefaultFilters().stream().map(f -> getAndInitializeDefaultFilter(method, f)).collect(Collectors.toList());
 
-		filters.addAll(filterAnnotations.stream().map(f -> getAndInitializeFilter(method, f)).collect(Collectors.toList()));
+	private List<Object> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
+		List<Object> filters = new ArrayList<>(getDefaultFilters());
+
+		filters.addAll(filterAnnotations.stream().map(f -> {
+			Object filter = getFilterFactory().getInstance(f.getFilter().value());
+			if (filter instanceof VarFilter) {
+				((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
+			}
+			return filter;
+		}).collect(Collectors.toList()));
 
 		return filters;
 	}
 
-	private Filter getAndInitializeFilter(Method method, FilterTuple filterTuple) {
-		Filter filter = getFilterFactory().getInstance(filterTuple.getFilter().value());
+	private Object getAndInitializeFilter(Method method, FilterTuple filterTuple) {
+		Object filter = getFilterFactory().getInstance(filterTuple.getFilter().value());
 		if (filter instanceof VarFilter) {
 			((VarFilter) filter).init(method, filterTuple.getFilter(), filterTuple.getAnnotation());
 		}
 		return filter;
 	}
 
-	private Filter getAndInitializeDefaultFilter(Method method, Class<? extends Filter> filterTuple) {
-		Filter filter = getFilterFactory().getInstance(filterTuple);
+	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterTuple) {
+		Object filter = getFilterFactory().getInstance(filterTuple);
 		if (filter instanceof VarFilter) {
 			((VarFilter) filter).init(method, null, null);
 		}
@@ -158,7 +158,54 @@ public class VarConfigurationContext {
 
 
 	public void addDefaultFilter(Class<? extends Filter> filter) {
-		defaultFilters.add(filter);
+		defaultFilters.add(getFilterFactory().getInstance(filter));
+	}
+
+	public void addDefaultVarFilter(Class<?> controllerClass) {
+		final Optional<Method> methodAnnotated = getMethodByAnnotation(controllerClass, FilterMethod.class);
+
+		addDefaultVarFilter(controllerClass, methodAnnotated.get());
+	}
+
+	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
+		ControllerFactory factory = getControllerFactory();
+		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
+
+		VarFilterExecution filterExecution = new VarFilterExecution(() -> factory.getInstance(filterClass), method, args, parameterHandler, new ControllerMatch(method, null, null, ""));
+		defaultFilters.add(filterExecution);
+	}
+
+	public void setNotFoundController(Class<?> controllerClass) {
+		final Optional<Method> methodAnnotated = getMethodByAnnotation(controllerClass, NotFoundController.class);
+
+		setNotFoundController(controllerClass, methodAnnotated.get());
+	}
+
+	private Optional<Method> getMethodByAnnotation(Class<?> controllerClass, Class annotationClass) {
+		final Optional<Method> methodAnnotated = Arrays.stream(controllerClass.getMethods())
+				.filter(method -> method.isAnnotationPresent(annotationClass))
+				.findFirst();
+
+		if(!methodAnnotated.isPresent()) {
+			throw new RuntimeException("No method annotated with" + annotationClass.getName());
+		}
+		return methodAnnotated;
+	}
+
+	public void setNotFoundController(Class<?> controllerClass, Method method) {
+		ControllerFactory factory = getControllerFactory();
+		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
+
+		ControllerMatch matchResult = new ControllerMatch(method, "", new HashSet<>(), "");
+		notFoundController = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
+	}
+
+	public ControllerExecution getNotFoundController() {
+		if(notFoundController == null) {
+			return parentContext.getNotFoundController();
+		}
+
+		return notFoundController;
 	}
 
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {

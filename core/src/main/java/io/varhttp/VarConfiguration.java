@@ -3,13 +3,14 @@ package io.varhttp;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 
 import javax.servlet.Filter;
+import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 public class VarConfiguration {
 	private VarServlet servlet = null;
 	private final VarConfigurationContext context;
 	private ControllerMapper controllerMapper = null;
-	private ParameterHandler parameterHandler;
+	private final ParameterHandler parameterHandler;
 	private ExceptionRegistry exceptionRegistry;
 
 	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler) {
@@ -39,6 +40,22 @@ public class VarConfiguration {
 		context.addDefaultFilter(filter);
 	}
 
+	public void addDefaultVarFilter(Class<?> filterClass) {
+		context.addDefaultVarFilter(filterClass);
+	}
+
+	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
+		context.addDefaultVarFilter(filterClass, method);
+	}
+
+	public void setNotFoundController(Class<?> filterClass) {
+		context.setNotFoundController(filterClass);
+	}
+
+	public void setNotFoundController(Class<?> filterClass, Method method) {
+		context.setNotFoundController(filterClass, method);
+	}
+
 	public void addControllerMatcher(ControllerMatcher controllerMatcher) {
 		context.addControllerMatcher(controllerMatcher);
 	}
@@ -49,6 +66,7 @@ public class VarConfiguration {
 
 	public void setBasePath(String basePath) {
 		context.setBasePath(basePath);
+		servlet.executions.createPathContext(context, basePath);
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {

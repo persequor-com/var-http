@@ -14,7 +14,7 @@ public class TestFilterFactory implements FilterFactory {
 	}
 
 	@Override
-	public Filter getInstance(Class<? extends Filter> filterClass) {
+	public Object getInstance(Class<?> filterClass) {
 		return injector.getInstance(filterClass);
 	}
 }
