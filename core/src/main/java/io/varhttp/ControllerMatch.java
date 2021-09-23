@@ -1,10 +1,6 @@
 package io.varhttp;
 
-import io.varhttp.HttpMethod;
-
-import javax.persistence.SecondaryTable;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Set;
 
 public class ControllerMatch {
