@@ -109,11 +109,17 @@ public class VarConfigurationContext {
 		List<Object> filters = new ArrayList<>(getDefaultFilters());
 
 		filters.addAll(filterAnnotations.stream().map(f -> {
-			Object filter = getFilterFactory().getInstance(f.getFilter().value());
-			if (filter instanceof VarFilter) {
-				((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
+			Class<?> filterClass = f.getFilter().value();
+			if (Filter.class.isAssignableFrom(filterClass)) {
+
+				Object filter = getFilterFactory().getInstance(filterClass);
+				if (filter instanceof VarFilter) {
+					((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
+				}
+				return filter;
+			} else {
+				return getVarFilterExecution(filterClass);
 			}
-			return filter;
 		}).collect(Collectors.toList()));
 
 		return filters;
@@ -136,13 +142,17 @@ public class VarConfigurationContext {
 	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {
-		return Arrays.stream(annotations).map(annotation -> {
-			if (annotation instanceof io.varhttp.Filter) {
-				return new FilterTuple((io.varhttp.Filter) annotation, annotation);
+		return Arrays.stream(annotations).flatMap(annotation -> {
+			if (annotation instanceof Filters) {
+				return Arrays.stream(((Filters) annotation).value()).map(filter -> {
+					return new FilterTuple(filter, filter);
+				});
+			} else if (annotation instanceof io.varhttp.Filter) {
+				return Stream.of(new FilterTuple((io.varhttp.Filter) annotation, annotation));
 			} else if (annotation.annotationType().getAnnotation(io.varhttp.Filter.class) != null) {
-				return new FilterTuple(annotation.annotationType().getAnnotation(io.varhttp.Filter.class), annotation);
+				return Stream.of(new FilterTuple(annotation.annotationType().getAnnotation(io.varhttp.Filter.class), annotation));
 			} else {
-				return null;
+				return Stream.empty();
 			}
 		}).filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
 	}
@@ -161,18 +171,24 @@ public class VarConfigurationContext {
 		defaultFilters.add(getFilterFactory().getInstance(filter));
 	}
 
-	public void addDefaultVarFilter(Class<?> controllerClass) {
-		final Optional<Method> methodAnnotated = getMethodByAnnotation(controllerClass, FilterMethod.class);
-
-		addDefaultVarFilter(controllerClass, methodAnnotated.get());
+	public void addDefaultVarFilter(Class<?> filterClass) {
+		defaultFilters.add(getVarFilterExecution(filterClass));
 	}
 
-	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
+	public VarFilterExecution getVarFilterExecution(Class<?> filterClass) {
+		final Optional<Method> methodAnnotated = getMethodByAnnotation(filterClass, FilterMethod.class);
+		return getVarFilterExecution(filterClass, methodAnnotated.orElseThrow(() -> new VarInitializationException("Could not find method annotated with @FilterMethod in class: "+filterClass.getName())));
+	}
+
+	public VarFilterExecution getVarFilterExecution(Class<?> filterClass, Method method) {
 		ControllerFactory factory = getControllerFactory();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
-		VarFilterExecution filterExecution = new VarFilterExecution(() -> factory.getInstance(filterClass), method, args, parameterHandler, new ControllerMatch(method, null, null, ""));
-		defaultFilters.add(filterExecution);
+		return new VarFilterExecution(() -> factory.getInstance(filterClass), method, args, parameterHandler, new ControllerMatch(method, null, null, ""));
+	}
+
+	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
+		defaultFilters.add(getVarFilterExecution(filterClass, method));
 	}
 
 	public void setNotFoundController(Class<?> controllerClass) {

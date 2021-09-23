@@ -25,8 +25,8 @@ public class FilterTuple {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Class<? extends javax.servlet.Filter> otherValue = ((FilterTuple) o).filter.value();
-		Class<? extends javax.servlet.Filter> value = filter.value();
+		Class<?> otherValue = ((FilterTuple) o).filter.value();
+		Class<?> value = filter.value();
 		return Objects.equals(value, otherValue);
 	}
 

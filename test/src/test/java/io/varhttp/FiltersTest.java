@@ -47,7 +47,8 @@ public class FiltersTest {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/muh", "");
 		HttpClient.readContent(con);
 		List<String> result = filterCatcher.getResult();
-		assertEquals("Logging was called before\nAuthentication filter\nAuthorize for role: Admin\nMuh was called\nLogging was called after", String.join("\n", result));
+		assertEquals("Logging was called before\nAuthentication filter\nAuthorize for role: Admin\nFilter 1 was called\n" +
+				"Filter2 before proceed\nMuh was called\nFilter2 after proceed\nLogging was called after", String.join("\n", result));
 	}
 
 	@Test
