@@ -19,7 +19,7 @@ public class VarConfigurationContext {
 	FilterFactory filterFactory = null;
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
-	List<Object> defaultFilters = new ArrayList<>();
+	LinkedList<Object> defaultFilters = new LinkedList<>();
 	ControllerExecution notFoundController;
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
@@ -71,8 +71,8 @@ public class VarConfigurationContext {
 	}
 
 
-	List<Object> getDefaultFilters() {
-		return Stream.concat(defaultFilters.stream(),parentContext.getDefaultFilters().stream()).collect(Collectors.toList());
+	LinkedList<Object> getDefaultFilters() {
+		return Stream.concat(parentContext.getDefaultFilters().stream(),defaultFilters.stream()).collect(Collectors.toCollection(LinkedList::new));
 	}
 
 	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult, VarConfigurationContext context) {
@@ -106,7 +106,7 @@ public class VarConfigurationContext {
 
 
 	private List<Object> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		List<Object> filters = new ArrayList<>(getDefaultFilters());
+		List<Object> filters = new LinkedList<>(getDefaultFilters());
 
 		filters.addAll(filterAnnotations.stream().map(f -> {
 			Object filter = getFilterFactory().getInstance(f.getFilter().value());
@@ -117,22 +117,6 @@ public class VarConfigurationContext {
 		}).collect(Collectors.toList()));
 
 		return filters;
-	}
-
-	private Object getAndInitializeFilter(Method method, FilterTuple filterTuple) {
-		Object filter = getFilterFactory().getInstance(filterTuple.getFilter().value());
-		if (filter instanceof VarFilter) {
-			((VarFilter) filter).init(method, filterTuple.getFilter(), filterTuple.getAnnotation());
-		}
-		return filter;
-	}
-
-	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterTuple) {
-		Object filter = getFilterFactory().getInstance(filterTuple);
-		if (filter instanceof VarFilter) {
-			((VarFilter) filter).init(method, null, null);
-		}
-		return filter;
 	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {

@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.servlet.Filter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BaseVarConfigurationContext extends VarConfigurationContext {
@@ -70,7 +71,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	}
 
 	@Override
-	List<Object> getDefaultFilters() {
+	LinkedList<Object> getDefaultFilters() {
 		return defaultFilters;
 	}
 
