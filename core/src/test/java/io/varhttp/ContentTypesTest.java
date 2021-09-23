@@ -29,4 +29,18 @@ public class ContentTypesTest {
 		type = itt.next();
 		assertEquals("*/*", type.getType());
 	}
+
+	@Test
+	public void versionParameter() {
+		contentTypes.add("application/signed-exchange;v=b3;q=0.9");
+
+		assertEquals(1, contentTypes.size());
+
+		Iterator<ContentTypes.ContentType> itt = contentTypes.iterator();
+		ContentTypes.ContentType type = itt.next();
+		assertEquals("application/signed-exchange", type.getType());
+	}
+
+
+
 }

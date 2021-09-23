@@ -30,7 +30,11 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 				qualifier = 1.1;
 			} else {
 				type = parts[0].trim();
-				qualifier = Double.parseDouble(parts[1].replaceAll("q=","").trim());
+				for(int i=1;i<parts.length;i++) {
+					if (parts[i].startsWith("q=")) {
+						qualifier = Double.parseDouble(parts[i].replaceAll("q=","").trim());
+					}
+				}
 			}
 		}
 
