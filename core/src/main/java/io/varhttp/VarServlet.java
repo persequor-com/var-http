@@ -16,11 +16,11 @@ public class VarServlet extends HttpServlet {
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
 
-	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
+	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
 
-		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, filterFactory, controllerFactory, controllerFilter);
+		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter);
 		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 

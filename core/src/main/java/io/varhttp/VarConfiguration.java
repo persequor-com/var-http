@@ -28,8 +28,8 @@ public class VarConfiguration {
 		controllerMapper.map(context, controller);
 	}
 
-	public void setControllerFactory(ControllerFactory controllerFactory) {
-		this.context.setControllerFactory(controllerFactory);
+	public void setObjectFactory(ObjectFactory objectFactory) {
+		this.context.setObjectFactory(objectFactory);
 	}
 
 	public void addParameterHandler(Class<? extends IParameterHandlerMatcher> handlerMatcher) {
