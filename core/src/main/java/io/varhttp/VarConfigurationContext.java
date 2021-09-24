@@ -73,7 +73,7 @@ public class VarConfigurationContext {
 
 
 	List<Object> getDefaultFilters() {
-		return Stream.concat(defaultFilters.stream(),parentContext.getDefaultFilters().stream()).collect(Collectors.toList());
+		return Stream.concat(parentContext.getDefaultFilters().stream(), defaultFilters.stream()).collect(Collectors.toList());
 	}
 
 	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult, VarConfigurationContext context) {

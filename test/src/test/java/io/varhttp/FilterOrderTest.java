@@ -37,9 +37,9 @@ public class FilterOrderTest {
 					// This filter should not be run for FilterControllerClass as it is in an inner configurataion
 					configFurtherIn.addDefaultVarFilter(ShouldNotBeRunFilterInner.class);
 				});
-				config.addDefaultVarFilter(DefaultFilter3.class);
-				config.addControllerPackage(FilterControllerClass.class.getPackage());
-				config.addDefaultVarFilter(DefaultFilter4.class);
+				configInner.addDefaultVarFilter(DefaultFilter3.class);
+				configInner.addControllerPackage(FilterControllerClass.class.getPackage());
+				configInner.addDefaultVarFilter(DefaultFilter4.class);
 			});
 			config.configure(configOnTheSide -> {
 				// This filter should not be run for FilterControllerClass as it is in an configurataion next to
