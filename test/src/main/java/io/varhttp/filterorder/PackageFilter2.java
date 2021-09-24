@@ -11,5 +11,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Filter(OrderFilter.class)
 public @interface PackageFilter2 {
-	int value();
 }

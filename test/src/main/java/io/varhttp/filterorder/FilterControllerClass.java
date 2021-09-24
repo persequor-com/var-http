@@ -7,9 +7,9 @@ import io.varhttp.controllers.withfilters.FilterCatcher;
 
 import javax.inject.Inject;
 
-@ClassFilter1(20)
-@ClassFilter2(21)
-@OverridingFilter(22)
+@ClassFilter1
+@ClassFilter2
+@OverridingFilter
 @ControllerClass
 public class FilterControllerClass {
 	private FilterCatcher filterCatcher;
@@ -20,9 +20,9 @@ public class FilterControllerClass {
 	}
 
 	@Controller(path = "/filter-order", httpMethods = HttpMethod.GET)
-	@MethodFilter1(30)
-	@MethodFilter2(31)
-	@OverridingFilter(32)
+	@MethodFilter1
+	@MethodFilter2
+	@OverridingFilter
 	public void filterOrder() {
 		filterCatcher.add("controller");
 	}
