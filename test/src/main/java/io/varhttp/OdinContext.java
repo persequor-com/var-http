@@ -18,8 +18,6 @@ public class OdinContext extends Context {
 		binder.bind(Serializer.class).to(VarTestSerializer.class);
 		binder.bind(ObjectMapper.class).to(ObjectMapper::new);
 		binder.bind(XmlMapper.class).to(XmlMapper::new);
-		binder.bind(ControllerFactory.class).to(TestControllerFactory.class);
-		binder.bind(FilterFactory.class).to(TestFilterFactory.class);
-		binder.bind(ParameterHandlerMatcherFactory.class).to(TestParameterHandlerMatcherFactory.class);
+		binder.bind(ObjectFactory.class).to(TestFactory.class);
 	}
 }

@@ -4,16 +4,16 @@ import io.odinjector.Injector;
 
 import javax.inject.Inject;
 
-public class TestControllerFactory implements ControllerFactory {
+public class TestFactory implements ObjectFactory {
 	private Injector injector;
 
 	@Inject
-	public TestControllerFactory(Injector injector) {
+	public TestFactory(Injector injector) {
 		this.injector = injector;
 	}
 
 	@Override
-	public Object getInstance(Class<?> controllerClass) {
+	public <T> T getInstance(Class<T> controllerClass) {
 		return injector.getInstance(controllerClass);
 	}
 }

@@ -9,13 +9,11 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
@@ -28,14 +26,14 @@ public class ParameterHandlerTest {
 	@Mock
 	Serializer serializer;
 	@Mock
-	ParameterHandlerMatcherFactory handlerMatcherFactory;
+	ObjectFactory objectFactory;
 	private Handler1 handler1 = spy(new Handler1());
 	private Handler2 handler2 = spy(new Handler2());
 
 	@Before
 	public void setup() {
-		when(handlerMatcherFactory.get(Handler1.class)).thenReturn(handler1);
-		when(handlerMatcherFactory.get(Handler2.class)).thenReturn(handler2);
+		when(objectFactory.getInstance(Handler1.class)).thenReturn(handler1);
+		when(objectFactory.getInstance(Handler2.class)).thenReturn(handler2);
 	}
 
 	@Test

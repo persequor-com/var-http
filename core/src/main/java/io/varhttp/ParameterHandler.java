@@ -14,7 +14,7 @@ import javax.inject.Singleton;
 public class ParameterHandler {
 
 	private final Serializer serializer;
-	private final ParameterHandlerMatcherFactory handlerMatcherFactory;
+	private final ObjectFactory objectFactory;
 	private final SortedSet<IParameterHandlerMatcher> parameterHandlers = new TreeSet<>(new Comparator<IParameterHandlerMatcher>() {
 		@Override
 		public int compare(IParameterHandlerMatcher paramHandler1, IParameterHandlerMatcher paramHandler2) {
@@ -24,13 +24,13 @@ public class ParameterHandler {
 	});
 
 	@Inject
-	public ParameterHandler(Serializer serializer, ParameterHandlerMatcherFactory handlerMatcherFactory) {
+	public ParameterHandler(Serializer serializer, ObjectFactory objectFactory) {
 		this.serializer = serializer;
-		this.handlerMatcherFactory = handlerMatcherFactory;
+		this.objectFactory = objectFactory;
 	}
 
 	public void addParameterHandler(Class<? extends IParameterHandlerMatcher> handlerMatcher) {
-		parameterHandlers.add(handlerMatcherFactory.get(handlerMatcher));
+		parameterHandlers.add(objectFactory.getInstance(handlerMatcher));
 	}
 
 	public IParameterHandler[] initializeHandlers(Method method, String baseUri, String classPath){

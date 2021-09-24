@@ -15,8 +15,7 @@ public class VarConfigurationContext {
 	ParameterHandler parameterHandler = null;
 	ControllerFilter controllerFilter = null;
 	ExceptionRegistry exceptionRegistry = null;
-	ControllerFactory controllerFactory = null;
-	FilterFactory filterFactory = null;
+	ObjectFactory objectFactory = null;
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
 	List<Object> defaultFilters = new ArrayList<>();
@@ -37,14 +36,6 @@ public class VarConfigurationContext {
 		return parameterHandler;
 	}
 
-
-	FilterFactory getFilterFactory() {
-		if (filterFactory == null) {
-			return parentContext.getFilterFactory();
-		}
-		return filterFactory;
-	}
-
 	ControllerFilter getControllerFilter() {
 		if (controllerFilter == null) {
 			return parentContext.getControllerFilter();
@@ -59,11 +50,11 @@ public class VarConfigurationContext {
 		return exceptionRegistry;
 	}
 
-	ControllerFactory getControllerFactory() {
-		if (controllerFactory == null) {
-			return parentContext.getControllerFactory();
+	ObjectFactory getObjectFactory() {
+		if (objectFactory == null) {
+			return parentContext.getObjectFactory();
 		}
-		return controllerFactory;
+		return objectFactory;
 	}
 
 
@@ -81,7 +72,7 @@ public class VarConfigurationContext {
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, baseUri, classPath);
 		for (HttpMethod httpMethod : httpMethods) {
 			Request request = new Request(httpMethod, baseUri);
-			ControllerFactory factory = getControllerFactory();
+			ObjectFactory factory = getObjectFactory();
 			ControllerExecution execution = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
 			if (getControllerFilter().accepts(request, execution)) {
 				varServlet.executions.put(context, request, execution);
@@ -113,7 +104,7 @@ public class VarConfigurationContext {
 			Class<?> filterClass = f.getFilter().value();
 			if (Filter.class.isAssignableFrom(filterClass)) {
 
-				Object filter = getFilterFactory().getInstance(filterClass);
+				Object filter = getObjectFactory().getInstance(filterClass);
 				if (filter instanceof VarFilter) {
 					((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
 				}
@@ -127,7 +118,7 @@ public class VarConfigurationContext {
 	}
 
 	private Object getAndInitializeFilter(Method method, FilterTuple filterTuple) {
-		Object filter = getFilterFactory().getInstance(filterTuple.getFilter().value());
+		Object filter = getObjectFactory().getInstance(filterTuple.getFilter().value());
 		if (filter instanceof VarFilter) {
 			((VarFilter) filter).init(method, filterTuple.getFilter(), filterTuple.getAnnotation());
 		}
@@ -135,7 +126,7 @@ public class VarConfigurationContext {
 	}
 
 	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterTuple) {
-		Object filter = getFilterFactory().getInstance(filterTuple);
+		Object filter = getObjectFactory().getInstance(filterTuple);
 		if (filter instanceof VarFilter) {
 			((VarFilter) filter).init(method, null, null);
 		}
@@ -169,7 +160,7 @@ public class VarConfigurationContext {
 
 
 	public void addDefaultFilter(Class<? extends Filter> filter) {
-		defaultFilters.add(getFilterFactory().getInstance(filter));
+		defaultFilters.add(getObjectFactory().getInstance(filter));
 	}
 
 	public void addDefaultVarFilter(Class<?> filterClass) {
@@ -182,7 +173,7 @@ public class VarConfigurationContext {
 	}
 
 	public VarFilterExecution getVarFilterExecution(Class<?> filterClass, Method method) {
-		ControllerFactory factory = getControllerFactory();
+		ObjectFactory factory = getObjectFactory();
 		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
 		return new VarFilterExecution(() -> factory.getInstance(filterClass), method, args, parameterHandler, new ControllerMatch(method, null, null, ""));
@@ -211,7 +202,7 @@ public class VarConfigurationContext {
 
 	public void setNotFoundController(Class<?> controllerClass, Method method) {
 		mappings.add(() -> {
-			ControllerFactory factory = getControllerFactory();
+			ObjectFactory factory = getObjectFactory();
 			IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
 			ControllerMatch matchResult = new ControllerMatch(method, "", new HashSet<>(), "");
@@ -235,8 +226,8 @@ public class VarConfigurationContext {
 		parameterHandler.addParameterHandler(handlerMatcher);
 	}
 
-	public void setControllerFactory(ControllerFactory controllerFactory) {
-		this.controllerFactory = controllerFactory;
+	public void setObjectFactory(ObjectFactory objectFactory) {
+		this.objectFactory = objectFactory;
 	}
 
 

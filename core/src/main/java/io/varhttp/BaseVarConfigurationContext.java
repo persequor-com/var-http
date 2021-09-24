@@ -12,19 +12,15 @@ import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
 import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 
 import javax.inject.Inject;
-import javax.servlet.Filter;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class BaseVarConfigurationContext extends VarConfigurationContext {
 
 	@Inject
-	public BaseVarConfigurationContext(VarServlet varServlet, ParameterHandler parameterHandler, FilterFactory filterFactory, ControllerFactory controllerFactory, ControllerFilter controllerFilter) {
+	public BaseVarConfigurationContext(VarServlet varServlet, ParameterHandler parameterHandler, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
 		super(varServlet, null, parameterHandler);
-		this.filterFactory = filterFactory;
 		this.parameterHandler = parameterHandler;
-		this.controllerFactory = controllerFactory;
+		this.objectFactory = objectFactory;
 		this.controllerFilter = controllerFilter;
 		parameterHandler.addParameterHandler(ResponseStreamParameterHandler.class);
 		parameterHandler.addParameterHandler(ResponseHeaderParameterHandler.class);
@@ -44,13 +40,6 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		return parameterHandler;
 	}
 
-	FilterFactory getFilterFactory() {
-		if (filterFactory == null) {
-			throw new VarInitializationException("Your must register a filter factory for var-http to run");
-		}
-		return filterFactory;
-	}
-
 	ControllerFilter getControllerFilter() {
 		return controllerFilter;
 	}
@@ -59,11 +48,11 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		return exceptionRegistry;
 	}
 
-	ControllerFactory getControllerFactory() {
-		if (filterFactory == null) {
-			throw new VarInitializationException("Your must register a controller factory for var-http to run");
+	ObjectFactory getObjectFactory() {
+		if (objectFactory == null) {
+			throw new VarInitializationException("Your must register an object factory for var-http to run");
 		}
-		return controllerFactory;
+		return objectFactory;
 	}
 
 	@Override

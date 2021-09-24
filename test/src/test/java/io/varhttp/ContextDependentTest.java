@@ -19,7 +19,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,12 +39,12 @@ public class ContextDependentTest {
 		launcher.configure(baseConfiguration -> {
 			baseConfiguration.addDefaultFilter(BaseFilter.class);
 			baseConfiguration.configure(varConfiguration -> {
-				varConfiguration.setControllerFactory((controllerClass -> odinJector.getInstance(controllerClass)));
+				varConfiguration.setObjectFactory((odinJector::getInstance));
 				varConfiguration.addDefaultFilter(FirstFilter.class);
 				varConfiguration.addController(ContextDependentController.class);
 			});
 			baseConfiguration.configure(varConfiguration -> {
-				varConfiguration.setControllerFactory((controllerClass -> odinJector2.getInstance(controllerClass)));
+				varConfiguration.setObjectFactory((odinJector2::getInstance));
 				varConfiguration.addControllerMatcher(new AltControllerMatcher());
 				varConfiguration.addController(AnotherContextDependentController.class);
 			});
