@@ -39,6 +39,7 @@ public class VarConfigurationContextTest {
     @Test
     public void setNotFoundController_happyPath() {
         varConfigurationContext.setNotFoundController(VarConfigurationContextTest.class);
+        varConfigurationContext.applyMappings();
 
         assertNotNull(varConfigurationContext.getNotFoundController());
         assertEquals(varConfigurationContext.getNotFoundController().getMethod(), notFoundControllerMethod);
@@ -47,7 +48,7 @@ public class VarConfigurationContextTest {
     @Test
     public void setNotFoundController_explicitMethod() {
         varConfigurationContext.setNotFoundController(VarConfigurationContextTest.class, notFoundControllerMethod);
-
+        varConfigurationContext.applyMappings();
         assertNotNull(varConfigurationContext.getNotFoundController());
         assertEquals(varConfigurationContext.getNotFoundController().getMethod(), notFoundControllerMethod);
     }

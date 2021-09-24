@@ -42,20 +42,18 @@ public class ControllerExecution  {
 	public void execute(ControllerContext context) {
 		try {
 			List<Object> filters = new ArrayList<>(this.filters);
-			filters.add((Filter)(request, response, chain) -> {
-				filterExecution.doFilter(context);
-			});
+			filters.add(filterExecution);
 			Iterator<Object> iterator = filters.iterator();
-			VarFilterChain chain = new VarFilterChain(context, iterator.next(), iterator);
+			VarServletFilterChain chain = new VarServletFilterChain(context, iterator.next(), iterator);
 			chain.doFilter(context.request(), context.response());
-		} catch (ServletException e) {
+		} catch (WrappedServletException e) {
 			// Controller logic threw exception
 			Throwable cause = e.getCause() == null ? e : e.getCause();
 			fail(exceptionRegistry.getResponseCode(cause.getClass(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 					, cause
 					, context.response()
 			);
-		} catch (ExceptionInInitializerError | RuntimeException | IOException e) {
+		} catch (ExceptionInInitializerError | RuntimeException| ServletException | IOException e) {
 			fail(exceptionRegistry.getResponseCode(e.getClass(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 					, e
 					, context.response()
@@ -81,31 +79,4 @@ public class ControllerExecution  {
 	public Method getMethod() {
 		return method;
 	}
-
-	private static class VarFilterChain implements FilterChain {
-		private ControllerContext context;
-		private final Object current;
-		private FilterChain chain = null;
-
-		public VarFilterChain(ControllerContext context, Object current, Iterator<Object> iterator) {
-			this.context = context;
-			this.current = current;
-			if (iterator.hasNext()) {
-				chain = new VarFilterChain(context, iterator.next(), iterator);
-			}
-		}
-
-		@Override
-		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-			if (current instanceof Filter) {
-				((Filter) current).doFilter(request, response, chain);
-			} else if(current instanceof VarFilterExecution) {
-				((VarFilterExecution) current).doFilter(context);
-				chain.doFilter(request, response);
-			} else {
-				throw new VarInitializationException("Invalid filter type: "+current.getClass().getName());
-			}
-		}
-	}
-
 }

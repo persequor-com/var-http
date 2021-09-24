@@ -4,6 +4,8 @@ import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 
 import javax.servlet.Filter;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class VarConfiguration {
@@ -12,6 +14,8 @@ public class VarConfiguration {
 	private ControllerMapper controllerMapper = null;
 	private final ParameterHandler parameterHandler;
 	private ExceptionRegistry exceptionRegistry;
+	List<Runnable> mappings = new ArrayList<>();
+
 
 	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler) {
 		this.servlet = servlet;
@@ -21,11 +25,15 @@ public class VarConfiguration {
 	}
 
 	public void addControllerPackage(Package controllerPackage) {
-		controllerMapper.map(context, controllerPackage.getName());
+		mappings.add(() -> {
+			controllerMapper.map(context, controllerPackage.getName());
+		});
 	}
 
 	public void addController(Class<?> controller) {
-		controllerMapper.map(context, controller);
+		mappings.add(() -> {
+			controllerMapper.map(context, controller);
+		});
 	}
 
 	public void setObjectFactory(ObjectFactory objectFactory) {
@@ -69,7 +77,15 @@ public class VarConfiguration {
 		servlet.executions.createPathContext(context, basePath);
 	}
 
-	public void configure(Consumer<VarConfiguration> configuration) {
-		configuration.accept(new VarConfiguration(servlet, controllerMapper, new VarConfigurationContext(servlet, context, parameterHandler), parameterHandler));
+	public void configure(Consumer<VarConfiguration> configurationConsumer) {
+		VarConfigurationContext newContext = new VarConfigurationContext(servlet, context, parameterHandler);
+		VarConfiguration configuration = new VarConfiguration(servlet, controllerMapper, newContext, parameterHandler);
+		configurationConsumer.accept(configuration);
+		newContext.applyMappings();
+		configuration.applyMappings();
+	}
+
+	public void applyMappings() {
+		mappings.forEach(Runnable::run);
 	}
 }

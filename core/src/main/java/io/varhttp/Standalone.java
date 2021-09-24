@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -41,6 +43,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class Standalone implements Runnable {
+	private static Logger logger = LoggerFactory.getLogger(Standalone.class);
 	private CompletableFuture<Boolean> started = new CompletableFuture<>();
 	protected VarServlet servlet;
 
@@ -169,7 +172,7 @@ public class Standalone implements Runnable {
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
 		started.complete(true);
-		System.out.println("Started completely");
+		logger.info("var-http started");
 	}
 
 	public void stop() {

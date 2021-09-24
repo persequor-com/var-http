@@ -95,19 +95,4 @@ public class VarHttpContext implements HttpHandler {
 		}
 		return out.toByteArray();
 	}
-
-	@SuppressWarnings("unchecked")
-	private static <T> T createUnimplementAdapter(Class<T> httpServletApi) {
-		class UnimplementedHandler implements InvocationHandler {
-			@Override
-			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-				System.out.println("Not implemented: " + method + ", args=" + Arrays.toString(args));
-				throw new UnsupportedOperationException("Not implemented: " + method + ", args=" + Arrays.toString(args));
-			}
-		}
-
-		return (T) Proxy.newProxyInstance(UnimplementedHandler.class.getClassLoader(),
-				new Class<?>[] { httpServletApi },
-				new UnimplementedHandler());
-	}
 }

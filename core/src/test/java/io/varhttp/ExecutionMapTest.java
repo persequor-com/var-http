@@ -214,6 +214,7 @@ public class ExecutionMapTest {
 		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution3);
 
 		context.setNotFoundController(ExecutionMapTest.class);
+		context.applyMappings();
 
 		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
 		assertEquals(ExecutionMapTest.class.getMethod("notFoundController"), actual.getMethod());
@@ -224,7 +225,7 @@ public class ExecutionMapTest {
 		executionMap.put(context, new Request(HttpMethod.GET, "/my/path/{wild}"), execution3);
 
 		context.setNotFoundController(ExecutionMapTest.class);
-
+		context.applyMappings();
 		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
 		assertEquals(ExecutionMapTest.class.getMethod("notFoundController"), actual.getMethod());
 	}
@@ -233,6 +234,7 @@ public class ExecutionMapTest {
 	public void notFoundController_setOnLowerPath() throws NoSuchMethodException {
 		otherContext.parentContext = context; // only makes sense if we assume that the parent context of /my/path/{wild1} is /my/path
 		context.setNotFoundController(ExecutionMapTest.class);
+		context.applyMappings();
 
 		executionMap.put(context, new Request(HttpMethod.GET, "/my/path"), execution2);
 		executionMap.put(otherContext, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
@@ -247,7 +249,7 @@ public class ExecutionMapTest {
 		executionMap.put(otherContext, new Request(HttpMethod.GET, "/my/path/{wild1}"), execution1);
 
 		otherContext.setNotFoundController(ExecutionMapTest.class);
-
+		otherContext.applyMappings();
 		ControllerExecution actual = executionMap.get("my/path/potatoes/notsomething".split("/"), HttpMethod.GET);
 
 		assertEquals(ExecutionMapTest.class.getMethod("notFoundController"), actual.getMethod());

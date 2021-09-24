@@ -2,6 +2,7 @@ package io.varhttp.controllers.withfilters;
 
 import io.varhttp.Controller;
 import io.varhttp.ControllerClass;
+import io.varhttp.Filter;
 
 import javax.inject.Inject;
 
@@ -17,6 +18,8 @@ public class FilteredController {
 	}
 
 	@Controller(path = "/muh")
+	@Filter(Filter1.class)
+	@Filter(Filter2.class)
 	public void muh() {
 		filterCatcher.add("Muh was called");
 	}

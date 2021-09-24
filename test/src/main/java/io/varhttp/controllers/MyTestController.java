@@ -2,6 +2,8 @@ package io.varhttp.controllers;
 
 import io.varhttp.Controller;
 import io.varhttp.ControllerClass;
+import io.varhttp.Filter;
+import io.varhttp.FilterMethod;
 import io.varhttp.HttpMethod;
 import io.varhttp.PathVariable;
 import io.varhttp.RequestBody;
@@ -10,7 +12,17 @@ import io.varhttp.RequestParameter;
 import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
 import io.varhttp.ResponseStream;
+import io.varhttp.VarFilter;
+import io.varhttp.VarFilterChain;
+import io.varhttp.VarFilterExecution;
+import io.varhttp.VarResponseStream;
+import io.varhttp.controllers.withfilters.Authorization;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -188,5 +200,53 @@ public class MyTestController {
 	@Controller(path = "/enumParameter/{enum}", httpMethods = HttpMethod.GET)
 	public String altControllerAnnotation(@PathVariable(name = "enum") MyEnum myEnum) {
 		return myEnum.stringValue();
+	}
+
+	@Controller(path = "/checked-exception", httpMethods = HttpMethod.GET)
+	@Filter(ExceptionFilter.class)
+	public String checkedException() throws Exception {
+		throw new Exception("My exception");
+	}
+
+	@Controller(path = "/unchecked-exception", httpMethods = HttpMethod.GET)
+	@Filter(ExceptionFilter.class)
+	public String uncheckedException() throws Exception {
+		throw new RuntimeException("My exception");
+	}
+
+	@Controller(path = "/checked-exception-var", httpMethods = HttpMethod.GET)
+	@Filter(ExceptionVarFilter.class)
+	public String checkedException_varFilter() throws Exception {
+		throw new Exception("My exception");
+	}
+
+	@Controller(path = "/unchecked-exception-var", httpMethods = HttpMethod.GET)
+	@Filter(ExceptionVarFilter.class)
+	public String uncheckedException_varFilter() throws Exception {
+		throw new RuntimeException("My exception");
+	}
+
+	public static class ExceptionVarFilter {
+		@FilterMethod
+		public void filter(VarFilterChain filterChain, VarResponseStream responseStream) {
+			try {
+				filterChain.proceed();
+			} catch (Exception exception) {
+				responseStream.write(exception.getClass().getName()+": "+exception.getMessage());
+			}
+		}
+	}
+
+	public static class ExceptionFilter implements javax.servlet.Filter {
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+			try {
+				chain.doFilter(request, response);
+			} catch (RuntimeException exception) {
+				response.getWriter().println(exception.getClass().getName()+": "+exception.getMessage());
+			} catch (ServletException exception) {
+				response.getWriter().println(exception.getCause().getClass().getName()+": "+exception.getCause().getMessage());
+			}
+		}
 	}
 }

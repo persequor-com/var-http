@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-public class LoggingFilter implements VarFilter {
+public class LoggingFilter implements VarFilter, javax.servlet.Filter {
 	private FilterCatcher filterCatcher;
 
 	@Inject

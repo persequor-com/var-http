@@ -9,6 +9,7 @@ import io.varhttp.parameterhandlers.RequestParameterHandlerMatcher;
 import io.varhttp.parameterhandlers.RequestParametersHandler;
 import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
 import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
+import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -30,6 +31,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		parameterHandler.addParameterHandler(PathVariableParameterHandlerMatcher.class);
 		parameterHandler.addParameterHandler(HttpServletRequestParameterHandler.class);
 		parameterHandler.addParameterHandler(HttpServletResponseParameterHandler.class);
+		parameterHandler.addParameterHandler(VarFilterChainParameterHandler.class);
 		controllerMatchers.add(new VarControllerMatcher());
 		exceptionRegistry = new ExceptionRegistry();
 	}
