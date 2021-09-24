@@ -21,6 +21,7 @@ public class VarConfigurationContext {
 	String basePath = "";
 	List<Object> defaultFilters = new ArrayList<>();
 	ControllerExecution notFoundController;
+	List<Runnable> mappings = new ArrayList<>();
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
 								   ParameterHandler parameterHandler) {
@@ -118,7 +119,7 @@ public class VarConfigurationContext {
 				}
 				return filter;
 			} else {
-				return getVarFilterExecution(filterClass);
+				return getVarFilterExecution(filterClass).ifVarFilter((VarFilter filter) -> {filter.init(method, f.getFilter(), f.getAnnotation());});
 			}
 		}).collect(Collectors.toList()));
 
@@ -209,11 +210,13 @@ public class VarConfigurationContext {
 	}
 
 	public void setNotFoundController(Class<?> controllerClass, Method method) {
-		ControllerFactory factory = getControllerFactory();
-		IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
+		mappings.add(() -> {
+			ControllerFactory factory = getControllerFactory();
+			IParameterHandler[] args = getParameterHandler().initializeHandlers(method, null, null);
 
-		ControllerMatch matchResult = new ControllerMatch(method, "", new HashSet<>(), "");
-		notFoundController = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
+			ControllerMatch matchResult = new ControllerMatch(method, "", new HashSet<>(), "");
+			notFoundController = new ControllerExecution(() -> factory.getInstance(controllerClass), method, args, getParameterHandler(), getExceptionRegistry(), matchResult, getFilters(method));
+		});
 	}
 
 	public ControllerExecution getNotFoundController() {
@@ -234,5 +237,10 @@ public class VarConfigurationContext {
 
 	public void setControllerFactory(ControllerFactory controllerFactory) {
 		this.controllerFactory = controllerFactory;
+	}
+
+
+	public void applyMappings() {
+		mappings.forEach(Runnable::run);
 	}
 }
