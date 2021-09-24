@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class VarFilterExecution {
@@ -20,6 +21,7 @@ public class VarFilterExecution {
 	public final boolean isController;
 	public final boolean containsChain;
 	private ControllerMatch matchResult;
+	private Consumer<VarFilter> filterConsumer;
 
 	public VarFilterExecution(Provider<Object> controllerImplementation
 			, Method method
@@ -40,7 +42,11 @@ public class VarFilterExecution {
 		try {
 			Object[] methodArgs = Stream.of(args).map(f -> f == null ? null : f.handle(context)).toArray();
 
-			Object responseObject = method.invoke(controllerImplementation.get(), methodArgs);
+			Object controllerInstance = controllerImplementation.get();
+			if (filterConsumer != null && controllerInstance instanceof VarFilter) {
+				filterConsumer.accept((VarFilter) controllerInstance);
+			}
+			Object responseObject = method.invoke(controllerInstance, methodArgs);
 			if (!containsChain && context.getFilterChain() != null) {
 				context.getFilterChain().proceed();
 			}
@@ -61,5 +67,10 @@ public class VarFilterExecution {
 		} catch (Exception e) {
 			throw new WrappedServletException(e);
 		}
+	}
+
+	public VarFilterExecution ifVarFilter(Consumer<VarFilter> filterConsumer) {
+		this.filterConsumer = filterConsumer;
+		return this;
 	}
 }

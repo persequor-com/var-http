@@ -1,9 +1,9 @@
 package io.varhttp.controllers.withfilters;
 
-import io.varhttp.Filter;
 import io.varhttp.VarFilter;
 
 import javax.inject.Inject;
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-public class AuthorizationFilter implements VarFilter {
+public class AuthorizationFilter implements Filter, VarFilter {
 	private Role role;
 	private FilterCatcher filterCatcher;
 
@@ -28,7 +28,7 @@ public class AuthorizationFilter implements VarFilter {
 	}
 
 	@Override
-	public void init(Method method, Filter f, Annotation annotation) {
+	public void init(Method method, io.varhttp.Filter f, Annotation annotation) {
 		this.role = ((Authorization)annotation).value();
 	}
 }

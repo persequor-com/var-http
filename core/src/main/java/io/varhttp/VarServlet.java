@@ -96,6 +96,9 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {
-		configuration.accept(new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler));
+		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler);
+		configuration.accept(varConfiguration);
+		baseConfigurationContext.applyMappings();
+		varConfiguration.applyMappings();
 	}
 }

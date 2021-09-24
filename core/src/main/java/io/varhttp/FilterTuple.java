@@ -20,18 +20,24 @@ public class FilterTuple {
 		return annotation;
 	}
 
+
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 
-		Class<?> otherValue = ((FilterTuple) o).filter.value();
-		Class<?> value = filter.value();
-		return Objects.equals(value, otherValue);
+		FilterTuple that = (FilterTuple) o;
+
+		if (!Objects.equals(filter.value(), that.filter.value())) return false;
+		return Objects.equals(annotation.getClass(), that.annotation.getClass());
 	}
 
 	@Override
 	public int hashCode() {
-		return filter.value().hashCode();
+		int result = filter.value() != null ? filter.value().hashCode() : 0;
+		result = 31 * result + (annotation.getClass() != null ? annotation.getClass().hashCode() : 0);
+		return result;
 	}
 }
