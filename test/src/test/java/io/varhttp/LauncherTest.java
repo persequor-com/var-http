@@ -387,4 +387,20 @@ public class LauncherTest {
 
 		assertEquals("{\"string\":\"Simple string\"}", content.toString());
 	}
+
+	@Test
+	public void checkedExceptionThrown_toServletFilter() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/checked-exception", "");
+		String actual = HttpClient.readContent(con).toString();
+		assertEquals("java.lang.Exception: My exception", actual);
+	}
+
+	@Test
+	public void uncheckedExceptionThrown_toServletFilter() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/unchecked-exception", "");
+		String actual = HttpClient.readContent(con).toString();
+		assertEquals("java.lang.RuntimeException: My exception", actual);
+	}
+
+
 }

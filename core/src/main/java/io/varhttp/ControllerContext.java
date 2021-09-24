@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ControllerContext {
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
+	private VarFilterChain filterChain;
 
 	public ControllerContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
@@ -22,5 +23,13 @@ public class ControllerContext {
 
 	public RequestParameters getParameters() {
 		return new RequestParametersImplementation(request);
+	}
+
+	public VarFilterChain getFilterChain() {
+		return filterChain;
+	}
+
+	public void setFilterChain(VarFilterChain filterChain) {
+		this.filterChain = filterChain;
 	}
 }
