@@ -62,6 +62,8 @@ public class VarFilterExecution {
 			}
 			parameterHandler.handleReturnResponse(responseObject, context, types);
 
+		} catch (ServletException|IOException|RuntimeException e) {
+			throw e;
 		} catch (InvocationTargetException e) {
 			throw new WrappedServletException(e.getCause());
 		} catch (Exception e) {
