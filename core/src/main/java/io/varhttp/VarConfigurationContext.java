@@ -5,6 +5,7 @@ import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.Filter;
@@ -22,6 +23,7 @@ public class VarConfigurationContext {
 	Map<Class<?>, Method> defaultFiltersWithExternalMethod = new HashMap<>();
 	ControllerExecution notFoundController;
 	List<Runnable> mappings = new ArrayList<>();
+	Consumer<Method> onControllerAdd;
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
 								   ParameterHandler parameterHandler) {
@@ -252,5 +254,16 @@ public class VarConfigurationContext {
 
 	public void applyMappings() {
 		mappings.forEach(Runnable::run);
+	}
+
+	public void onControllerAdd(Consumer<Method> methodConsumer) {
+		this.onControllerAdd = methodConsumer;
+	}
+
+	public Consumer<Method> getOnControllerAdd() {
+		if(this.onControllerAdd == null) {
+			return this.parentContext.getOnControllerAdd();
+		}
+		return this.onControllerAdd;
 	}
 }

@@ -88,4 +88,8 @@ public class VarConfiguration {
 	public void applyMappings() {
 		mappings.forEach(Runnable::run);
 	}
+
+	public void onControllerAdd(Consumer<Method> methodConsumer) {
+		context.onControllerAdd(methodConsumer);
+	}
 }

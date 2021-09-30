@@ -14,6 +14,7 @@ import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 import java.lang.reflect.Method;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BaseVarConfigurationContext extends VarConfigurationContext {
 
@@ -69,5 +70,10 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	@Override
 	public ControllerExecution getNotFoundController() {
 		return notFoundController;
+	}
+
+	@Override
+	public Consumer<Method> getOnControllerAdd() {
+		return this.onControllerAdd;
 	}
 }
