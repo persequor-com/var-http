@@ -18,7 +18,8 @@ public class VarConfigurationContext {
 	ObjectFactory objectFactory = null;
 	List<ControllerMatcher> controllerMatchers = new ArrayList<>();
 	String basePath = "";
-	List<Object> defaultFilters = new ArrayList<>();
+	List<Class<?>> defaultFilters = new ArrayList<>();
+	Map<Class<?>, Method> defaultFiltersWithExternalMethod = new HashMap<>();
 	ControllerExecution notFoundController;
 	List<Runnable> mappings = new ArrayList<>();
 
@@ -62,9 +63,24 @@ public class VarConfigurationContext {
 		return Stream.concat(controllerMatchers.stream(),parentContext.getControllerMatchers().stream()).collect(Collectors.toList());
 	}
 
+	List<Class<?>> getDefaultFilters() {
+		return defaultFilters;
+	}
 
-	List<Object> getDefaultFilters() {
-		return Stream.concat(parentContext.getDefaultFilters().stream(), defaultFilters.stream()).collect(Collectors.toList());
+	List<Object> getInitializedDefaultFilters(Method method) {
+		List<Class<?>> parentContextFilters = new ArrayList<>();
+		if (parentContext != null) {
+			parentContextFilters = parentContext.getDefaultFilters();
+		}
+		return Stream.concat(parentContextFilters.stream(), getDefaultFilters().stream())
+				.map(defaultFilter -> getAndInitializeDefaultFilter(method, defaultFilter))
+				.collect(Collectors.toList());
+	}
+
+	List<Object> getInitializedVarDefaultFilterExecutions(Method method) {
+		return defaultFiltersWithExternalMethod.entrySet().stream()
+				.map(varFilter -> getAndInitializeVarDefaultFilterExecution(method, varFilter.getKey(), varFilter.getValue()))
+				.collect(Collectors.toList());
 	}
 
 	public void addExecution(Class<?> controllerClass, Method method, String baseUri, String classPath, ControllerMatch matchResult, VarConfigurationContext context) {
@@ -98,17 +114,12 @@ public class VarConfigurationContext {
 
 
 	private List<Object> getFilters(Method method, Set<FilterTuple> filterAnnotations) {
-		List<Object> filters = new ArrayList<>(getDefaultFilters());
-
+		List<Object> filters = new ArrayList<>(getInitializedDefaultFilters(method));
+		filters.addAll(getInitializedVarDefaultFilterExecutions(method));
 		filters.addAll(filterAnnotations.stream().map(f -> {
 			Class<?> filterClass = f.getFilter().value();
 			if (Filter.class.isAssignableFrom(filterClass)) {
-
-				Object filter = getObjectFactory().getInstance(filterClass);
-				if (filter instanceof VarFilter) {
-					((VarFilter) filter).init(method, f.getFilter(), f.getAnnotation());
-				}
-				return filter;
+				return getAndInitializeFilter(method, f);
 			} else {
 				return getVarFilterExecution(filterClass).ifVarFilter((VarFilter filter) -> {filter.init(method, f.getFilter(), f.getAnnotation());});
 			}
@@ -125,12 +136,20 @@ public class VarConfigurationContext {
 		return filter;
 	}
 
-	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterTuple) {
-		Object filter = getObjectFactory().getInstance(filterTuple);
-		if (filter instanceof VarFilter) {
-			((VarFilter) filter).init(method, null, null);
+	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterClass) {
+		if (Filter.class.isAssignableFrom(filterClass)) {
+			return getObjectFactory().getInstance(filterClass);
+		} else {
+			VarFilterExecution varFilterExecution = getVarFilterExecution(filterClass);
+			varFilterExecution.ifVarFilter((VarFilter varFilter) -> varFilter.init(method, null, null));
+			return varFilterExecution;
 		}
-		return filter;
+	}
+
+	private Object getAndInitializeVarDefaultFilterExecution(Method method, Class<?> filterClass, Method filterExternalMethod) {
+		VarFilterExecution varFilterExecution = getVarFilterExecution(filterClass, filterExternalMethod);
+		varFilterExecution.ifVarFilter((VarFilter varFilter) -> varFilter.init(method, null, null));
+		return varFilterExecution;
 	}
 
 	private Set<FilterTuple> getFilterAnnotations(Annotation[] annotations) {
@@ -159,12 +178,12 @@ public class VarConfigurationContext {
 	}
 
 
-	public void addDefaultFilter(Class<? extends Filter> filter) {
-		defaultFilters.add(getObjectFactory().getInstance(filter));
+	public void addDefaultFilter(Class<? extends Filter> filterClass) {
+		defaultFilters.add(filterClass);
 	}
 
 	public void addDefaultVarFilter(Class<?> filterClass) {
-		defaultFilters.add(getVarFilterExecution(filterClass));
+		defaultFilters.add(filterClass);
 	}
 
 	public VarFilterExecution getVarFilterExecution(Class<?> filterClass) {
@@ -180,7 +199,7 @@ public class VarConfigurationContext {
 	}
 
 	public void addDefaultVarFilter(Class<?> filterClass, Method method) {
-		defaultFilters.add(getVarFilterExecution(filterClass, method));
+		defaultFiltersWithExternalMethod.put(filterClass, method);
 	}
 
 	public void setNotFoundController(Class<?> controllerClass) {

@@ -11,6 +11,7 @@ import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
 import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
 import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 
+import java.lang.reflect.Method;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	}
 
 	@Override
-	List<Object> getDefaultFilters() {
+	List<Class<?>> getDefaultFilters() {
 		return defaultFilters;
 	}
 
