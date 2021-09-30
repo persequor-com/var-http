@@ -29,6 +29,8 @@ public class OrderFilter implements VarFilter {
 
 	@Override
 	public void init(Method method, Filter f, Annotation annotation) {
-		order = annotation.annotationType().getSimpleName();
+		if (annotation != null) {
+			order = annotation.annotationType().getSimpleName();
+		}
 	}
 }
