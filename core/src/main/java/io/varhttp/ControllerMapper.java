@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ControllerMapper {
@@ -51,10 +52,10 @@ public class ControllerMapper {
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
 
-                        Consumer<Method> onControllerAdd = context.getOnControllerAdd();
-                        if (onControllerAdd != null) {
-                            onControllerAdd.accept(method);
-                        }
+						BiConsumer<String, Method> onControllerAdd = context.getOnControllerAdd();
+						if (onControllerAdd != null) {
+							onControllerAdd.accept(urlMapKey, method);
+						}
 						context.addExecution(controllerClass, method, urlMapKey, classPath, matchResult.get(), context);
 					} catch (Exception e) {
 						logger.error("Unable to register controller", e);
