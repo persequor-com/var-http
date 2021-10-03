@@ -24,7 +24,7 @@ public class ResponseStreamParameterHandler implements IParameterHandlerMatcher 
 	@Override
 	public IParameterHandler getHandlerIfMatches(Method method, Parameter parameter, String path, String classPath) {
 		if (ResponseStream.class == parameter.getType()) {
-			return context ->  new VarResponseStream(context.response(), serializer);
+			return context ->  new VarResponseStream(context, serializer);
 		}
 		return null;
 	}

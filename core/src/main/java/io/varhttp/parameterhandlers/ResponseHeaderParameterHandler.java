@@ -15,7 +15,7 @@ public class ResponseHeaderParameterHandler implements IParameterHandlerMatcher 
 	@Override
 	public IParameterHandler getHandlerIfMatches(Method method, Parameter parameter, String path, String classPath) {
 		if (ResponseHeader.class == parameter.getType()) {
-			return context -> new VarResponseHeader(context.response(), classPath);
+			return context -> new VarResponseHeader(context, classPath);
 		}
 		return null;
 	}

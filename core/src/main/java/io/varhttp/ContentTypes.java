@@ -1,23 +1,54 @@
 package io.varhttp;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
 public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
+	public ContentTypes(ContentTypes contentTypes) {
+		addAll(contentTypes);
+	}
+
+	public ContentTypes() {
+
+	}
+
 	public void add(String types) {
 		Stream.of(types.split(",")).map(ContentType::new).forEach(this::add);
 	}
 
-	public Optional<String> getType(List<String> supportedTypes) {
-		return stream().flatMap(ct -> supportedTypes.stream().filter(ct::matches)).findFirst();
+	public void add(Collection<String> types) {
+		types.stream().map(ContentType::new).forEach(this::add);
+	}
+
+	public ContentType getHighestPriority() {
+		if (isEmpty()) {
+			throw new ContentTypeException("Requested Content-Type is not supported");
+		}
+		return this.first();
 	}
 
 	public void set(String contentType) {
 		clear();
 		add(contentType);
 	}
+
+	public ContentTypes limitTo(List<String> types) throws ContentTypeException {
+		ContentTypes newTypes = new ContentTypes();
+		newTypes.add(types);
+		newTypes.removeIf(ct -> this.stream().noneMatch(existingType -> existingType.matches(ct.type)));
+		return newTypes;
+	}
+
+	public ContentTypes limitTo(String contentType) {
+		if (contentType == null) {
+			return new ContentTypes(this);
+		}
+		return limitTo(Arrays.asList(contentType));
+	}
+
 
 	public static class ContentType implements Comparable<ContentType> {
 		private String type;
@@ -56,10 +87,10 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 
 
 		public boolean matches(String supportedType) {
-			if(type.equals("*") || type.equals("*/*")) {
+			if(type.equals("*")) {
 				return true;
 			}
-			return type.equals(supportedType);
+			return supportedType.matches("^"+type.replaceAll("\\*",".+")+"$");
 		}
 	}
 }

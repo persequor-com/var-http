@@ -49,9 +49,9 @@ public class ParameterHandler {
 		return args;
 	}
 
-	public void handleReturnResponse(Object response, ControllerContext context, ContentTypes types) {
+	public void handleReturnResponse(Object response, ControllerContext context) {
 		if (response != null && !(response instanceof Void)) {
-			new VarResponseStream(context.response(), serializer).setTypes(types).write(response);
+			new VarResponseStream(context, serializer).write(response);
 		}
 	}
 

@@ -7,21 +7,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.Optional;
 
 public class VarResponseStream implements ResponseStream {
 	private final HttpServletResponse response;
+	private final ControllerContext context;
 	private Serializer serializer;
-	private ContentTypes types = new ContentTypes();
 
-	public VarResponseStream(HttpServletResponse response, Serializer serializer) {
-		this.response = response;
+	public VarResponseStream(ControllerContext controllerContext, Serializer serializer) {
+		this.response = controllerContext.response();
+		this.context = controllerContext;
 		this.serializer = serializer;
-	}
-
-	public VarResponseStream setTypes(ContentTypes types) {
-		this.types = types;
-		return this;
 	}
 
 	@Override
@@ -52,18 +47,20 @@ public class VarResponseStream implements ResponseStream {
 	@Override
 	public void write(Object object) {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), "UTF-8")) {
-			if (response.getHeader("Content-Type") != null) {
-				types.add(response.getHeader("Content-Type"));
-			}
 
 			if (object instanceof String) {
+				String contentType = context.getContentType() != null ? context.getContentType() : "text/plain";
+				ContentTypes validContentTypes = context.contentTypes().limitTo(contentType);
 				streamWriter.write((String) object);
-				setResponseContentType("text/plain");
+				setResponseContentType(validContentTypes.getHighestPriority().getType());
 			} else {
-				String contentType = types.getType(serializer.supportedTypes()).orElse("application/json");
+				ContentTypes validContentTypes = context.contentTypes().limitTo(context.getContentType());
+				String contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority().getType();
 				serializer.serialize(streamWriter, object, contentType);
 				setResponseContentType(contentType);
 			}
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

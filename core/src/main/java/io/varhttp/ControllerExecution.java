@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,7 +47,16 @@ public class ControllerExecution  {
 			filters.add(filterExecution);
 			Iterator<Object> iterator = filters.iterator();
 			VarServletFilterChain chain = new VarServletFilterChain(context, iterator.next(), iterator);
+			if (context.response().getHeader("Content-Type") == null) {
+				Enumeration<String> acceptHeaders = context.request().getHeaders("Accept");
+				while (acceptHeaders.hasMoreElements()) {
+					context.contentTypes().add(acceptHeaders.nextElement());
+				}
+			}
+
 			chain.doFilter(context.request(), context.response());
+		} catch (ContentTypeException e) {
+			fail(415,e,context.response());
 		} catch (WrappedServletException e) {
 			// Controller logic threw exception
 			Throwable cause = e.getCause() == null ? e : e.getCause();

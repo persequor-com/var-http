@@ -6,7 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 public class ControllerContext {
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
+	private final ContentTypes types = new ContentTypes();
 	private VarFilterChain filterChain;
+	private String contentType;
 
 	public ControllerContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
@@ -21,6 +23,10 @@ public class ControllerContext {
 		return response;
 	}
 
+	public ContentTypes contentTypes() {
+		return types;
+	}
+
 	public RequestParameters getParameters() {
 		return new RequestParametersImplementation(request);
 	}
@@ -31,5 +37,13 @@ public class ControllerContext {
 
 	public void setFilterChain(VarFilterChain filterChain) {
 		this.filterChain = filterChain;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	public String getContentType() {
+		return contentType;
 	}
 }
