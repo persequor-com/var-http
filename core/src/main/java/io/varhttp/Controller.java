@@ -11,4 +11,7 @@ public @interface Controller {
 	String path();
 	HttpMethod[] httpMethods() default {};
 	String contentType() default "";
+	String summary() default "";
+	String notes() default "";
+	String[] consumes() default {};
 }
