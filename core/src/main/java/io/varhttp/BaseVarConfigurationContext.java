@@ -11,11 +11,8 @@ import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
 import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
 import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 
-import java.lang.reflect.Method;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class BaseVarConfigurationContext extends VarConfigurationContext {
 
@@ -74,7 +71,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	}
 
 	@Override
-	public BiConsumer<String, Method> getOnControllerAdd() {
+	public ControllerAddedHandler getOnControllerAdd() {
 		return this.onControllerAdd;
 	}
 }

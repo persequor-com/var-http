@@ -6,7 +6,6 @@ import javax.servlet.Filter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class VarConfiguration {
@@ -90,7 +89,7 @@ public class VarConfiguration {
 		mappings.forEach(Runnable::run);
 	}
 
-	public void onControllerAdd(BiConsumer<String, Method> methodConsumer) {
+	public void onControllerAdd(ControllerAddedHandler methodConsumer) {
 		context.onControllerAdd(methodConsumer);
 	}
 }

@@ -5,12 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class ControllerMapper {
 	Logger logger = LoggerFactory.getLogger(ControllerMapper.class);
@@ -52,9 +49,9 @@ public class ControllerMapper {
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
 
-						BiConsumer<String, Method> onControllerAdd = context.getOnControllerAdd();
+						ControllerAddedHandler onControllerAdd = context.getOnControllerAdd();
 						if (onControllerAdd != null) {
-							onControllerAdd.accept(urlMapKey, method);
+							onControllerAdd.onAdd(urlMapKey, method);
 						}
 						context.addExecution(controllerClass, method, urlMapKey, classPath, matchResult.get(), context);
 					} catch (Exception e) {
