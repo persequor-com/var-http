@@ -45,12 +45,14 @@ public class ControllerExecution  {
 			filters.add(filterExecution);
 			Iterator<Object> iterator = filters.iterator();
 			VarServletFilterChain chain = new VarServletFilterChain(context, iterator.next(), iterator);
-			if (context.response().getHeader("Content-Type") == null) {
-				Enumeration<String> acceptHeaders = context.request().getHeaders("Accept");
-				while (acceptHeaders.hasMoreElements()) {
-					context.acceptedTypes().add(acceptHeaders.nextElement());
-				}
+			Enumeration<String> acceptHeaders = context.request().getHeaders("Accept");
+			while (acceptHeaders.hasMoreElements()) {
+				context.acceptedTypes().add(acceptHeaders.nextElement());
 			}
+			if (context.acceptedTypes().isEmpty()) {
+				context.acceptedTypes().add("*");
+			}
+
 
 			chain.doFilter(context.request(), context.response());
 		} catch (ContentTypeException e) {

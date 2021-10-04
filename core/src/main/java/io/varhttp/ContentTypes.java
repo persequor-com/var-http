@@ -16,6 +16,9 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 	}
 
 	public void add(String types) {
+		if (types.isEmpty()) {
+			return;
+		}
 		Stream.of(types.split(",")).map(ContentType::new).forEach(this::add);
 	}
 
@@ -28,11 +31,6 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 			throw new ContentTypeException("Requested Content-Type is not supported");
 		}
 		return this.first();
-	}
-
-	public void set(String contentType) {
-		clear();
-		add(contentType);
 	}
 
 	public ContentTypes limitTo(List<String> types) throws ContentTypeException {

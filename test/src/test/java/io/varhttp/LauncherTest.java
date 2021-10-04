@@ -56,6 +56,16 @@ public class LauncherTest {
 	}
 
 	@Test
+	public void notSettingAcceptHeaderContentType_willFallbackToServerDefault() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
+		con.setRequestProperty("Accept", "");
+
+		HttpClient.readContent(con);
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		assertEquals("text/plain", headers.get("Content-type").get(0));
+	}
+
+	@Test
 	public void pathVariable() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/pathVar/my-string", "");
 
