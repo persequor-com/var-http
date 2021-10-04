@@ -24,7 +24,7 @@ public class VarResponseStream implements ResponseStream {
 	@Override
 	public BufferedWriter getContentWriter(String fileName, String contentType, Charset charset) {
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + fileName + '"');
-		response.setContentType(contentType);
+		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority().getType());
 		response.setCharacterEncoding(charset.name());
 		try {
 			return new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(response.getOutputStream()), charset));
@@ -35,7 +35,7 @@ public class VarResponseStream implements ResponseStream {
 
 	@Override
 	public OutputStream getOutputStream(String contentType, Charset charset) {
-		response.setContentType(contentType);
+		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority().getType());
 		if(charset != null) {
 			response.setCharacterEncoding(charset.name());
 		}
