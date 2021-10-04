@@ -16,18 +16,26 @@ public class VarResponseHeader implements ResponseHeader {
 	}
 
 	@Override
-	public void setStatus(int httpResonseCode) {
-		response.setStatus(httpResonseCode);
+	public void setStatus(int httpResponseCode) {
+		response.setStatus(httpResponseCode);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		response.addHeader(name, value);
+		if ("Content-Type".equalsIgnoreCase(name)) {
+			setContentType(value);
+		} else {
+			response.addHeader(name, value);
+		}
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		response.setHeader(name, value);
+		if ("Content-Type".equalsIgnoreCase(name)) {
+			setContentType(value);
+		} else {
+			response.setHeader(name, value);
+		}
 	}
 
 	@Override
