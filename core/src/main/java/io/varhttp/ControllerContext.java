@@ -23,7 +23,7 @@ public class ControllerContext {
 		return response;
 	}
 
-	public ContentTypes contentTypes() {
+	public ContentTypes acceptedTypes() {
 		return types;
 	}
 

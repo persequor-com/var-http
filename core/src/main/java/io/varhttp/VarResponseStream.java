@@ -9,9 +9,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 public class VarResponseStream implements ResponseStream {
+
 	private final HttpServletResponse response;
 	private final ControllerContext context;
-	private Serializer serializer;
+	private final Serializer serializer;
 
 	public VarResponseStream(ControllerContext controllerContext, Serializer serializer) {
 		this.response = controllerContext.response();
@@ -50,25 +51,19 @@ public class VarResponseStream implements ResponseStream {
 
 			if (object instanceof String) {
 				String contentType = context.getContentType() != null ? context.getContentType() : "text/plain";
-				ContentTypes validContentTypes = context.contentTypes().limitTo(contentType);
+				ContentTypes validContentTypes = context.acceptedTypes().limitTo(contentType);
 				streamWriter.write((String) object);
-				setResponseContentType(validContentTypes.getHighestPriority().getType());
+				response.setContentType(validContentTypes.getHighestPriority().getType());
 			} else {
-				ContentTypes validContentTypes = context.contentTypes().limitTo(context.getContentType());
+				ContentTypes validContentTypes = context.acceptedTypes().limitTo(context.getContentType());
 				String contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority().getType();
 				serializer.serialize(streamWriter, object, contentType);
-				setResponseContentType(contentType);
+				response.setContentType(contentType);
 			}
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	private void setResponseContentType(String contentType) {
-		if (response.getHeader("Content-Type") == null) {
-			response.setContentType(contentType);
 		}
 	}
 

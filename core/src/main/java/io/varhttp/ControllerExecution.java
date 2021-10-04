@@ -4,14 +4,12 @@ import io.varhttp.parameterhandlers.IParameterHandler;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
-import javax.servlet.Filter;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -50,7 +48,7 @@ public class ControllerExecution  {
 			if (context.response().getHeader("Content-Type") == null) {
 				Enumeration<String> acceptHeaders = context.request().getHeaders("Accept");
 				while (acceptHeaders.hasMoreElements()) {
-					context.contentTypes().add(acceptHeaders.nextElement());
+					context.acceptedTypes().add(acceptHeaders.nextElement());
 				}
 			}
 
