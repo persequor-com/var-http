@@ -138,10 +138,14 @@ public class VarConfigurationContext {
 
 	private Object getAndInitializeDefaultFilter(Method method, Class<?> filterClass) {
 		if (Filter.class.isAssignableFrom(filterClass)) {
-			return getObjectFactory().getInstance(filterClass);
+			Filter filter = (Filter) getObjectFactory().getInstance(filterClass);
+			if (VarFilter.class.isAssignableFrom(filterClass)) {
+				((VarFilter) filter).init(method, null, null);
+			}
+			return filter;
 		} else {
 			VarFilterExecution varFilterExecution = getVarFilterExecution(filterClass);
-			varFilterExecution.ifVarFilter((VarFilter varFilter) -> varFilter.init(method, null, null));
+			varFilterExecution.ifVarFilter(varFilter -> varFilter.init(method, null, null));
 			return varFilterExecution;
 		}
 	}
