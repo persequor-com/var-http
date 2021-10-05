@@ -88,7 +88,11 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 			if(type.equals("*")) {
 				return true;
 			}
-			return supportedType.matches("^"+type.replaceAll("\\*",".+")+"$");
+			return supportedType.matches("^" + regexType(type) + "$");
+		}
+
+		private String regexType(String type) {
+			return type.replaceAll("\\.", "[.]").replaceAll("\\+", "[+]").replaceAll("\\*",".+");
 		}
 	}
 }
