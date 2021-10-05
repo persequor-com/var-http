@@ -57,12 +57,22 @@ public class VarFilterExecution {
 
 			parameterHandler.handleReturnResponse(responseObject, context);
 
-		} catch (ServletException|IOException|RuntimeException e) {
-			throw e;
-		} catch (InvocationTargetException e) {
-			throw new WrappedServletException(e.getCause());
 		} catch (Exception e) {
-			throw new WrappedServletException(e);
+			unWrapOrThrow(e);
+		}
+	}
+
+	private void unWrapOrThrow(Throwable t) throws ServletException, IOException {
+		if (t instanceof ServletException) {
+			throw (ServletException) t;
+		} else if (t instanceof IOException) {
+			throw (IOException) t;
+		} else if (t instanceof RuntimeException) {
+			throw (RuntimeException) t;
+		} else if (t instanceof InvocationTargetException) {
+			unWrapOrThrow(t.getCause());
+		} else {
+			throw new WrappedServletException(t);
 		}
 	}
 
