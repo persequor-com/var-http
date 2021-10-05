@@ -50,9 +50,8 @@ public class ControllerExecution  {
 				context.acceptedTypes().add(acceptHeaders.nextElement());
 			}
 			if (context.acceptedTypes().isEmpty()) {
-				context.acceptedTypes().add("*");
+				context.acceptedTypes().add("*/*");
 			}
-
 
 			chain.doFilter(context.request(), context.response());
 		} catch (ContentTypeException e) {
