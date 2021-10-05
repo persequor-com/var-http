@@ -41,6 +41,24 @@ public class ContentTypesTest {
 		assertEquals("application/signed-exchange", type.getType());
 	}
 
+	@Test
+	public void limitedTo_happy() {
+		contentTypes.add("text/html; q=1.0, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5");
 
+		assertEquals("text/html", contentTypes.limitTo("text/html").getHighestPriority().getType());
+	}
 
+	@Test
+	public void limitedTo_partialMatch() {
+		contentTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5");
+
+		assertEquals("text/plain", contentTypes.limitTo("text/plain").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_completeWildcard() {
+		contentTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5, */*; q=0.1");
+
+		assertEquals("my/custom", contentTypes.limitTo("my/custom").getHighestPriority().getType());
+	}
 }

@@ -5,6 +5,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,32 @@ public class LauncherTest {
 		Map<String, List<String>> headers = HttpClient.readHeaders(con);
 
 		assertTrue(headers.containsKey("Content-type"));
-		assertEquals(headers.get("Content-type").get(0), "text/plain");
+		assertEquals("text/plain", headers.get("Content-type").get(0));
 
 		assertEquals("Simple string", content.toString());
+	}
+
+	@Test
+	public void requestingUnsupportedContentType() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
+		con.setRequestProperty("Accept", "my/custom");
+
+		try {
+			HttpClient.readContent(con);
+			fail();
+		} catch (IOException e) {
+			assertTrue(e.getMessage().startsWith("Server returned HTTP response code: 415"));
+		}
+	}
+
+	@Test
+	public void notSettingAcceptHeaderContentType_willFallbackToServerDefault() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
+		con.setRequestProperty("Accept", "");
+
+		HttpClient.readContent(con);
+		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		assertEquals("text/plain", headers.get("Content-type").get(0));
 	}
 
 	@Test
@@ -374,7 +398,7 @@ public class LauncherTest {
 		assertEquals("{\"string\":\"Simple string\"}", content.toString());
 	}
 
-	@Test
+	@Test(expected = IOException.class)
 	public void serializedReturnObject_toAcceptedContentType_unsupportedType() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
 		con.setRequestProperty("Accept", "text/xml");

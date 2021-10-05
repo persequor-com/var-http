@@ -7,25 +7,35 @@ import javax.servlet.http.HttpServletResponse;
 public class VarResponseHeader implements ResponseHeader {
 	private final HttpServletResponse response;
 	private final String classPath;
+	private final ControllerContext context;
 
-	public VarResponseHeader(HttpServletResponse response, String classPath) {
-		this.response = response;
+	public VarResponseHeader(ControllerContext controllerContext, String classPath) {
+		this.response = controllerContext.response();
+		this.context = controllerContext;
 		this.classPath = classPath;
 	}
 
 	@Override
-	public void setStatus(int httpResonseCode) {
-		response.setStatus(httpResonseCode);
+	public void setStatus(int httpResponseCode) {
+		response.setStatus(httpResponseCode);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		response.addHeader(name, value);
+		if ("Content-Type".equalsIgnoreCase(name)) {
+			setContentType(value);
+		} else {
+			response.addHeader(name, value);
+		}
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		response.setHeader(name, value);
+		if ("Content-Type".equalsIgnoreCase(name)) {
+			setContentType(value);
+		} else {
+			response.setHeader(name, value);
+		}
 	}
 
 	@Override
@@ -46,5 +56,10 @@ public class VarResponseHeader implements ResponseHeader {
 	@Override
 	public void addCookie(Cookie cookie) {
 		this.response.addCookie(cookie);
+	}
+
+	@Override
+	public void setContentType(String s) {
+		context.setContentType(s);
 	}
 }

@@ -58,7 +58,5 @@ public interface ResponseHeader {
 	 */
 	void redirect(URL url);
 
-	default void setContentType(String s) {
-		setHeader("Content-Type", s);
-	}
+	void setContentType(String s);
 }

@@ -7,27 +7,24 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 
 public class VarResponseStream implements ResponseStream {
+
 	private final HttpServletResponse response;
-	private Serializer serializer;
-	private ContentTypes types = new ContentTypes();
+	private final ControllerContext context;
+	private final Serializer serializer;
 
-	public VarResponseStream(HttpServletResponse response, Serializer serializer) {
-		this.response = response;
+	public VarResponseStream(ControllerContext controllerContext, Serializer serializer) {
+		this.response = controllerContext.response();
+		this.context = controllerContext;
 		this.serializer = serializer;
-	}
-
-	public VarResponseStream setTypes(ContentTypes types) {
-		this.types = types;
-		return this;
 	}
 
 	@Override
 	public BufferedWriter getContentWriter(String fileName, String contentType, Charset charset) {
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + fileName + '"');
-		response.setContentType(contentType);
+		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority().getType());
 		response.setCharacterEncoding(charset.name());
 		try {
 			return new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(response.getOutputStream()), charset));
@@ -38,7 +35,7 @@ public class VarResponseStream implements ResponseStream {
 
 	@Override
 	public OutputStream getOutputStream(String contentType, Charset charset) {
-		response.setContentType(contentType);
+		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority().getType());
 		if(charset != null) {
 			response.setCharacterEncoding(charset.name());
 		}
@@ -51,38 +48,26 @@ public class VarResponseStream implements ResponseStream {
 
 	@Override
 	public void write(Object object) {
-		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), "UTF-8")) {
-			if (response.getHeader("Content-Type") != null) {
-				types.add(response.getHeader("Content-Type"));
-			}
-
-			if (object instanceof String) {
-				streamWriter.write((String) object);
-				setResponseContentType("text/plain");
-			} else {
-				String contentType = types.getType(serializer.supportedTypes()).orElse("application/json");
-				serializer.serialize(streamWriter, object, contentType);
-				setResponseContentType(contentType);
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void setResponseContentType(String contentType) {
-		if (response.getHeader("Content-Type") == null) {
-			response.setContentType(contentType);
-		}
+		write(object, context.getContentType());
 	}
 
 	@Override
-	public void write(Object content, String contentType) {
-		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), "UTF-8")) {
-			if (content instanceof String) {
-				streamWriter.write((String) content);
+	public void write(Object object, String forcedContentType) {
+		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
+
+			if (object instanceof String) {
+				String contentType = forcedContentType != null ? forcedContentType : "text/plain";
+				ContentTypes validContentTypes = context.acceptedTypes().limitTo(contentType);
+				streamWriter.write((String) object);
+				response.setContentType(validContentTypes.getHighestPriority().getType());
 			} else {
-				serializer.serialize(streamWriter, content, contentType);
+				ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
+				String contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority().getType();
+				serializer.serialize(streamWriter, object, contentType);
+				response.setContentType(contentType);
 			}
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

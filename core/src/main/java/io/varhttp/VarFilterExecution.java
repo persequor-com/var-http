@@ -50,17 +50,12 @@ public class VarFilterExecution {
 			if (!containsChain && context.getFilterChain() != null) {
 				context.getFilterChain().proceed();
 			}
-			ContentTypes types = new ContentTypes();
 
-			if (context.response().getHeader("Content-Type") == null) {
-				if (context.request().getHeader("Accept") != null) {
-					types.add(context.request().getHeader("Accept"));
-				}
-				if (!"".equals(matchResult.getContentType())) {
-					types.set(matchResult.getContentType());
-				}
+			if (!"".equals(matchResult.getContentType())) {
+				context.setContentType(matchResult.getContentType());
 			}
-			parameterHandler.handleReturnResponse(responseObject, context, types);
+
+			parameterHandler.handleReturnResponse(responseObject, context);
 
 		} catch (ServletException|IOException|RuntimeException e) {
 			throw e;

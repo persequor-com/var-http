@@ -4,7 +4,6 @@ import io.varhttp.parameterhandlers.IParameterHandler;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
-import javax.servlet.Filter;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -12,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,7 +45,17 @@ public class ControllerExecution  {
 			filters.add(filterExecution);
 			Iterator<Object> iterator = filters.iterator();
 			VarServletFilterChain chain = new VarServletFilterChain(context, iterator.next(), iterator);
+			Enumeration<String> acceptHeaders = context.request().getHeaders("Accept");
+			while (acceptHeaders.hasMoreElements()) {
+				context.acceptedTypes().add(acceptHeaders.nextElement());
+			}
+			if (context.acceptedTypes().isEmpty()) {
+				context.acceptedTypes().add("*/*");
+			}
+
 			chain.doFilter(context.request(), context.response());
+		} catch (ContentTypeException e) {
+			fail(415,e,context.response());
 		} catch (WrappedServletException e) {
 			// Controller logic threw exception
 			Throwable cause = e.getCause() == null ? e : e.getCause();
