@@ -70,8 +70,20 @@ public class ContentTypesTest {
 	}
 
 	@Test
-	public void limitedTo_exactMatch() {
+	public void limitedTo_vendorSpecific_exactMatch() {
 		contentTypes.add("application/vnd.my-company+json");
+
+		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_vendorSpecific_mixed() {
+		contentTypes.add("application/json, application/vnd.my-company+json");
+
+		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+
+		contentTypes = new ContentTypes();
+		contentTypes.add("application/vnd.my-company+json, application/json");
 
 		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
 	}
