@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface ControllerClass {
 	String pathPrefix() default "";
+	String description() default "";
 }

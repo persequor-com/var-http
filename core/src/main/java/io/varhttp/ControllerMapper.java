@@ -48,6 +48,11 @@ public class ControllerMapper {
 						String classPrefix = annotations.get(ControllerClass.class).map(ControllerClass::pathPrefix).orElse("");
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
+
+						ControllerListener onControllerAdd = context.getOnControllerAdd();
+						if (onControllerAdd != null) {
+							onControllerAdd.onAdd(urlMapKey, method);
+						}
 						context.addExecution(controllerClass, method, urlMapKey, classPath, matchResult.get(), context);
 					} catch (Exception e) {
 						logger.error("Unable to register controller", e);

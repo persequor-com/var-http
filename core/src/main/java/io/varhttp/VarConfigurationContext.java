@@ -22,6 +22,7 @@ public class VarConfigurationContext {
 	Map<Class<?>, Method> defaultFiltersWithExternalMethod = new HashMap<>();
 	ControllerExecution notFoundController;
 	List<Runnable> mappings = new ArrayList<>();
+	ControllerListener onControllerAdd;
 
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
 								   ParameterHandler parameterHandler) {
@@ -256,5 +257,16 @@ public class VarConfigurationContext {
 
 	public void applyMappings() {
 		mappings.forEach(Runnable::run);
+	}
+
+	public void onControllerAdd(ControllerListener methodConsumer) {
+		this.onControllerAdd = methodConsumer;
+	}
+
+	public ControllerListener getOnControllerAdd() {
+		if(this.onControllerAdd == null) {
+			return this.parentContext.getOnControllerAdd();
+		}
+		return this.onControllerAdd;
 	}
 }

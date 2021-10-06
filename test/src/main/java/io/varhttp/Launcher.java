@@ -1,10 +1,8 @@
 package io.varhttp;
 
 import io.varhttp.controllers.MyTestController;
-import io.varhttp.controllers.withfilters.LoggingFilter;
 
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 import java.util.function.Consumer;
 
 public class Launcher implements Runnable {

@@ -11,7 +11,6 @@ import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
 import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
 import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 
-import java.lang.reflect.Method;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -69,5 +68,10 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	@Override
 	public ControllerExecution getNotFoundController() {
 		return notFoundController;
+	}
+
+	@Override
+	public ControllerListener getOnControllerAdd() {
+		return this.onControllerAdd;
 	}
 }
