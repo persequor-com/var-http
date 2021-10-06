@@ -63,8 +63,15 @@ public class ContentTypesTest {
 	}
 
 	@Test
-	public void limitedTo_vendorSpecific() {
+	public void limitedTo_superTypeToVendorSpecific() {
 		contentTypes.add("application/json");
+
+		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_exactMatch() {
+		contentTypes.add("application/vnd.my-company+json");
 
 		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
 	}

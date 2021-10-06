@@ -85,10 +85,10 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 
 
 		public boolean matches(String supportedType) {
-			final String typeToMatch = toSuperType(supportedType);
-			if(type.equals("*")) {
+			if(type.equals("*") || type.equals(supportedType)) {
 				return true;
 			}
+			final String typeToMatch = toSuperType(supportedType);
 			return typeToMatch.matches("^" + regexType(type) + "$");
 		}
 
