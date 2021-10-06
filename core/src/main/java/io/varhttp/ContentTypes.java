@@ -85,10 +85,15 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 
 
 		public boolean matches(String supportedType) {
+			final String typeToMatch = toSuperType(supportedType);
 			if(type.equals("*")) {
 				return true;
 			}
-			return supportedType.matches("^" + regexType(type) + "$");
+			return typeToMatch.matches("^" + regexType(type) + "$");
+		}
+
+		private String toSuperType(String supportedType) {
+			return supportedType.replaceAll("/vnd\\..*\\+", "/");
 		}
 
 		private String regexType(String type) {

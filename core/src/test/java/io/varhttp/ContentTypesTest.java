@@ -61,4 +61,11 @@ public class ContentTypesTest {
 
 		assertEquals("my/custom", contentTypes.limitTo("my/custom").getHighestPriority().getType());
 	}
+
+	@Test
+	public void limitedTo_vendorSpecific() {
+		contentTypes.add("application/json");
+
+		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+	}
 }
