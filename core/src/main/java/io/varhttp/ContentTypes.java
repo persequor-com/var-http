@@ -23,7 +23,7 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 	}
 
 	public void add(Collection<String> types) {
-		types.stream().map(ContentType::new).forEach(this::add);
+		types.forEach(this::add);
 	}
 
 	public ContentType getHighestPriority() {

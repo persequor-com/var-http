@@ -1,5 +1,6 @@
 package io.varhttp;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -98,5 +99,17 @@ public class ContentTypesTest {
 		contentTypes.add("application/vnd.my-company+json, application/json");
 
 		assertEquals("application/json", contentTypes.limitTo("application/json").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_vendorSpecific_bothRequestedAndSupported() {
+		contentTypes.add("application/json, application/vnd.my-company+json");
+
+		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json, application/json").getHighestPriority().getType());
+
+		contentTypes = new ContentTypes();
+		contentTypes.add("application/vnd.my-company+json, application/json");
+
+		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/json, application/vnd.my-company+json").getHighestPriority().getType());
 	}
 }
