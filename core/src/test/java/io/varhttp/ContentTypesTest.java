@@ -2,6 +2,7 @@ package io.varhttp;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +29,19 @@ public class ContentTypesTest {
 		assertEquals("image/*", type.getType());
 		type = itt.next();
 		assertEquals("*/*", type.getType());
+	}
+
+	@Test
+	public void reverseQualifier() {
+		acceptedTypes.add("text/*; q=0.8, text/html; q=1.0");
+
+		assertEquals(2, acceptedTypes.size());
+
+		Iterator<ContentTypes.ContentType> itt = acceptedTypes.iterator();
+		ContentTypes.ContentType type = itt.next();
+		assertEquals("text/html", type.getType());
+		type = itt.next();
+		assertEquals("text/*", type.getType());
 	}
 
 	@Test
@@ -104,11 +118,11 @@ public class ContentTypesTest {
 	public void limitedTo_vendorSpecific_bothRequestedAndSupported() {
 		acceptedTypes.add("application/json, application/vnd.my-company+json");
 
-		assertEquals("application/json", acceptedTypes.limitTo("application/vnd.my-company+json, application/json").getHighestPriority().getType());
+		assertEquals("application/json", acceptedTypes.limitTo(Arrays.asList("application/vnd.my-company+json","application/json")).getHighestPriority().getType());
 
 		acceptedTypes = new ContentTypes();
 		acceptedTypes.add("application/vnd.my-company+json, application/json");
 
-		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo("application/json, application/vnd.my-company+json").getHighestPriority().getType());
+		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo(Arrays.asList("application/json", "application/vnd.my-company+json")).getHighestPriority().getType());
 	}
 }
