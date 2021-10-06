@@ -71,7 +71,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 	}
 
 	@Override
-	public ControllerAddedHandler getOnControllerAdd() {
+	public ControllerListener getOnControllerAdd() {
 		return this.onControllerAdd;
 	}
 }

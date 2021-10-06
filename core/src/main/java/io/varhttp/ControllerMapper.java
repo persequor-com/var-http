@@ -49,7 +49,7 @@ public class ControllerMapper {
 						String classPath = basePrefix + packagePrefix + classPrefix;
 						String urlMapKey = classPath + controllerPath;
 
-						ControllerAddedHandler onControllerAdd = context.getOnControllerAdd();
+						ControllerListener onControllerAdd = context.getOnControllerAdd();
 						if (onControllerAdd != null) {
 							onControllerAdd.onAdd(urlMapKey, method);
 						}
