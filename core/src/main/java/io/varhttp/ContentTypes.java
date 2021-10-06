@@ -1,8 +1,10 @@
 package io.varhttp;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
@@ -22,8 +24,16 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 		Stream.of(types.split(",")).map(ContentType::new).forEach(this::add);
 	}
 
+	@Override
+	public boolean add(ContentType contentType) {
+		if (stream().noneMatch(ct -> ct.equals(contentType))) {
+			return super.add(contentType);
+		}
+		return false;
+	}
+
 	public void add(Collection<String> types) {
-		types.stream().map(ContentType::new).forEach(this::add);
+		types.forEach(this::add);
 	}
 
 	public ContentType getHighestPriority() {
@@ -35,8 +45,10 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 
 	public ContentTypes limitTo(List<String> types) throws ContentTypeException {
 		ContentTypes newTypes = new ContentTypes();
-		newTypes.add(types);
-		newTypes.removeIf(ct -> this.stream().noneMatch(existingType -> existingType.matches(ct.type)));
+		for (ContentType acceptedType : this) {
+			List<String> sorted = acceptedType.bestMatch(types);
+			newTypes.add(sorted);
+		}
 		return newTypes;
 	}
 
@@ -60,7 +72,7 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 			} else {
 				type = parts[0].trim();
 				for(int i=1;i<parts.length;i++) {
-					if (parts[i].startsWith("q=")) {
+					if (parts[i].trim().startsWith("q=")) {
 						qualifier = Double.parseDouble(parts[i].replaceAll("q=","").trim());
 					}
 				}
@@ -83,16 +95,61 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 			return type;
 		}
 
-
-		public boolean matches(String supportedType) {
-			if(type.equals("*")) {
-				return true;
+		public List<String> bestMatch(List<String> supportedTypes) {
+			List<String> result = new ArrayList<>();
+			List<String> nonMatched = new ArrayList<>();
+			for (String supportedType : supportedTypes) {
+				if (type.equals(supportedType)) {
+					result.add(supportedType);
+				} else {
+					nonMatched.add(supportedType);
+				}
 			}
-			return supportedType.matches("^" + regexType(type) + "$");
+			List<String> stillNonMatched = new ArrayList<>();
+			for (String supportedType : nonMatched) {
+				final String typeToMatch = toSuperType(supportedType);
+				if (typeToMatch.matches("^" + regexType(type) + "$")) {
+					result.add(supportedType);
+				} else {
+					stillNonMatched.add(supportedType);
+				}
+			}
+			for (String supportedType : stillNonMatched) {
+				if (type.equals("*")) {
+					result.add(supportedType);
+				}
+			}
+
+			return result;
+		}
+
+		private String toSuperType(String supportedType) {
+			return supportedType.replaceAll("/vnd\\..*\\+", "/");
 		}
 
 		private String regexType(String type) {
 			return type.replaceAll("\\.", "[.]").replaceAll("\\+", "[+]").replaceAll("\\*",".+");
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			ContentType that = (ContentType) o;
+
+			if (Double.compare(that.qualifier, qualifier) != 0) return false;
+			return Objects.equals(type, that.type);
+		}
+
+		@Override
+		public int hashCode() {
+			int result;
+			long temp;
+			result = type != null ? type.hashCode() : 0;
+			temp = Double.doubleToLongBits(qualifier);
+			result = 31 * result + (int) (temp ^ (temp >>> 32));
+			return result;
 		}
 	}
 }

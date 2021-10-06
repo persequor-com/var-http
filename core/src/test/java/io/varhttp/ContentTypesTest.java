@@ -2,20 +2,21 @@ package io.varhttp;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ContentTypesTest {
-	ContentTypes contentTypes = new ContentTypes();
+	private ContentTypes acceptedTypes = new ContentTypes();
 
 	@Test
 	public void happyPath() {
-		contentTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5, */*; q=0.1");
+		acceptedTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5, */*; q=0.1");
 
-		assertEquals(6, contentTypes.size());
+		assertEquals(6, acceptedTypes.size());
 
-		Iterator<ContentTypes.ContentType> itt = contentTypes.iterator();
+		Iterator<ContentTypes.ContentType> itt = acceptedTypes.iterator();
 		ContentTypes.ContentType type = itt.next();
 		assertEquals("text/html", type.getType());
 		type = itt.next();
@@ -31,34 +32,97 @@ public class ContentTypesTest {
 	}
 
 	@Test
+	public void reverseQualifier() {
+		acceptedTypes.add("text/*; q=0.8, text/html; q=1.0");
+
+		assertEquals(2, acceptedTypes.size());
+
+		Iterator<ContentTypes.ContentType> itt = acceptedTypes.iterator();
+		ContentTypes.ContentType type = itt.next();
+		assertEquals("text/html", type.getType());
+		type = itt.next();
+		assertEquals("text/*", type.getType());
+	}
+
+	@Test
 	public void versionParameter() {
-		contentTypes.add("application/signed-exchange;v=b3;q=0.9");
+		acceptedTypes.add("application/signed-exchange;v=b3;q=0.9");
 
-		assertEquals(1, contentTypes.size());
+		assertEquals(1, acceptedTypes.size());
 
-		Iterator<ContentTypes.ContentType> itt = contentTypes.iterator();
+		Iterator<ContentTypes.ContentType> itt = acceptedTypes.iterator();
 		ContentTypes.ContentType type = itt.next();
 		assertEquals("application/signed-exchange", type.getType());
 	}
 
 	@Test
 	public void limitedTo_happy() {
-		contentTypes.add("text/html; q=1.0, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5");
+		acceptedTypes.add("text/html; q=1.0, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5");
 
-		assertEquals("text/html", contentTypes.limitTo("text/html").getHighestPriority().getType());
+		assertEquals("text/html", acceptedTypes.limitTo("text/html").getHighestPriority().getType());
 	}
 
 	@Test
 	public void limitedTo_partialMatch() {
-		contentTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5");
+		acceptedTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5");
 
-		assertEquals("text/plain", contentTypes.limitTo("text/plain").getHighestPriority().getType());
+		assertEquals("text/plain", acceptedTypes.limitTo("text/plain").getHighestPriority().getType());
 	}
 
 	@Test
 	public void limitedTo_completeWildcard() {
-		contentTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5, */*; q=0.1");
+		acceptedTypes.add("text/html; q=1.0, text/*; q=0.8, image/gif; q=0.6, image/jpeg; q=0.6, image/*; q=0.5, */*; q=0.1");
 
-		assertEquals("my/custom", contentTypes.limitTo("my/custom").getHighestPriority().getType());
+		assertEquals("my/custom", acceptedTypes.limitTo("my/custom").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_superTypeToVendorSpecific() {
+		acceptedTypes.add("application/json");
+
+		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+	}
+
+	@Test(expected = ContentTypeException.class)
+	public void limitedTo_askedForVendorSpecific_butOnlySupertypeIsSupported() {
+		acceptedTypes.add("application/vnd.my-company+json");
+
+		acceptedTypes.limitTo("application/json").getHighestPriority();
+	}
+
+	@Test
+	public void limitedTo_vendorSpecific_exactMatch() {
+		acceptedTypes.add("application/vnd.my-company+json");
+
+		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_vendorSpecific_mixed() {
+		acceptedTypes.add("application/json, application/vnd.my-company+json");
+
+		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+
+		acceptedTypes = new ContentTypes();
+		acceptedTypes.add("application/vnd.my-company+json, application/json");
+
+		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+
+		acceptedTypes = new ContentTypes();
+		acceptedTypes.add("application/vnd.my-company+json, application/json");
+
+		assertEquals("application/json", acceptedTypes.limitTo("application/json").getHighestPriority().getType());
+	}
+
+	@Test
+	public void limitedTo_vendorSpecific_bothRequestedAndSupported() {
+		acceptedTypes.add("application/json, application/vnd.my-company+json");
+
+		assertEquals("application/json", acceptedTypes.limitTo(Arrays.asList("application/vnd.my-company+json","application/json")).getHighestPriority().getType());
+
+		acceptedTypes = new ContentTypes();
+		acceptedTypes.add("application/vnd.my-company+json, application/json");
+
+		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo(Arrays.asList("application/json", "application/vnd.my-company+json")).getHighestPriority().getType());
 	}
 }
