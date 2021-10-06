@@ -104,7 +104,7 @@ public class ContentTypesTest {
 	public void limitedTo_vendorSpecific_bothRequestedAndSupported() {
 		acceptedTypes.add("application/json, application/vnd.my-company+json");
 
-		assertEquals("application/vnd.my-company+json", acceptedTypes.limitTo("application/vnd.my-company+json, application/json").getHighestPriority().getType());
+		assertEquals("application/json", acceptedTypes.limitTo("application/vnd.my-company+json, application/json").getHighestPriority().getType());
 
 		acceptedTypes = new ContentTypes();
 		acceptedTypes.add("application/vnd.my-company+json, application/json");
