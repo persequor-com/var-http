@@ -7,7 +7,7 @@ import java.util.Iterator;
 import static org.junit.Assert.*;
 
 public class ContentTypesTest {
-	ContentTypes contentTypes = new ContentTypes();
+	private ContentTypes contentTypes = new ContentTypes();
 
 	@Test
 	public void happyPath() {
@@ -69,6 +69,13 @@ public class ContentTypesTest {
 		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
 	}
 
+	@Test(expected = ContentTypeException.class)
+	public void limitedTo_askedForVendorSpecific_butOnlySupertypeIsSupported() {
+		contentTypes.add("application/vnd.my-company+json");
+
+		contentTypes.limitTo("application/json").getHighestPriority();
+	}
+
 	@Test
 	public void limitedTo_vendorSpecific_exactMatch() {
 		contentTypes.add("application/vnd.my-company+json");
@@ -86,5 +93,10 @@ public class ContentTypesTest {
 		contentTypes.add("application/vnd.my-company+json, application/json");
 
 		assertEquals("application/vnd.my-company+json", contentTypes.limitTo("application/vnd.my-company+json").getHighestPriority().getType());
+
+		contentTypes = new ContentTypes();
+		contentTypes.add("application/vnd.my-company+json, application/json");
+
+		assertEquals("application/json", contentTypes.limitTo("application/json").getHighestPriority().getType());
 	}
 }
