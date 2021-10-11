@@ -226,6 +226,17 @@ public class MyTestController {
 		throw new RuntimeException("My exception");
 	}
 
+	@Controller(path = "/no-serializer-custom-content-type-response-helper", httpMethods = HttpMethod.GET)
+	public String noSerializerCustomContentType_responseHelper(ResponseHeader responseHeader) throws Exception {
+		responseHeader.setContentType("application/xml");
+		return "<my-xml>woo-hoo</my-xml>";
+	}
+
+	@Controller(path = "/no-serializer-custom-content-type-annotation", httpMethods = HttpMethod.GET, contentType = "application/xml")
+	public String noSerializerCustomContentType_annotation() throws Exception {
+		return "<my-xml>woo-hoo</my-xml>";
+	}
+
 	public static class ExceptionVarFilter {
 		@FilterMethod
 		public void filter(VarFilterChain filterChain, VarResponseStream responseStream) {

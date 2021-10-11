@@ -8,7 +8,6 @@ public class ControllerContext {
 	private final HttpServletResponse response;
 	private final ContentTypes accepted = new ContentTypes();
 	private VarFilterChain filterChain;
-	private String contentType;
 
 	public ControllerContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
@@ -40,10 +39,10 @@ public class ControllerContext {
 	}
 
 	public void setContentType(String contentType) {
-		this.contentType = contentType;
+		response.setContentType(contentType);
 	}
 
 	public String getContentType() {
-		return contentType;
+		return response().getContentType();
 	}
 }
