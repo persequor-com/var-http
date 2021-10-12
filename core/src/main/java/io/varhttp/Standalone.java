@@ -79,6 +79,7 @@ public class Standalone implements Runnable {
 			tmf.init(keyStore);
 
 			// Set up the HTTPS context and parameters
+			sslContext = SSLContext.getInstance("TLS");
 			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 		} catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | KeyManagementException e) {
 			throw new VarInitializationException(e);
@@ -87,8 +88,6 @@ public class Standalone implements Runnable {
 
 	public void setSslContext(InputStream x509Certificate, InputStream privateKey) {
 		try {
-			sslContext = SSLContext.getInstance("TLS");
-
 			// Initialise the keystore
 			char[] password = "".toCharArray();
 			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -115,7 +114,6 @@ public class Standalone implements Runnable {
 
 
 			setSslContext(ks, password);
-			// Set up the key manager factory
 		} catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException | InvalidKeySpecException e) {
 			throw new VarInitializationException(e);
 		}
