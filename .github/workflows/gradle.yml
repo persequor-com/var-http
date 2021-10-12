@@ -39,10 +39,10 @@ jobs:
         uses: paulhatch/semantic-version@v4.0.2
         with:
           tag_prefix: "v"
-          major_pattern: "(MAJOR-PR)"
-          minor_pattern: "(MINOR-PR)"
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}-${increment}"
-          branch: ${{ github.head_ref }}
+          # branch: ${{ github.head_ref }}
           namespace: ${{ github.head_ref }}
           bump_each_commit: false
         id: versioning
