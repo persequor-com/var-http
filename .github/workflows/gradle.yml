@@ -30,8 +30,9 @@ jobs:
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}-${increment}"
-          namespace: ${{ github.head_ref }}
+          branch: ${{ github.head_ref }}
           bump_each_commit: false
+        id: versioning
       - name: Setup java
         uses: actions/setup-java@v2
         with:
