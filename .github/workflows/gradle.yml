@@ -43,7 +43,7 @@ jobs:
           minor_pattern: "(MINOR-PR)"
           format: "${major}.${minor}.${patch}-${increment}"
           branch: ${{ github.head_ref }}
-          namespace: PR
+          namespace: ${{ github.head_ref }}
           bump_each_commit: false
         id: versioning
       - name: Publish package
