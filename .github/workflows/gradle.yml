@@ -5,9 +5,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -17,16 +17,20 @@ jobs:
       packages: write
     strategy:
       matrix:
-        java: [ '8' ] # , '11', '13', '15' ]
+        java: ["8"] # , '11', '13', '15' ]
     name: Java ${{ matrix.Java }}
     steps:
+      - name: calculate namespace
+        run: echo "::set-output name=namespace::${GITHUB_REF##*/}"
+        id: namespace
+        if: github.event_name != 'pull_request'
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - name: Setup java
         uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: "adopt"
           java-version: ${{ matrix.java }}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -42,9 +46,8 @@ jobs:
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}-${increment}"
+          namespace: ${{ steps.namespace && steps.namespace.outputs.namespace }}
           bump_each_commit: false
-        id: versioning
-        if: github.event_name != 'pull_request'
       - name: Publish package
         run: ./gradlew -PprojVersion=${{steps.versioning.outputs.version}} publish
         env:
@@ -52,6 +55,3 @@ jobs:
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
           GITHUB_CI_TOKEN: ${{ secrets.CI_TOKEN }}
           GITHUB_CI_ACTOR: ${{ secrets.CI_USER }}
-        if: github.event_name != 'pull_request'
-
-
