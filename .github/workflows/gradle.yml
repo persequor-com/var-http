@@ -23,7 +23,7 @@ jobs:
       - name: calculate namespace
         run: echo "::set-output name=namespace::${GITHUB_REF##*/}"
         id: namespace
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'pull_request'
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -41,12 +41,14 @@ jobs:
           GITHUB_CI_ACTOR: ${{ secrets.CI_USER }}
       - name: versioning
         uses: paulhatch/semantic-version@v4.0.2
+        env:
+          NAMESPACE: ${{ steps.namespace && steps.namespace.outputs.namespace }}
         with:
           tag_prefix: "v"
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}-${increment}"
-          namespace: ${{ steps.namespace && steps.namespace.outputs.namespace }}
+          namespace: ${{ env.NAMESPACE }}
           bump_each_commit: false
       - name: Publish package
         run: ./gradlew -PprojVersion=${{steps.versioning.outputs.version}} publish
