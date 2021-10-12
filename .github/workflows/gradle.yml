@@ -21,9 +21,18 @@ jobs:
     name: Java ${{ matrix.Java }}
     steps:
       - name: calculate namespace
-        run: echo "::set-output name=namespace::${GITHUB_REF##*/}"
-        id: namespace
-        if: github.event_name == 'pull_request'
+        run: echo "::set-output name=namespace::${GITHUB_REF#refs/heads/}"
+        id: calc_namespace
+        # if: github.event_name == 'pull_request'
+      - name: versioning
+        uses: paulhatch/semantic-version@v4.0.2
+        with:
+          tag_prefix: "v"
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          format: "${major}.${minor}.${patch}-${increment}"
+          namespace: ${{ steps.calc_namespace.outputs.namespace }}
+          bump_each_commit: false
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -39,17 +48,6 @@ jobs:
         env:
           GITHUB_CI_TOKEN: ${{ secrets.CI_TOKEN }}
           GITHUB_CI_ACTOR: ${{ secrets.CI_USER }}
-      - name: versioning
-        uses: paulhatch/semantic-version@v4.0.2
-        env:
-          NAMESPACE: ${{ steps.namespace.outputs.namespace }}
-        with:
-          tag_prefix: "v"
-          major_pattern: "(MAJOR)"
-          minor_pattern: "(MINOR)"
-          format: "${major}.${minor}.${patch}-${increment}"
-          namespace: ${{ env.NAMESPACE }}
-          bump_each_commit: false
       - name: Publish package
         run: ./gradlew -PprojVersion=${{steps.versioning.outputs.version}} publish
         env:
