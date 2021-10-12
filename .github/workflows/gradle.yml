@@ -42,7 +42,7 @@ jobs:
       - name: versioning
         uses: paulhatch/semantic-version@v4.0.2
         env:
-          NAMESPACE: ${{ steps.namespace && steps.namespace.outputs.namespace }}
+          NAMESPACE: ${{ steps.namespace.outputs.namespace }}
         with:
           tag_prefix: "v"
           major_pattern: "(MAJOR)"
