@@ -1,13 +1,18 @@
 package io.varhttp.parameterhandlers;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 import io.varhttp.ControllerContext;
 import io.varhttp.Serializer;
 
 import javax.servlet.ServletContext;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 public class RequestBodyHandler implements IParameterHandler {
@@ -32,7 +37,10 @@ public class RequestBodyHandler implements IParameterHandler {
 				type = ((ParameterizedType)type).getActualTypeArguments()[0];
 			}
 			Object bodyString;
-			if (type.getTypeName().equals(String.class.getName())) {
+			if (InputStream.class.isAssignableFrom(matchContext.getType())) {
+				String asString = toString(body);
+				return asString != null ? new ByteArrayInputStream(asString.getBytes(StandardCharsets.UTF_8)) : null;
+			} else if (type.getTypeName().equals(String.class.getName())) {
 				bodyString = toString(body);
 			} else {
 				bodyString = serializer.deserialize(body, type, controllerContext.request().getContentType());
