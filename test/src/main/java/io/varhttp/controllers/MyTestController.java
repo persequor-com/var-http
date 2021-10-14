@@ -12,24 +12,19 @@ import io.varhttp.RequestParameter;
 import io.varhttp.RequestParameters;
 import io.varhttp.ResponseHeader;
 import io.varhttp.ResponseStream;
-import io.varhttp.VarFilter;
 import io.varhttp.VarFilterChain;
-import io.varhttp.VarFilterExecution;
 import io.varhttp.VarResponseStream;
-import io.varhttp.controllers.withfilters.Authorization;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 @ControllerClass
 public class MyTestController {
@@ -54,8 +49,8 @@ public class MyTestController {
 	}
 
 	@Controller(path = "/requestParameter")
-	public String myTestRequestParameter(@RequestParameter(name = "var") String var) {
-		return var;
+	public String myTestRequestParameter(@RequestParameter(name = "var") String var, @RequestParameter(name = "datetime") ZonedDateTime date) {
+		return var + " " + date;
 	}
 
 	@Controller(path = "/header")
