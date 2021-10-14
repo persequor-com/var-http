@@ -213,7 +213,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 	public void addCookie(Cookie cookie) {
 		ex.getResponseHeaders().add("Set-Cookie",
 				cookie.getName()+"="+cookie.getValue()
-				+(cookie.getMaxAge() > 0 ? "; Max-Age="+cookie.getMaxAge(): "")
+				+(cookie.getMaxAge() > -1 ? "; Max-Age="+cookie.getMaxAge(): "")
 				+(cookie.getSecure()?"; Secure":"")
 				+(cookie.isHttpOnly()?"; HttpOnly":"")
 				+(cookie.getPath() != null ? "; Path=" + cookie.getPath() : "")
