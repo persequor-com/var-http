@@ -2,17 +2,16 @@ package io.varhttp.parameterhandlers;
 
 import io.varhttp.ControllerContext;
 import io.varhttp.Serializer;
-
-import javax.servlet.ServletContext;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
 public class RequestBodyHandler implements IParameterHandler {
-	private MatchContext matchContext;
-	private Serializer serializer;
+	private final MatchContext matchContext;
+	private final Serializer serializer;
 
 	public RequestBodyHandler(MatchContext matchContext, Serializer serializer) {
 		this.matchContext = matchContext;
@@ -32,7 +31,9 @@ public class RequestBodyHandler implements IParameterHandler {
 				type = ((ParameterizedType)type).getActualTypeArguments()[0];
 			}
 			Object bodyString;
-			if (type.getTypeName().equals(String.class.getName())) {
+			if (InputStream.class.isAssignableFrom(matchContext.getType())) {
+				return controllerContext.request().getInputStream();
+			} else if (type.getTypeName().equals(String.class.getName())) {
 				bodyString = toString(body);
 			} else {
 				bodyString = serializer.deserialize(body, type, controllerContext.request().getContentType());

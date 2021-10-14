@@ -14,12 +14,17 @@ import io.varhttp.ResponseHeader;
 import io.varhttp.ResponseStream;
 import io.varhttp.VarFilterChain;
 import io.varhttp.VarResponseStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -157,6 +162,16 @@ public class MyTestController {
 			@RequestParameter(name = "otherParameter") String otherParameter
 	) {
 		return string;
+	}
+
+	@Controller(path = "/requestBodyInputStream")
+	public String requestBodyString(
+			@RequestBody InputStream inputStream
+	) {
+		return new BufferedReader(
+				new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+				.lines()
+				.collect(Collectors.joining("\n"));
 	}
 
 	@Controller(path = "/responseStream_getOutputStream_contentType")

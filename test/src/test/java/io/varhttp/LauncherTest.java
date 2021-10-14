@@ -290,6 +290,14 @@ public class LauncherTest {
 	}
 
 	@Test
+	public void requestBodyInputStream() throws Throwable {
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestBodyInputStream", "I AM THE BODY", "text/plain");
+
+		String response = HttpClient.readContent(con).toString();
+		assertEquals("I AM THE BODY", response);
+	}
+
+	@Test
 	public void responseStream_getOutputStream_contentType() throws Throwable {
 		HttpURLConnection con = HttpClient.post("http://localhost:8088/responseStream_getOutputStream_contentType", "");
 
