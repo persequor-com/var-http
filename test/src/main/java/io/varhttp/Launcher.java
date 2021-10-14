@@ -1,9 +1,8 @@
 package io.varhttp;
 
 import io.varhttp.controllers.MyTestController;
-
-import javax.inject.Inject;
 import java.util.function.Consumer;
+import javax.inject.Inject;
 
 public class Launcher implements Runnable {
 	private Standalone standalone;
@@ -37,4 +36,5 @@ public class Launcher implements Runnable {
 	public void configure(Consumer<VarConfiguration> config) {
 		standalone.configure(config);
 	}
+
 }

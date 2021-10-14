@@ -1,16 +1,16 @@
 package io.varhttp;
 
 import io.odinjector.OdinJector;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
+import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class LauncherTest {
 	static Launcher launcher;
@@ -84,12 +84,12 @@ public class LauncherTest {
 	}
 
 	@Test
-	public void requestParameter() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameter","var=my");
+	public void requestParameter_stringAndDate() throws Throwable {
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameter","var=my&datetime=2017-06-16T21:51:30.211%2B05:30");
 
 		StringBuffer content = HttpClient.readContent(con);
 
-		assertEquals("my", content.toString());
+		assertEquals("my 2017-06-16T21:51:30.211+05:30", content.toString());
 	}
 
 
