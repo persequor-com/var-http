@@ -90,7 +90,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void setHeader(String name, String value) {
-		ex.getResponseHeaders().add(name, value);
+		ex.getResponseHeaders().set(name, value);
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		ex.getResponseHeaders().add("Set-Cookie",
+		addHeader("Set-Cookie",
 				cookie.getName()+"="+cookie.getValue()
 				+(cookie.getMaxAge() > -1 ? "; Max-Age="+cookie.getMaxAge(): "")
 				+(cookie.getSecure()?"; Secure":"")
