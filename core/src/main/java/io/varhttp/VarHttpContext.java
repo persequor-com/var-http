@@ -2,24 +2,17 @@ package io.varhttp;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
-import javax.servlet.ReadListener;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.ReadListener;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpUtils;
 
 public class VarHttpContext implements HttpHandler {
 	private final HttpServlet servlet;
@@ -60,7 +53,7 @@ public class VarHttpContext implements HttpHandler {
 
 		try {
 			if (ex.getRequestURI().getQuery() != null) {
-				parsePostData.putAll(HttpUtils.parseQueryString(ex.getRequestURI().getQuery()));
+				parsePostData.putAll(HttpUtils.parseQueryString(ex.getRequestURI().getRawQuery()));
 			}
 
 			// check if any postdata to parse
