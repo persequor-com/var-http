@@ -34,8 +34,28 @@ public class OnControllerAddTest {
 
 	@Test
 	public void simple() throws Throwable {
-		Set<String> expectedMethodNames = new TreeSet<>(Arrays.asList("login", "muh", "prefixed", "root", "defaultValue", "myTest", "myTestSerialized", "myTestPathVar", "myTestPathVarMultiLevel", "noSerializerCustomContentType_responseHelper", "myTestRequestParameter", "header", "headerPathInfo", "servletRequest", "optionalBody", "primitives", "primitivesBoxed", "listController", "listObject", "requestParameters", "requestParameters", "requestBodyString", "responseStream_getOutputStream_contentType", "getOutputStream_addiionalContentType", "returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream", "headController", "altControllerAnnotation", "altControllerAnnotation", "checkedException", "uncheckedException", "checkedException_varFilter", "uncheckedException_varFilter", "myTest", "redirect", "redirectRelative", "url", "contextdependent", "contextdependent"));
-		Set<String> expectedPaths = new TreeSet<>(Arrays.asList("/header-path-info/*", "/requestParameter", "/headController", "/login", "/my-test-serialized", "/no-serializer-custom-content-type-response-helper", "/no-serializer-custom-content-type-annotation", "/contextdependent", "/header", "/listObject", "/redirects/target", "/primitivesBoxed", "/my-test", "/redirects/redirect", "/dates", "/unchecked-exception", "/altControllerAnnotation", "/defaultValue", "/pathVar/{pathVar}", "/getOutputStream_addiionalContentType", "/listController", "/http-servlet-request/*", "/requestBodyString", "/checked-exception-var", "/primitives", "/checked-exception", "/muh", "/redirects/redirectRelative", "/enumParameter/{enum}", "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}", "/anothercontextdependent", "/", "/requestParameters", "/packageprefix/classprefix/controller", "/optionalBody", "/responseStream_getOutputStream_contentType", "/unchecked-exception-var", "/returnJavascriptString", "/javascriptInResponseStream", "/redirects/url"));
+		Set<String> expectedMethodNames =
+				new TreeSet<>(Arrays.asList("login", "muh", "prefixed", "root", "defaultValue", "myTest",
+						"myTestSerialized", "myTestPathVar", "myTestPathVarMultiLevel", "noSerializerCustomContentType_responseHelper",
+						"myTestRequestParameter", "header", "headerPathInfo", "servletRequest", "optionalBody", "primitives",
+						"primitivesBoxed", "listController", "listObject", "requestParameters", "requestParameters",
+						"requestBodyString", "responseStream_getOutputStream_contentType", "getOutputStream_addiionalContentType",
+						"returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream",
+						"headController", "altControllerAnnotation", "altControllerAnnotation", "checkedException",
+						"uncheckedException", "checkedException_varFilter", "uncheckedException_varFilter",
+						"myTest", "redirect", "redirectRelative", "url", "contextdependent", "contextdependent"));
+		Set<String> expectedPaths =
+				new TreeSet<>(Arrays.asList("/header-path-info/*", "/requestParameter", "/headController", "/login",
+						"/my-test-serialized", "/no-serializer-custom-content-type-response-helper",
+						"/no-serializer-custom-content-type-annotation", "/contextdependent", "/header", "/listObject",
+						"/redirects/target", "/primitivesBoxed", "/my-test", "/redirects/redirect", "/dates",
+						"/unchecked-exception", "/altControllerAnnotation", "/defaultValue", "/pathVar/{pathVar}",
+						"/getOutputStream_addiionalContentType", "/listController", "/http-servlet-request/*",
+						"/requestBodyString", "/checked-exception-var", "/primitives", "/checked-exception",
+						"/muh", "/redirects/redirectRelative", "/enumParameter/{enum}", "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}",
+						"/anothercontextdependent", "/", "/requestParameters", "/requestParameters", "/packageprefix/classprefix/controller",
+						"/optionalBody", "/responseStream_getOutputStream_contentType", "/unchecked-exception-var",
+						"/returnJavascriptString", "/javascriptInResponseStream", "/redirects/url", "/responseStream_getOutputStream_contentType", "/requestBodyInputStream"));
 
 		Set<String> actualMethodNames = new TreeSet<>(methods.values());
 		Set<String> actualPaths = new TreeSet<>(methods.keySet());
