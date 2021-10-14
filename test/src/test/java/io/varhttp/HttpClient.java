@@ -92,16 +92,16 @@ public class HttpClient {
 
 
 
-	public static HttpURLConnection post(String path, String parameters) {
-		return post(path, parameters, "application/x-www-form-urlencoded");
+	public static HttpURLConnection post(String path, String body) {
+		return post(path, body, "application/x-www-form-urlencoded");
 	}
 
-	public static HttpURLConnection post(String path, String parameters, String contentType) {
-		return post(path, parameters,
+	public static HttpURLConnection post(String path, String body, String contentType) {
+		return post(path, body,
 				connection -> connection.setRequestProperty( "Content-Type", contentType));
 	}
 
-	public static HttpURLConnection post(String path, String parameters, Consumer<HttpURLConnection> consumer) {
+	public static HttpURLConnection post(String path, String body, Consumer<HttpURLConnection> consumer) {
 		try {
 			URL url = new URL(path);
 
@@ -110,11 +110,11 @@ public class HttpClient {
 				setTrustStore((HttpsURLConnection) con);
 			}
 			con.setRequestMethod("POST");
-			if (parameters != null) {
+			if (body != null) {
 				consumer.accept(con);
 				con.setDoOutput(true);
 				DataOutputStream out = new DataOutputStream(con.getOutputStream());
-				out.writeBytes(parameters);
+				out.writeBytes(body);
 				out.flush();
 				out.close();
 			}
