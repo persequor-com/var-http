@@ -154,6 +154,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 	@Override
 	public void sendRedirect(String location) throws IOException {
 		setHeader("Location", location);
+		setStatus(SC_FOUND);
 	}
 
 	@Override
