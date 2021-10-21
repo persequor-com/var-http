@@ -26,7 +26,7 @@ public class VarConfiguration {
 
 	public void addControllerPackage(Package controllerPackage) {
 		mappings.add(() -> {
-			controllerMapper.map(context, controllerPackage.getName());
+			controllerMapper.map(context, controllerPackage.getName() + ".");
 		});
 	}
 
