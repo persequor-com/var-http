@@ -203,6 +203,8 @@ public class VarHttpServletResponse implements HttpServletResponse {
 			} else {
 				ex.sendResponseHeaders(status, -1);
 			}
+		} catch (IOException e) {
+			//already closed response response output stream.
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
