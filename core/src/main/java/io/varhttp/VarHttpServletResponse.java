@@ -1,8 +1,6 @@
 package io.varhttp;
 
-import com.fracturecode.saga.epcis.service.ItemNodeExService;
 import com.sun.net.httpserver.HttpExchange;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
