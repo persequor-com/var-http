@@ -1,6 +1,7 @@
 package io.varhttp;
 
 import com.sun.net.httpserver.HttpExchange;
+import java.util.Arrays;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
@@ -207,9 +208,9 @@ public class VarHttpServletResponse implements HttpServletResponse {
 				ex.sendResponseHeaders(status, -1);
 			}
 		} catch (IOException e) {
-			logger.debug("Couldn't write response due to client closing the connection.");
+			logger.debug("Couldn't write response due to client closing the connection. Stacktrace: {}", Arrays.toString(e.getStackTrace()));
 		} catch (RuntimeException e) {
-			logger.debug("Runtime exception: " + e.getMessage());
+			logger.debug("Runtime exception: {} stacktrace: {}", e.getMessage(), Arrays.toString(e.getStackTrace()));
 		} finally {
 			ex.close();
 		}
