@@ -1,5 +1,6 @@
 package io.varhttp;
 
+import com.fracturecode.saga.epcis.service.ItemNodeExService;
 import com.sun.net.httpserver.HttpExchange;
 
 import javax.servlet.ServletOutputStream;
@@ -13,8 +14,12 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VarHttpServletResponse implements HttpServletResponse {
+	private static final Logger logger = LoggerFactory.getLogger(VarHttpServletResponse.class);
+
 	final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 	final ServletOutputStream servletOutputStream = new ServletOutputStream() {
 
@@ -192,7 +197,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 		return ex.getResponseHeaders().getFirst(name);
 	}
 
-	public void complete() throws IOException {
+	public void complete() {
 		try {
 			printWriter.flush();
 
@@ -204,9 +209,9 @@ public class VarHttpServletResponse implements HttpServletResponse {
 				ex.sendResponseHeaders(status, -1);
 			}
 		} catch (IOException e) {
-			//already closed response response output stream.
-		} catch (Exception e) {
-			e.printStackTrace();
+			logger.debug("Couldn't write response due to client closing the connection.");
+		} catch (RuntimeException e) {
+			logger.debug("Runtime exception: " + e.getMessage());
 		} finally {
 			ex.close();
 		}
@@ -215,11 +220,11 @@ public class VarHttpServletResponse implements HttpServletResponse {
 	@Override
 	public void addCookie(Cookie cookie) {
 		addHeader("Set-Cookie",
-				cookie.getName()+"="+cookie.getValue()
-				+(cookie.getMaxAge() > -1 ? "; Max-Age="+cookie.getMaxAge(): "")
-				+(cookie.getSecure()?"; Secure":"")
-				+(cookie.isHttpOnly()?"; HttpOnly":"")
-				+(cookie.getPath() != null ? "; Path=" + cookie.getPath() : "")
+				cookie.getName() + "=" + cookie.getValue()
+						+ (cookie.getMaxAge() > -1 ? "; Max-Age=" + cookie.getMaxAge() : "")
+						+ (cookie.getSecure() ? "; Secure" : "")
+						+ (cookie.isHttpOnly() ? "; HttpOnly" : "")
+						+ (cookie.getPath() != null ? "; Path=" + cookie.getPath() : "")
 		);
 	}
 
