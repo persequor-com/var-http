@@ -12,13 +12,13 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class SecureContextTest {
+public class IsRequestSecureTest {
     static Thread thread;
     private Launcher launcher;
 
     @After
     public void teardown() {
-        if(launcher != null) {
+        if (launcher != null) {
             launcher.stop();
         }
     }
