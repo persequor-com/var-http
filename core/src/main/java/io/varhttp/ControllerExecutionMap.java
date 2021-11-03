@@ -4,26 +4,26 @@ import com.google.common.base.Strings;
 
 import java.util.*;
 
-public class ExecutionMap {
+public class ControllerExecutionMap {
 	private static final String WILDCARD = "/{}";
 	private String part = "/";
-	private final ExecutionMap parent;
-	Map<String, ExecutionMap> children = new LinkedHashMap<>();
+	private final ControllerExecutionMap parent;
+	private final Map<String, ControllerExecutionMap> children = new LinkedHashMap<>();
 	boolean isWildCard = false;
-	private final Map<HttpMethod,ControllerExecution> executions = new HashMap<>();
+	private final Map<HttpMethod, ControllerExecution> executions = new HashMap<>();
 	private VarConfigurationContext context;
 
-	public ExecutionMap(VarConfigurationContext context) {
+	public ControllerExecutionMap(VarConfigurationContext context) {
 		parent = null;
 		this.context = context;
 	}
 
-	public ExecutionMap(String part) {
+	public ControllerExecutionMap(String part) {
 		this.part = part;
 		this.parent = null;
 	}
 
-	public ExecutionMap(String part, ExecutionMap parent, VarConfigurationContext context) {
+	public ControllerExecutionMap(String part, ControllerExecutionMap parent, VarConfigurationContext context) {
 		this.part = part;
 		this.parent = parent;
 		this.context = context;
@@ -46,10 +46,10 @@ public class ExecutionMap {
 			part = WILDCARD;
 		}
 
-		ExecutionMap executionMap = children.get(part);
+		ControllerExecutionMap controllerExecutionMap = children.get(part);
 
-		if (executionMap != null) {
-			return executionMap.get(path, httpMethod);
+		if (controllerExecutionMap != null) {
+			return controllerExecutionMap.get(path, httpMethod);
 		} else if (!isWildCard) {
 			return getNotFoundController();
 		}
@@ -73,11 +73,11 @@ public class ExecutionMap {
 
 		ArrayDeque<String> pathParts = treatPath(path.split("/"));
 
-		ExecutionMap executionMap = this;
+		ControllerExecutionMap controllerExecutionMap = this;
 
 		do {
 			String part = pathParts.pollFirst();
-			executionMap = executionMap.children.computeIfAbsent(part, s -> new ExecutionMap(part, this, context));
+			controllerExecutionMap = controllerExecutionMap.children.computeIfAbsent(part, s -> new ControllerExecutionMap(part, this, context));
 		} while (!pathParts.isEmpty());
 	}
 
@@ -111,7 +111,7 @@ public class ExecutionMap {
 		}
 
 		String finalPart = part;
-		children.computeIfAbsent(part, s -> new ExecutionMap(finalPart, this, context))
+		children.computeIfAbsent(part, s -> new ControllerExecutionMap(finalPart, this, context))
 				.put(context, request, pathParts, controllerExecution);
 	}
 

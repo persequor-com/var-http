@@ -13,7 +13,7 @@ public class VarServlet extends HttpServlet {
 	private final BaseVarConfigurationContext baseConfigurationContext;
 	Logger logger = LoggerFactory.getLogger(VarServlet.class);
 	private final ParameterHandler parameterHandler;
-	final ExecutionMap executions;
+	final ControllerExecutionMap executions;
 	private ControllerMapper controllerMapper;
 
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
@@ -21,7 +21,7 @@ public class VarServlet extends HttpServlet {
 		this.controllerMapper = controllerMapper;
 
 		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter);
-		this.executions = new ExecutionMap(this.baseConfigurationContext);
+		this.executions = new ControllerExecutionMap(this.baseConfigurationContext);
 	}
 
 	@Override
