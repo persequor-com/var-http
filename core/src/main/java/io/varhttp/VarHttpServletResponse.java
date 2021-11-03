@@ -208,9 +208,9 @@ public class VarHttpServletResponse implements HttpServletResponse {
 				ex.sendResponseHeaders(status, -1);
 			}
 		} catch (IOException e) {
-			logger.debug("Couldn't write response due to client closing the connection. Stacktrace: {}", Arrays.toString(e.getStackTrace()));
+			logger.debug("Couldn't write response due to client closing the connection.", e);
 		} catch (RuntimeException e) {
-			logger.debug("Runtime exception: {} stacktrace: {}", e.getMessage(), Arrays.toString(e.getStackTrace()));
+			logger.debug("Runtime exception.", e);
 		} finally {
 			ex.close();
 		}
