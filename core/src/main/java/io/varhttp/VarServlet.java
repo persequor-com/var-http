@@ -69,9 +69,7 @@ public class VarServlet extends HttpServlet {
 
 		final String[] requestPath = r.path.substring(1).split("/");
 
-		ControllerExecution exe = null;
-
-		exe = executions.get(requestPath, r.method);
+		ControllerExecution exe = executions.get(requestPath, r.method);
 
 		if (exe != null) {
 			try {
