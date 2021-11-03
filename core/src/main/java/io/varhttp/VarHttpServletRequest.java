@@ -97,8 +97,8 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public boolean isSecure() {
-		if(config.isForceRequestSecure().isPresent()) {
-			return config.isForceRequestSecure().get();
+		if(config.isForceRequestSecure() != null) {
+			return config.isForceRequestSecure();
 		}
 
 		if(getHeader("X-Forwarded-Proto") != null) {

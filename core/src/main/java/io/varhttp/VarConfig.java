@@ -16,14 +16,14 @@ public class VarConfig {
         return this;
     }
 
-    private Optional<Boolean> requestSecure = Optional.empty();
+    private Boolean requestSecure;
 
     /**
      * @return  if the requests need to be force to secure.
 	 * 
 	 * @see #forceRequestsSecure(boolean)
      */
-    public Optional<Boolean> isForceRequestSecure() {
+    public Boolean isForceRequestSecure() {
         return requestSecure;
     }
 
@@ -38,7 +38,7 @@ public class VarConfig {
 	 * @return if server is secure.
 	 */
     public VarConfig forceRequestsSecure(boolean serverSecure) {
-        this.requestSecure = Optional.of(serverSecure);
+        this.requestSecure = serverSecure;
         return this;
     }
 }
