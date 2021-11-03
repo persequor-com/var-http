@@ -25,7 +25,7 @@ public class SecureContextTest {
 
     @Test
     public void requestSecure_contextTrue() throws IOException {
-        createLauncher(new VarConfig().setPort(8088).setSecureContext(true));
+        createLauncher(new VarConfig().setPort(8088).forceRequestsSecure(true));
 
         HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
 
@@ -36,7 +36,7 @@ public class SecureContextTest {
 
     @Test
     public void requestSecure_contextFalse() throws IOException {
-        final VarConfig varConfig = new VarConfig().setPort(8088).setSecureContext(false);
+        final VarConfig varConfig = new VarConfig().setPort(8088).forceRequestsSecure(false);
         createLauncher(varConfig);
 
         HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
@@ -53,14 +53,18 @@ public class SecureContextTest {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Forwarded-Proto", "https");
 
-        HttpURLConnection con = HttpClient.getWithHeaders("http://localhost:8088/is-secure", "", headers);
+        HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
+        headers.forEach(con::setRequestProperty);
+
         StringBuffer content = HttpClient.readContent(con);
         assertEquals("true", content.toString());
 
         headers = new HashMap<>();
         headers.put("X-Forwarded-Proto", "http");
 
-        con = HttpClient.getWithHeaders("http://localhost:8088/is-secure", "", headers);
+        con = HttpClient.get("http://localhost:8088/is-secure", "");
+        headers.forEach(con::setRequestProperty);
+
         content = HttpClient.readContent(con);
         assertEquals("false", content.toString());
     }

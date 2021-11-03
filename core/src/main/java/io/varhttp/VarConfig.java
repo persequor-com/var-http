@@ -5,24 +5,40 @@ import java.util.Optional;
 
 @Singleton
 public class VarConfig {
-	private int port = 80;
-	private Optional<Boolean> secureContext = Optional.empty();
+    private int port = 80;
 
-	public int getPort() {
-		return port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public VarConfig setPort(int port) {
-		this.port = port;
-		return this;
-	}
+    public VarConfig setPort(int port) {
+        this.port = port;
+        return this;
+    }
 
-	public Optional<Boolean> getSecureContext() {
-		return secureContext;
-	}
+    private Optional<Boolean> requestSecure = Optional.empty();
 
-	public VarConfig setSecureContext(boolean secureContext) {
-		this.secureContext = Optional.of(secureContext);
-		return this;
-	}
+    /**
+     * @return  if the requests need to be force to secure.
+	 * 
+	 * @see #forceRequestsSecure(boolean)
+     */
+    public Optional<Boolean> isForceRequestSecure() {
+        return requestSecure;
+    }
+
+
+	/**
+	 * <h2>Caution:
+	 * <p>
+	 * Forcing this will make your server requests behave either as secured(true) or insecure(false).
+	 * <p>
+	 * In other words this will affect the output of {@link VarHttpServletRequest#isSecure()}
+	 *
+	 * @return if server is secure.
+	 */
+    public VarConfig forceRequestsSecure(boolean serverSecure) {
+        this.requestSecure = Optional.of(serverSecure);
+        return this;
+    }
 }

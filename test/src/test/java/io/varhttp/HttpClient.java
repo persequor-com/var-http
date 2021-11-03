@@ -43,25 +43,6 @@ public class HttpClient {
 			setTrustStore((HttpsURLConnection) con);
 		}
 		con.setRequestMethod("GET");
-//		con.setDoOutput(true);
-//		DataOutputStream out = new DataOutputStream(con.getOutputStream());
-//		out.writeBytes(s1);
-//		out.flush();
-//		out.close();
-		return con;
-	}
-
-	public static HttpURLConnection getWithHeaders(String urlString, String parameters, Map<String, String> headers) throws IOException {
-		URL url = new URL(urlString+(parameters!= null && !parameters.equals("") ? "?"+parameters : ""));
-
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		if (con instanceof HttpsURLConnection) {
-			setTrustStore((HttpsURLConnection) con);
-		}
-
-		con.setRequestMethod("GET");
-
-		headers.forEach(con::setRequestProperty);
 		return con;
 	}
 

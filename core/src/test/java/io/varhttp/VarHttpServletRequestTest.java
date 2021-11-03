@@ -62,16 +62,16 @@ public class VarHttpServletRequestTest {
 
 	@Test
 	public void isSecure_With_VarConfig() {
-		when(config.getSecureContext()).thenReturn(Optional.of(true));
+		when(config.isForceRequestSecure()).thenReturn(Optional.of(true));
 		assertTrue(request.isSecure());
 
-		when(config.getSecureContext()).thenReturn(Optional.of(false));
+		when(config.isForceRequestSecure()).thenReturn(Optional.of(false));
 		assertFalse(request.isSecure());
 	}
 
 	@Test
 	public void isSecure_XForwardedProto() {
-		when(config.getSecureContext()).thenReturn(Optional.empty());
+		when(config.isForceRequestSecure()).thenReturn(Optional.empty());
 
 		when(headers.getFirst("X-Forwarded-Proto")).thenReturn("https");
 
@@ -84,7 +84,7 @@ public class VarHttpServletRequestTest {
 
 	@Test
 	public void isSecure_requestContext() {
-		when(config.getSecureContext()).thenReturn(Optional.empty());
+		when(config.isForceRequestSecure()).thenReturn(Optional.empty());
 		HttpContext mock = mock(HttpContext.class);
 		when(ex.getHttpContext()).thenReturn(mock);
 
