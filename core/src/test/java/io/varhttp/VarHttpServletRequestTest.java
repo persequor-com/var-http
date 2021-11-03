@@ -1,7 +1,6 @@
 package io.varhttp;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,12 +9,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,13 +26,19 @@ public class VarHttpServletRequestTest {
 	private HttpExchange ex;
 	@Mock
 	private ServletInputStream inputStream;
-	private Map<String, String[]> postData = new HashMap<>();
 	@Mock
 	private Headers headers;
+	@Mock
+	private VarConfig config;
+	@Mock
+	private HttpsServer httpsServer;
+	@Mock
+	private HttpServer httpServer;
+	private Map<String, String[]> postData = new HashMap<>();
 
 	@Before
 	public void setup() {
-		request = new VarHttpServletRequest(ex, postData, inputStream, new VarServletContext(ex));
+		request = new VarHttpServletRequest(ex, postData, inputStream, new VarServletContext(ex), config);
 		when(ex.getRequestHeaders()).thenReturn(headers);
 	}
 
@@ -52,5 +58,40 @@ public class VarHttpServletRequestTest {
 		when(headers.getFirst("Cookie")).thenReturn(null);
 		Cookie[] actual = request.getCookies();
 		assertEquals(0, actual.length);
+	}
+
+	@Test
+	public void isSecure_With_VarConfig() {
+		when(config.getSecureContext()).thenReturn(Optional.of(true));
+		assertTrue(request.isSecure());
+
+		when(config.getSecureContext()).thenReturn(Optional.of(false));
+		assertFalse(request.isSecure());
+	}
+
+	@Test
+	public void isSecure_XForwardedProto() {
+		when(config.getSecureContext()).thenReturn(Optional.empty());
+
+		when(headers.getFirst("X-Forwarded-Proto")).thenReturn("https");
+
+		assertTrue(request.isSecure());
+
+		when(headers.getFirst("X-Forwarded-Proto")).thenReturn("http");
+
+		assertFalse(request.isSecure());
+	}
+
+	@Test
+	public void isSecure_requestContext() {
+		when(config.getSecureContext()).thenReturn(Optional.empty());
+		HttpContext mock = mock(HttpContext.class);
+		when(ex.getHttpContext()).thenReturn(mock);
+
+		when(mock.getServer()).thenReturn(httpsServer);
+		assertTrue(request.isSecure());
+
+		when(mock.getServer()).thenReturn(httpServer);
+		assertFalse(request.isSecure());
 	}
 }

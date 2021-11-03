@@ -37,12 +37,14 @@ public class VarHttpServletRequest implements HttpServletRequest {
 	private final ServletInputStream is;
 	private final Map<String, Object> attributes = new HashMap<>();
 	private final ServletContext context;
+	private final VarConfig config;
 
-	public VarHttpServletRequest(HttpExchange ex, Map<String, String[]> postData, ServletInputStream is, ServletContext context) {
+	public VarHttpServletRequest(HttpExchange ex, Map<String, String[]> postData, ServletInputStream is, ServletContext context, VarConfig config) {
 		this.ex = ex;
 		this.postData = postData;
 		this.is = is;
 		this.context = context;
+		this.config = config;
 	}
 
 	@Override
@@ -95,6 +97,14 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public boolean isSecure() {
+		if(config.getSecureContext().isPresent()) {
+			return config.getSecureContext().get();
+		}
+
+		if(getHeader("X-Forwarded-Proto") != null) {
+			return getHeader("X-Forwarded-Proto").equalsIgnoreCase("https");
+		}
+
 		return (ex.getHttpContext().getServer() instanceof HttpsServer);
 	}
 

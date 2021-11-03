@@ -16,9 +16,11 @@ import javax.servlet.http.HttpUtils;
 
 public class VarHttpContext implements HttpHandler {
 	private final HttpServlet servlet;
+	private final VarConfig config;
 
-	public VarHttpContext(HttpServlet servlet) {
+	public VarHttpContext(HttpServlet servlet, VarConfig config) {
 		this.servlet = servlet;
+		this.config = config;
 	}
 
 	@Override
@@ -65,7 +67,7 @@ public class VarHttpContext implements HttpHandler {
 		}
 		final Map<String, String[]> postData = parsePostData;
 
-		VarHttpServletRequest req = new VarHttpServletRequest(ex, postData, is, new VarServletContext(ex));
+		VarHttpServletRequest req = new VarHttpServletRequest(ex, postData, is, new VarServletContext(ex), config);
 
 		VarHttpServletResponse resp = new VarHttpServletResponse(ex);
 
