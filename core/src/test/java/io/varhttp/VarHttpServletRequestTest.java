@@ -34,6 +34,8 @@ public class VarHttpServletRequestTest {
 	private HttpsServer httpsServer;
 	@Mock
 	private HttpServer httpServer;
+	@Mock
+	private HttpContext httpContext;
 	private Map<String, String[]> postData = new HashMap<>();
 
 	@Before
@@ -64,14 +66,11 @@ public class VarHttpServletRequestTest {
 	public void isSecure_With_VarConfig() {
 		when(config.isForceRequestSecure()).thenReturn(true);
 		assertTrue(request.isSecure());
-
-		when(config.isForceRequestSecure()).thenReturn(false);
-		assertFalse(request.isSecure());
 	}
 
 	@Test
 	public void isSecure_XForwardedProto() {
-		when(config.isForceRequestSecure()).thenReturn(null);
+		when(config.isForceRequestSecure()).thenReturn(false);
 
 		when(headers.getFirst("X-Forwarded-Proto")).thenReturn("https");
 
@@ -84,15 +83,13 @@ public class VarHttpServletRequestTest {
 
 	@Test
 	public void isSecure_requestContext() {
-		when(config.isForceRequestSecure()).thenReturn(null);
+		when(config.isForceRequestSecure()).thenReturn(false);
+		when(ex.getHttpContext()).thenReturn(httpContext);
 
-		HttpContext mock = mock(HttpContext.class);
-		when(ex.getHttpContext()).thenReturn(mock);
-
-		when(mock.getServer()).thenReturn(httpsServer);
+		when(httpContext.getServer()).thenReturn(httpsServer);
 		assertTrue(request.isSecure());
 
-		when(mock.getServer()).thenReturn(httpServer);
+		when(httpContext.getServer()).thenReturn(httpServer);
 		assertFalse(request.isSecure());
 	}
 }

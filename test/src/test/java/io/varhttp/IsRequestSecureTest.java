@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class IsRequestSecureTest {
     static Thread thread;
     private Launcher launcher;
+    private final VarConfig varConfig = new VarConfig().setPort(8088);
 
     @After
     public void teardown() {
@@ -25,7 +26,7 @@ public class IsRequestSecureTest {
 
     @Test
     public void requestSecure_contextTrue() throws IOException {
-        createLauncher(new VarConfig().setPort(8088).forceRequestsSecure(true));
+        createLauncher(varConfig.forceRequestsSecure(true));
 
         HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
 
@@ -35,20 +36,8 @@ public class IsRequestSecureTest {
     }
 
     @Test
-    public void requestSecure_contextFalse() throws IOException {
-        final VarConfig varConfig = new VarConfig().setPort(8088).forceRequestsSecure(false);
-        createLauncher(varConfig);
-
-        HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
-
-        StringBuffer content = HttpClient.readContent(con);
-
-        assertEquals("false", content.toString());
-    }
-
-    @Test
     public void requestSecure_xProtoRequest() throws IOException {
-        createLauncher(new VarConfig().setPort(8088));
+        createLauncher(varConfig);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Forwarded-Proto", "https");
@@ -66,6 +55,18 @@ public class IsRequestSecureTest {
         headers.forEach(con::setRequestProperty);
 
         content = HttpClient.readContent(con);
+        assertEquals("false", content.toString());
+    }
+
+    @Test
+    public void requestSecure_default_behaviour() throws IOException {
+        varConfig.forceRequestsSecure(false);
+        createLauncher(varConfig);
+
+        HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
+
+        StringBuffer content = HttpClient.readContent(con);
+
         assertEquals("false", content.toString());
     }
 
