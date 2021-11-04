@@ -167,7 +167,7 @@ public class Standalone implements Runnable {
 			} catch (ServletException e) {
 				throw new IllegalStateException(e);
 			}
-			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue()));
+			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue(), varConfig));
 		}
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();

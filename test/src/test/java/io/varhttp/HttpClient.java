@@ -43,11 +43,6 @@ public class HttpClient {
 			setTrustStore((HttpsURLConnection) con);
 		}
 		con.setRequestMethod("GET");
-//		con.setDoOutput(true);
-//		DataOutputStream out = new DataOutputStream(con.getOutputStream());
-//		out.writeBytes(s1);
-//		out.flush();
-//		out.close();
 		return con;
 	}
 
