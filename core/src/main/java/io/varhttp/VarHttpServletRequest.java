@@ -97,7 +97,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public boolean isSecure() {
-		if(config.isForceRequestSecure() != null) {
+		if(config.isForceRequestSecure()) {
 			return config.isForceRequestSecure();
 		}
 

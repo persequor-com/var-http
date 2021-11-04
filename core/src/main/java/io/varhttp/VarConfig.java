@@ -15,25 +15,28 @@ public class VarConfig {
         return this;
     }
 
-    private Boolean requestSecure;
+    private boolean requestSecure = false;
 
     /**
-     * @return if the requests need to be force to secure.
+     * @return a boolean indicating if the requests need to be force to a secure channel.
      * @see #forceRequestsSecure(boolean)
      */
-    public Boolean isForceRequestSecure() {
+    public boolean isForceRequestSecure() {
         return requestSecure;
     }
 
 
     /**
-     * <h2>Caution:
-     * <p>
-     * Forcing this will make your server requests behave either as secured(true) or insecure(false).
-     * <p>
-     * In other words this will affect the output of {@link VarHttpServletRequest#isSecure()}
      *
-     * @return if server is secure.
+     * <p>
+     * <u>Caution using this method</u>. Passing <code>true</code> to the method will make your server requests behave as secured.
+     * In other words this will affect the output of {@link VarHttpServletRequest#isSecure()}
+     * <p>
+     * This can be useful if your server is behind a proxy/load balancer and is in a secure channel.
+     * <p>
+     * The default behaviour is <code>false</code>.
+     *
+     * @return updated {@link VarConfig} instance.
      */
     public VarConfig forceRequestsSecure(boolean serverSecure) {
         this.requestSecure = serverSecure;
