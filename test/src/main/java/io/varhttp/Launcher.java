@@ -5,15 +5,17 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 
 public class Launcher implements Runnable {
-	private Standalone standalone;
+	private final Standalone standalone;
+	private final HttpServerFactory httpServerFactory;
 
 	@Inject
-	public Launcher(Standalone standalone) {
+	public Launcher(Standalone standalone, HttpServerFactory httpServerFactory) {
 		this.standalone = standalone;
+		this.httpServerFactory = httpServerFactory;
 	}
 
 	public void setSsl() {
-		standalone.setSslContext(Launcher.class.getResourceAsStream("/test.pem"), Launcher.class.getResourceAsStream("/test.key"));
+		httpServerFactory.setSslContext(Launcher.class.getResourceAsStream("/test.pem"), Launcher.class.getResourceAsStream("/test.key"));
 	}
 
 	@Override
