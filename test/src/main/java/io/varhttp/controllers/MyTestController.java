@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -56,6 +57,11 @@ public class MyTestController {
 	@Controller(path = "/requestParameter")
 	public String myTestRequestParameter(@RequestParameter(name = "var") String var, @RequestParameter(name = "datetime") ZonedDateTime date) {
 		return var + " " + date;
+	}
+
+	@Controller(path = "/uuid/{uuid1}")
+	public String uuid(@PathVariable(name = "uuid1") UUID uuid1, @RequestParameter(name = "uuid2") UUID uuid2) {
+		return uuid1.toString() + " " + uuid2.toString();
 	}
 
 	@Controller(path = "/header")

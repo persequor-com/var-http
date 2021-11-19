@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -92,6 +94,17 @@ public class LauncherTest {
 		assertEquals("my 2017-06-16T21:51:30.211+05:30", content.toString());
 	}
 
+	@Test
+	public void requestParameter_uuid() throws Throwable {
+		UUID uuid1 = UUID.randomUUID();
+		UUID uuid2 = UUID.randomUUID();
+
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/uuid/"+uuid1,"uuid2="+uuid2);
+
+		StringBuffer content = HttpClient.readContent(con);
+
+		assertEquals(uuid1+" "+uuid2, content.toString());
+	}
 
 	@Test
 	public void serializedReturnObject() throws Throwable {

@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class TypeHelper {
@@ -31,6 +32,7 @@ public class TypeHelper {
 		typesHashMap.put(Date.class            , new Primitive(z -> Date.from(ZonedDateTime.parse(z, dateTimeFormatter).toInstant()), null));
 		typesHashMap.put(ZonedDateTime.class   , new Primitive(z -> ZonedDateTime.parse(z, dateTimeFormatter),null));
 		typesHashMap.put(LocalDate.class   , new Primitive(LocalDate::parse,null));
+		typesHashMap.put(UUID.class        , new Primitive(UUID::fromString,null));
 
 	}
 
