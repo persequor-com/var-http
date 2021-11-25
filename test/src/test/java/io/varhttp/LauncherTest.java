@@ -69,11 +69,11 @@ public class LauncherTest {
 
 	@Test
 	public void pathVariable() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/pathVar/my-string", "");
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/pathVar/my-string-%C3%B5%C3%B5", "");
 
 		StringBuffer content = HttpClient.readContent(con);
 
-		assertEquals("my-string", content.toString());
+		assertEquals("my-string-õõ", content.toString());
 	}
 
 	@Test
