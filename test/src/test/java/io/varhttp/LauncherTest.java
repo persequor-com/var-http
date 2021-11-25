@@ -87,7 +87,7 @@ public class LauncherTest {
 
 	@Test
 	public void requestParameter_stringAndDate() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameter","var=my&datetime=2017-06-16T21:51:30.211%2B05:30");
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameter","var=my&datetime=2017-06-16T21%3A51%3A30.211%2B05%3A30");
 
 		StringBuffer content = HttpClient.readContent(con);
 
@@ -246,18 +246,18 @@ public class LauncherTest {
 
 	@Test
 	public void requestParametersGet() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameters?what=theFuture&where=here", "");
+		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameters?what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here", "");
 
 		String response = HttpClient.readContent(con).toString();
-		assertEquals("theFuture is null", response);
+		assertEquals("theFuture-õõ is null", response);
 	}
 
 	@Test
 	public void requestParametersPost() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestParameters", "what=theFuture&where=here");
+		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestParameters", "what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here");
 
 		String response = HttpClient.readContent(con).toString();
-		assertEquals("theFuture is null", response);
+		assertEquals("theFuture-õõ is null", response);
 	}
 
 	@Test
@@ -267,7 +267,6 @@ public class LauncherTest {
 		String response = HttpClient.readContent(con).toString();
 		assertEquals("[\"Muh\",\"Miaw\"]", response);
 	}
-
 
 	@Test
 	public void listObject() throws Throwable {
