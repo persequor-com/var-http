@@ -1,18 +1,28 @@
 package io.varhttp;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.servlet.ReadListener;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpUtils;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
 
 public class VarHttpContext implements HttpHandler {
 	private final HttpServlet servlet;
@@ -55,12 +65,15 @@ public class VarHttpContext implements HttpHandler {
 
 		try {
 			if (ex.getRequestURI().getQuery() != null) {
-				parsePostData.putAll(HttpUtils.parseQueryString(ex.getRequestURI().getRawQuery()));
+				parseQueryString(ex.getRequestURI().getRawQuery())
+						.forEach((key, values) -> parsePostData.put(key, values.toArray(new String[0])));
 			}
 
 			// check if any postdata to parse
 			if ("application/x-www-form-urlencoded".equals(ex.getRequestHeaders().getFirst("Content-Type"))) {
-				parsePostData.putAll(HttpUtils.parsePostData(inBytes.length, is));
+				String wwwForm = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
+				parseQueryString(wwwForm)
+						.forEach((key, values) -> parsePostData.put(key, values.toArray(new String[0])));
 			}
 		} finally {
 			newInput.reset();
@@ -77,6 +90,16 @@ public class VarHttpContext implements HttpHandler {
 		} catch (ServletException e) {
 			throw new IOException(e);
 		}
+	}
+
+	private Map<String, List<String>> parseQueryString(String queryString) throws UnsupportedEncodingException {
+		if (queryString == null) {
+			return Collections.emptyMap();
+		}
+		return Stream.of(URLDecoder.decode(queryString, Charsets.UTF_8.toString())
+						.split("&")).map(s -> s.split("="))
+				.filter(keyValue -> keyValue.length == 2)
+				.collect(groupingBy(keyValue -> keyValue[0].trim(), mapping(keyValue -> keyValue[1].trim(), toList())));
 	}
 
 	private static byte[] getBytes(InputStream in) throws IOException {
