@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.varhttp.test.HttpClient;
+import io.varhttp.test.VarClient;
+import io.varhttp.test.VarClientHttp;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,16 +18,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class LauncherTest {
-	static Launcher launcher;
-	static Thread thread;
+
+	private static Launcher launcher;
+	private static VarClient varClient;
 
 	@BeforeClass
 	public static void setup() {
 		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
 		launcher = odinJector.getInstance(Launcher.class);
-		thread = new Thread(launcher);
-		thread.run();
+		launcher.run();
+
+		VarClientHttp varClientHttp = odinJector.getInstance(VarClientHttp.class);
+		varClientHttp.withServerUrl("http://localhost:8088");
+		varClient = varClientHttp;
 	}
+
 
 	@AfterClass
 	public static void teardown() {
@@ -33,65 +41,47 @@ public class LauncherTest {
 
 	@Test
 	public void simple() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
-
-		StringBuffer content = HttpClient.readContent(con);
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-
-		assertTrue(headers.containsKey("Content-type"));
-		assertEquals("text/plain", headers.get("Content-type").get(0));
-
-		assertEquals("Simple string", content.toString());
+		varClient.get("/my-test")
+				.execute()
+				.contentType("text/plain")
+				.content("Simple string");
 	}
 
 	@Test
 	public void requestingUnsupportedContentType() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
-		con.setRequestProperty("Accept", "my/custom");
-
-		try {
-			HttpClient.readContent(con);
-			fail();
-		} catch (IOException e) {
-			assertTrue(e.getMessage().startsWith("Server returned HTTP response code: 415"));
-		}
+		varClient.get("/my-test")
+				.accept("my/custom")
+				.execute()
+				.isUnsupportedMediaType();
 	}
 
 	@Test
 	public void notSettingAcceptHeaderContentType_willFallbackToServerDefault() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
-		con.setRequestProperty("Accept", "");
-
-		HttpClient.readContent(con);
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		assertEquals("text/plain", headers.get("Content-type").get(0));
+		varClient.get("/my-test")
+				.accept("")
+				.execute()
+				.contentType("text/plain");
 	}
 
 	@Test
 	public void pathVariable() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/pathVar/my-string-%C3%B5%C3%B5", "");
-
-		StringBuffer content = HttpClient.readContent(con);
-
-		assertEquals("my-string-õõ", content.toString());
+		varClient.get("/pathVar/my-string-%C3%B5%C3%B5")
+				.execute()
+				.content("my-string-õõ");
 	}
 
 	@Test
 	public void pathVariableMultiple() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/pathVar/string1/string2/string3", "");
-
-		StringBuffer content = HttpClient.readContent(con);
-
-		assertEquals("string1-string2-string3", content.toString());
+		varClient.get("/pathVar/string1/string2/string3")
+				.execute()
+				.content("string1-string2-string3");
 	}
 
 	@Test
 	public void requestParameter_stringAndDate() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameter","var=my&datetime=2017-06-16T21%3A51%3A30.211%2B05%3A30");
-
-		StringBuffer content = HttpClient.readContent(con);
-
-		assertEquals("my 2017-06-16T21:51:30.211+05:30", content.toString());
+		varClient.get("/requestParameter?var=my&datetime=2017-06-16T21%3A51%3A30.211%2B05%3A30")
+				.execute()
+				.content("my 2017-06-16T21:51:30.211+05:30");
 	}
 
 	@Test
@@ -99,11 +89,10 @@ public class LauncherTest {
 		UUID uuid1 = UUID.randomUUID();
 		UUID uuid2 = UUID.randomUUID();
 
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/uuid/"+uuid1,"uuid2="+uuid2);
-
-		StringBuffer content = HttpClient.readContent(con);
-
-		assertEquals(uuid1+" "+uuid2, content.toString());
+		varClient.get("/uuid/"+uuid1)
+				.parameter("uuid2", uuid2.toString())
+				.execute()
+				.content(uuid1+" "+uuid2);
 	}
 
 	@Test

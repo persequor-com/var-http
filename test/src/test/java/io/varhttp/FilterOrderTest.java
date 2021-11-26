@@ -9,6 +9,7 @@ import io.varhttp.controllers.withfilters.FilterCatcher;
 import io.varhttp.filterorder.FilterControllerClass;
 import io.varhttp.filterorder.ShouldNotBeRunFilterInner;
 import io.varhttp.filterorder.ShouldNotBeRunFilterOnTheSide;
+import io.varhttp.test.HttpClient;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

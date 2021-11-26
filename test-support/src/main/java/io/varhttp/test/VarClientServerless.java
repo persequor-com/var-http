@@ -31,7 +31,7 @@ public class VarClientServerless implements VarClient {
 	}
 
 	@Override
-	public VarClient setBasePath(String basePath) {
+	public VarClient withBasePath(String basePath) {
 		this.basePath = basePath;
 		return this;
 	}

@@ -47,9 +47,7 @@ public class ApiRequest {
 
 	public ApiResult execute() {
 		try {
-			defaultHeaders.forEach((name, value) -> {
-				headers.putIfNotPresent(name, value);
-			});
+			defaultHeaders.forEach(headers::putIfNotPresent);
 			return new ApiResult(execution.apply(this), serializer);
 		} catch (IOException exception) {
 			throw new RuntimeException(exception);

@@ -79,4 +79,9 @@ public class ApiResult {
 		assertEquals(contentType, response.getHeaders().get("content-type"));
 		return this;
 	}
+
+	public ApiResult content(String expected) {
+		assertEquals(expected, getContent());
+		return this;
+	}
 }

@@ -7,7 +7,7 @@ package io.varhttp.test;
 
 public interface VarClient {
 
-	VarClient setBasePath(String basePath);
+	VarClient withBasePath(String basePath);
 	VarClient withBasicAuth(String username, String password);
 	VarClient clearBasicAuth();
 

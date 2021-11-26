@@ -1,4 +1,4 @@
-package io.varhttp;
+package io.varhttp.test;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -7,6 +7,7 @@ import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -23,7 +24,7 @@ public class HttpClient {
 
 	public static StringBuffer readContent(HttpURLConnection con) throws IOException {
 		BufferedReader in = new BufferedReader(
-				new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+				new InputStreamReader(getInputStream(con), StandardCharsets.UTF_8));
 		String inputLine;
 		StringBuffer content = new StringBuffer();
 		while ((inputLine = in.readLine()) != null) {
@@ -32,6 +33,16 @@ public class HttpClient {
 		in.close();
 		con.disconnect();
 		return content;
+	}
+
+	private static InputStream getInputStream(HttpURLConnection conn) throws IOException {
+		int statusCode = conn.getResponseCode();
+		if (statusCode >= 200 && statusCode < 400) {
+			// Create an InputStream in order to extract the response object
+			return conn.getInputStream();
+		} else {
+			return conn.getErrorStream();
+		}
 	}
 
 
@@ -50,7 +61,7 @@ public class HttpClient {
 		if (sslContext == null) {
 			try {
 
-				Certificate x509Certificate = CertificateFactory.getInstance("X.509").generateCertificate(Launcher.class.getResourceAsStream("/test.pem"));
+				Certificate x509Certificate = CertificateFactory.getInstance("X.509").generateCertificate(HttpClient.class.getResourceAsStream("/test.pem"));
 
 				KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 				ks.load(null, null);

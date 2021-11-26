@@ -1,6 +1,7 @@
 package io.varhttp;
 
 import io.odinjector.OdinJector;
+import io.varhttp.test.HttpClient;
 import org.junit.After;
 import org.junit.Test;
 
