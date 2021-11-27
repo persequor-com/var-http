@@ -367,32 +367,30 @@ public class LauncherTest {
 
 	@Test
 	public void noSerializerCustomContentType_responseHelper() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-response-helper", "");
-		con.setRequestProperty("Accept", "application/xml");
-		String actual = HttpClient.readContent(con).toString();
-		assertEquals("<my-xml>woo-hoo</my-xml>", actual);
+		varClient.get("/no-serializer-custom-content-type-response-helper")
+				.accept("application/xml")
+				.execute()
+				.content("<my-xml>woo-hoo</my-xml>");
 	}
 
 	@Test
 	public void noSerializerCustomContentType_annotation() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-annotation", "");
-		con.setRequestProperty("Accept", "application/xml");
-		String actual = HttpClient.readContent(con).toString();
-		assertEquals("<my-xml>woo-hoo</my-xml>", actual);
+		varClient.get("/no-serializer-custom-content-type-annotation")
+				.accept("application/xml")
+				.execute()
+				.content("<my-xml>woo-hoo</my-xml>");
 	}
 
 	@Test
 	public void noSerializerCustomContentType_unhappy() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-response-helper", "");
-		con.setRequestProperty("Accept", "my/xml");
-		Map<String, List<String>> actual = HttpClient.readHeaders(con);
+		varClient.get("/no-serializer-custom-content-type-response-helper")
+				.accept("my/xml")
+				.execute()
+				.isUnsupportedMediaType();
 
-		assertEquals("HTTP/1.1 415 Unsupported Media Type", actual.get(null).get(0));
-
-		con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-annotation", "");
-		con.setRequestProperty("Accept", "my/xml");
-		actual = HttpClient.readHeaders(con);
-
-		assertEquals("HTTP/1.1 415 Unsupported Media Type", actual.get(null).get(0));
+		varClient.get("/no-serializer-custom-content-type-annotation")
+				.accept("my/xml")
+				.execute()
+				.isUnsupportedMediaType();
 	}
 }
