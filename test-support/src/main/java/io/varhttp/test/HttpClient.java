@@ -23,8 +23,12 @@ public class HttpClient {
 	private static SSLContext sslContext;
 
 	public static StringBuffer readContent(HttpURLConnection con) throws IOException {
+		InputStream inputStream = getInputStream(con);
+		if(inputStream == null){
+			return new StringBuffer();
+		}
 		BufferedReader in = new BufferedReader(
-				new InputStreamReader(getInputStream(con), StandardCharsets.UTF_8));
+				new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		String inputLine;
 		StringBuffer content = new StringBuffer();
 		while ((inputLine = in.readLine()) != null) {
