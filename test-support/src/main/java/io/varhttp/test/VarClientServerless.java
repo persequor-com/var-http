@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Base64;
-import java.util.Collections;
 
 public class VarClientServerless implements VarClient {
 
@@ -71,6 +70,12 @@ public class VarClientServerless implements VarClient {
 	public ApiRequest delete(String path) {
 		return new ApiRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "DELETE", apiRequest, varServlet));
+	}
+
+	@Override
+	public ApiRequest head(String path) {
+		return new ApiRequest(defaultHeaders,
+				serializer, apiRequest -> executeRequest(path, "HEAD", apiRequest, varServlet));
 	}
 
 	private HttpResponse executeRequest(String path, String method, ApiRequest apiRequest, VarServlet varServlet) throws IOException {

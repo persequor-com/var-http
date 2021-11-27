@@ -98,6 +98,11 @@ public class HttpClient {
 
 
 
+
+	public static HttpURLConnection post(String path) {
+		return post(path, null, conn -> {});
+	}
+
 	public static HttpURLConnection post(String path, String body) {
 		return post(path, body, "application/x-www-form-urlencoded");
 	}

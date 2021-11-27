@@ -1,21 +1,19 @@
 package io.varhttp;
 
 import io.odinjector.OdinJector;
-import java.io.IOException;
+import io.varhttp.test.HttpClient;
+import io.varhttp.test.VarClient;
+import io.varhttp.test.VarClientHttp;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import io.varhttp.test.HttpClient;
-import io.varhttp.test.VarClient;
-import io.varhttp.test.VarClientHttp;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class LauncherTest {
 
@@ -89,354 +87,286 @@ public class LauncherTest {
 		UUID uuid1 = UUID.randomUUID();
 		UUID uuid2 = UUID.randomUUID();
 
-		varClient.get("/uuid/"+uuid1)
+		varClient.get("/uuid/" + uuid1)
 				.parameter("uuid2", uuid2.toString())
 				.execute()
-				.content(uuid1+" "+uuid2);
+				.content(uuid1 + " " + uuid2);
 	}
 
 	@Test
 	public void serializedReturnObject() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
-
-		StringBuffer content = HttpClient.readContent(con);
-
-		assertEquals("{\"string\":\"Simple string\"}", content.toString());
-	}
-
-	@Test
-	public void perfSimple() throws Throwable {
-		int reps = 100;
-		long s = System.currentTimeMillis();
-		for(int i=0;i<reps;i++) {
-			HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
-
-			HttpClient.readContent(con);
-		}
-		System.out.println("avg time to run: "+((System.currentTimeMillis()-s)/(reps*1.0d)));
-
+		varClient.get("/my-test-serialized").execute()
+				.content("{\"string\":\"Simple string\"}");
 	}
 
 	@Test
 	public void headers() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/header", "");
-		con.addRequestProperty("My", "Input header");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("Input header", con.getHeaderField("My"));
-		assertEquals("text/plainish", con.getHeaderField("Content-Type"));
-		assertEquals("muh", response);
+		varClient.get("/header")
+				.header("My", "Input header")
+				.execute()
+				.contentType("text/plainish")
+				.header("My", "Input header")
+				.content("muh");
 	}
 
 	@Test
 	public void headerPathInfo() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/header-path-info/xxx?key=value", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("/header-path-info/xxx", response);
+		varClient.get("/header-path-info/xxx?key=value")
+				.execute()
+				.content("/header-path-info/xxx");
 	}
 
 	@Test
 	public void servletRequest() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/http-servlet-request/xxx?key=value", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("/http-servlet-request/xxx", response);
+		varClient.get("/http-servlet-request/xxx?key=value")
+				.execute()
+				.content("/http-servlet-request/xxx");
 	}
 
 	@Test
 	public void rootController() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("Who am i", response);
+		varClient.get("/")
+				.execute()
+				.content("Who am i");
 	}
 
 	@Test
 	public void prefixedController() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/packageprefix/classprefix/controller", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("prefixed", response);
+		varClient.get("/packageprefix/classprefix/controller")
+				.execute()
+				.content("prefixed");
 	}
 
 	@Test
 	public void defaultValueInParameter() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/defaultValue?param2=cat", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("muh-cat", response);
+		varClient.get("/defaultValue?param2=cat")
+				.execute()
+				.content("muh-cat");
 	}
 
 	@Test
 	public void optionalBody() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/optionalBody", null);
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("Nothing passed in", response);
+		varClient.post("/optionalBody")
+				.execute()
+				.content("Nothing passed in");
 	}
 
 	@Test
 	public void primitiveParameters() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitives?bool=true&integer=43&longer=234423&doubler=0.4&floater=0.43", null);
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("true:43:234423:0.4:0.43", response);
+		varClient.post("/primitives?bool=true&integer=43&longer=234423&doubler=0.4&floater=0.43")
+				.execute()
+				.content("true:43:234423:0.4:0.43");
 	}
 
 	@Test
 	public void primitiveParameters_default() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitives", null);
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("false:0:0:0.0:0.0", response);
+		varClient.post("/primitives")
+				.execute()
+				.content("false:0:0:0.0:0.0");
 	}
 
 
 	@Test
 	public void primitivesBoxedParameters() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitivesBoxed?bool=true&integer=43&longer=234423&doubler=0.4&floater=0.43", null);
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("true:43:234423:0.4:0.43", response);
+		varClient.post("/primitivesBoxed?bool=true&integer=43&longer=234423&doubler=0.4&floater=0.43")
+				.execute()
+				.content("true:43:234423:0.4:0.43");
 	}
 
 	@Test
 	public void primitivesBoxedParameters_default() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/primitivesBoxed", null);
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("null:null:null:null:null", response);
+		varClient.post("/primitivesBoxed")
+				.execute()
+				.content("null:null:null:null:null");
 	}
 
 	@Test
 	public void redirectRelative() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/redirects/redirectRelative", null);
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		assertEquals("/redirects/target", headers.get("Location").get(0));
+		varClient.post("/redirects/redirectRelative")
+				.execute()
+				.header("Location", "/redirects/target");
 	}
 
 	@Test
 	public void redirect() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/redirects/redirect", null);
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		assertEquals("/redirects/target", headers.get("Location").get(0));
+		varClient.post("/redirects/redirect")
+				.execute()
+				.header("Location", "/redirects/target");
 	}
 
 	@Test
 	public void redirectUrl() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/redirects/url", null);
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		assertEquals("http://github.com", headers.get("Location").get(0));
+		varClient.post("/redirects/url")
+				.execute()
+				.header("Location", "http://github.com");
 	}
 
 	@Test
 	public void requestParametersGet() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/requestParameters?what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("theFuture-õõ is null", response);
+		varClient.get("/requestParameters?what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here")
+				.execute()
+				.content("theFuture-õõ is null");
 	}
 
 	@Test
 	public void requestParametersPost() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestParameters", "what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("theFuture-õõ is null", response);
+		varClient.post("/requestParameters")
+				.rawContent("what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here", "application/x-www-form-urlencoded")
+				.execute()
+				.content("theFuture-õõ is null");
 	}
 
 	@Test
 	public void listController() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/listController?list=Muh&list=Miaw", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("[\"Muh\",\"Miaw\"]", response);
+		varClient.post("/listController?list=Muh&list=Miaw")
+				.execute()
+				.content("[\"Muh\",\"Miaw\"]");
 	}
 
 	@Test
 	public void listObject() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/listObject", "[{\"id\":\"id1\",\"name\":\"name1\"},{\"id\":\"id2\",\"name\":\"name2\"}]", "application/json");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("[{\"id\":\"id1\",\"name\":\"name1!\"},{\"id\":\"id2\",\"name\":\"name2!\"}]", response);
+		varClient.post("/listObject")
+				.rawContent("[{\"id\":\"id1\",\"name\":\"name1\"},{\"id\":\"id2\",\"name\":\"name2\"}]", "application/json")
+				.execute()
+				.content("[{\"id\":\"id1\",\"name\":\"name1!\"},{\"id\":\"id2\",\"name\":\"name2!\"}]");
 	}
-
 
 	@Test
 	public void listController_listNotSet() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/listController", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("", response);
+		varClient.post("/listController")
+				.execute()
+				.content("");
 	}
 
 	@Test
 	public void dates() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/dates?date=2020-01-01T12:30:15Z&zonedDateTime=2020-01-01T12:30:45Z&localDate=2020-01-10", "");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("2020-01-01T12:30:15Z-2020-01-01T12:30:45Z-2020-01-10", response);
+		varClient.post("/dates?date=2020-01-01T12:30:15Z&zonedDateTime=2020-01-01T12:30:45Z&localDate=2020-01-10")
+				.execute()
+				.content("2020-01-01T12:30:15Z-2020-01-01T12:30:45Z-2020-01-10");
 	}
 
 	@Test
 	public void requestBodyString() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestBodyString?otherParameter=param", "This is a string, the only string my friend", "text/plain");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("This is a string, the only string my friend", response);
+		varClient.post("/requestBodyString?otherParameter=param")
+				.rawContent("This is a string, the only string my friend", "text/plain")
+				.execute()
+				.content("This is a string, the only string my friend");
 	}
 
 	@Test
 	public void requestBodyInputStream() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/requestBodyInputStream", "I AM THE BODY", "text/plain");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("I AM THE BODY", response);
+		varClient.post("/requestBodyInputStream")
+				.rawContent("I AM THE BODY", "text/plain")
+				.execute()
+				.content("I AM THE BODY");
 	}
 
 	@Test
 	public void responseStream_getOutputStream_contentType() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/responseStream_getOutputStream_contentType", "");
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		String response = HttpClient.readContent(con).toString();
-		assertEquals(1, headers.get("Content-type").size());
-		assertEquals("text/test", headers.get("Content-type").get(0));
-		assertEquals("tadaaa", response);
+		varClient.post("/responseStream_getOutputStream_contentType")
+				.execute()
+				.headerSize("Content-Type", 1)
+				.contentType("text/test")
+				.content("tadaaa");
 	}
 
 	@Test
 	public void getOutputStream_addiionalContentType() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/getOutputStream_addiionalContentType", "");
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		String response = HttpClient.readContent(con).toString();
-		assertEquals(1, headers.get("Content-type").size());
-		assertEquals("text/test", headers.get("Content-type").get(0));
-		assertEquals("tadaaa", response);
+		varClient.post("/getOutputStream_addiionalContentType")
+				.execute()
+				.headerSize("Content-Type", 1)
+				.contentType("text/test")
+				.content("tadaaa");
 	}
 
 	@Test
 	public void returnJavascriptString() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/returnJavascriptString", "");
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		String response = HttpClient.readContent(con).toString();
-		assertEquals(1, headers.get("Content-type").size());
-		assertEquals("application/javascript", headers.get("Content-type").get(0));
-		assertEquals("alert('hello darkness my old friend')", response);
+		varClient.post("/returnJavascriptString")
+				.execute()
+				.headerSize("Content-Type", 1)
+				.contentType("application/javascript")
+				.content("alert('hello darkness my old friend')");
 	}
 
 	@Test
 	public void javascriptInResponseStream() throws Throwable {
-		HttpURLConnection con = HttpClient.post("http://localhost:8088/javascriptInResponseStream", "");
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
-		String response = HttpClient.readContent(con).toString();
-		assertEquals(1, headers.get("Content-type").size());
-		assertEquals("application/javascript", headers.get("Content-type").get(0));
-		assertEquals("alert('hello darkness my old friend')", response);
-	}
+		varClient.post("/javascriptInResponseStream")
+				.execute()
+				.headerSize("Content-Type", 1)
+				.contentType("application/javascript")
+				.content("alert('hello darkness my old friend')");}
 
 	@Test
 	public void headController() throws Throwable {
-		HttpURLConnection con = HttpClient.head("http://localhost:8088/headController");
-
-		Map<String, List<String>> headers = HttpClient.readHeaders(con);
+		varClient.head("/headController")
+				.execute()
+				.isOk();
 	}
 
 	@Test
 	public void altControllerAnnotation() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/altControllerAnnotation","");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("Kilroy was here", response);
+		varClient.get("/altControllerAnnotation")
+				.execute()
+				.content("Kilroy was here");
 	}
 
 	@Test
 	public void enumParameter() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/enumParameter/Kilroy","");
-
-		String response = HttpClient.readContent(con).toString();
-		assertEquals("Kilroy was here", response);
+		varClient.get("/enumParameter/Kilroy")
+				.execute()
+				.content("Kilroy was here");
 	}
-
 
 	@Test
 	public void serializedReturnObject_toAcceptedContentType() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
-		con.setRequestProperty("Accept", "application/xml");
-
-		StringBuffer content = HttpClient.readContent(con);
-		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
-
-		assertTrue(headers.containsKey("Content-type"));
-		assertEquals(headers.get("Content-type").get(0), "application/xml");
-
-		assertEquals("<TestResponse><string>Simple string</string></TestResponse>", content.toString());
+		varClient.get("/my-test-serialized")
+				.accept("application/xml")
+				.execute()
+				.contentType("application/xml")
+				.content("<TestResponse><string>Simple string</string></TestResponse>");
 	}
 
 	@Test
 	public void serializedReturnObject_toAcceptedContentType_applicationJson() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
-		con.setRequestProperty("Accept", "application/json");
-
-		StringBuffer content = HttpClient.readContent(con);
-		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
-
-		assertTrue(headers.containsKey("Content-type"));
-		assertEquals(headers.get("Content-type").get(0), "application/json");
-
-		assertEquals("{\"string\":\"Simple string\"}", content.toString());
+		varClient.get("/my-test-serialized")
+				.accept("application/json")
+				.execute()
+				.contentType("application/json")
+				.content("{\"string\":\"Simple string\"}");
 	}
 
 	@Test
 	public void serializedReturnObject_toAcceptedContentType_withNoAccept() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
-
-		StringBuffer content = HttpClient.readContent(con);
-		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
-
-		assertTrue(headers.containsKey("Content-type"));
-		assertEquals(headers.get("Content-type").get(0), "application/json");
-
-		assertEquals("{\"string\":\"Simple string\"}", content.toString());
+		varClient.get("/my-test-serialized")
+				.execute()
+				.contentType("application/json")
+				.content("{\"string\":\"Simple string\"}");
 	}
 
-	@Test(expected = IOException.class)
+	@Test
 	public void serializedReturnObject_toAcceptedContentType_unsupportedType() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test-serialized", "");
-		con.setRequestProperty("Accept", "text/xml");
-
-		StringBuffer content = HttpClient.readContent(con);
-		final Map<String, List<String>> headers = HttpClient.readHeaders(con);
-
-		assertTrue(headers.containsKey("Content-type"));
-		assertEquals(headers.get("Content-type").get(0), "application/json");
-
-		assertEquals("{\"string\":\"Simple string\"}", content.toString());
+		varClient.get("/my-test-serialized")
+				.accept("text/xml")
+				.execute()
+				.isUnsupportedMediaType();
 	}
 
 	@Test
 	public void checkedExceptionThrown_toServletFilter() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/checked-exception", "");
-		String actual = HttpClient.readContent(con).toString();
-		assertEquals("java.lang.Exception: My exception", actual);
+		varClient.get("/checked-exception")
+				.execute()
+				.content("java.lang.Exception: My exception");
 	}
 
 	@Test
 	public void uncheckedExceptionThrown_toServletFilter() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/unchecked-exception", "");
-		String actual = HttpClient.readContent(con).toString();
-		assertEquals("java.lang.RuntimeException: My exception", actual);
+		varClient.get("/unchecked-exception")
+				.execute()
+				.content("java.lang.RuntimeException: My exception");
 	}
 
 	@Test
-	public void noSerializerCustomContentType_responseHelper() throws Throwable{
+	public void noSerializerCustomContentType_responseHelper() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-response-helper", "");
 		con.setRequestProperty("Accept", "application/xml");
 		String actual = HttpClient.readContent(con).toString();
@@ -444,7 +374,7 @@ public class LauncherTest {
 	}
 
 	@Test
-	public void noSerializerCustomContentType_annotation() throws Throwable{
+	public void noSerializerCustomContentType_annotation() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-annotation", "");
 		con.setRequestProperty("Accept", "application/xml");
 		String actual = HttpClient.readContent(con).toString();
@@ -452,7 +382,7 @@ public class LauncherTest {
 	}
 
 	@Test
-	public void noSerializerCustomContentType_unhappy() throws Throwable{
+	public void noSerializerCustomContentType_unhappy() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/no-serializer-custom-content-type-response-helper", "");
 		con.setRequestProperty("Accept", "my/xml");
 		Map<String, List<String>> actual = HttpClient.readHeaders(con);

@@ -9,10 +9,12 @@ import io.varhttp.Serializer;
 
 import java.io.StringReader;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class ApiResult {
+
 	private final HttpResponse response;
 	private final Serializer serializer;
 
@@ -62,17 +64,8 @@ public class ApiResult {
 		return hasStatusCode(403);
 	}
 
-
-	public String getLocation() {
-		return response.getHeaders().get("location");
-	}
-
 	public String getContent() {
 		return response.getContent();
-	}
-
-	public Collection<String> getAllCookies() {
-		return response.getHeaders().getAll("set-cookie");
 	}
 
 	public ApiResult contentType(String contentType) {
@@ -82,6 +75,17 @@ public class ApiResult {
 
 	public ApiResult content(String expected) {
 		assertEquals(expected, getContent());
+		return this;
+	}
+
+	public ApiResult header(String name, String expectedValue) {
+		assertEquals(expectedValue, response.getHeaders().get(name));
+		return this;
+	}
+
+	public ApiResult headerSize(String name, int expectedSize) {
+		List<String> headerValues = response.getHeaders().getAll(name);
+		assertEquals(expectedSize, headerValues == null?0:headerValues.size());
 		return this;
 	}
 }

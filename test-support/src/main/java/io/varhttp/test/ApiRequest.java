@@ -8,17 +8,16 @@ package io.varhttp.test;
 import io.varhttp.Serializer;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.StringWriter;
+import java.util.Arrays;
 
 public class ApiRequest {
 	final ApiParameters parameters;
 	final HttpHeaders headers = new HttpHeaders();
-	final Map<String, Object> attributes = new HashMap<>();
+	String content = "";
+
 	private final ThrowingFunction<ApiRequest, HttpResponse, IOException> execution;
 	private final HttpHeaders defaultHeaders;
-
-	Content content = Content.empty();
 	private final Serializer serializer;
 
 	public ApiRequest(HttpHeaders defaultHeaders,
@@ -29,19 +28,13 @@ public class ApiRequest {
 		parameters = new ApiParameters();
 	}
 
-	public ApiRequest content(Content content) {
-		headers.add(content.getHeaders());
-		this.content = content;
-		return this;
-	}
-
 	public ApiRequest parameter(String key, String... value) {
 		parameters.add(key, value);
 		return this;
 	}
 
-	public ApiRequest attribute(String name, Object value) {
-		attributes.put(name, value);
+	public ApiRequest header(String key, String... value) {
+		headers.add(key, Arrays.asList(value));
 		return this;
 	}
 
@@ -66,6 +59,25 @@ public class ApiRequest {
 
 	public ApiRequest transferEncoding(String encoding) {
 		headers.add("Transfer-Encoding", encoding);
+		return this;
+	}
+
+	public ApiRequest contentType(String contentType) {
+		headers.add("Content-Type", contentType);
+		return this;
+	}
+
+	public ApiRequest rawContent(String content, String contentType) {
+		contentType(contentType);
+		this.content = content;
+		return this;
+	}
+
+	public ApiRequest content(Object content, String contentType) {
+		contentType(contentType);
+		StringWriter writer = new StringWriter();
+		serializer.serialize(writer, content, contentType);
+		this.content = writer.toString();
 		return this;
 	}
 }

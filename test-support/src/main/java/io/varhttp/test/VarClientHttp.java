@@ -8,6 +8,7 @@ package io.varhttp.test;
 import io.varhttp.Serializer;
 
 import javax.inject.Inject;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Base64;
@@ -53,8 +54,7 @@ public class VarClientHttp implements VarClient {
 
 	@Override
 	public ApiRequest post(String path) {
-		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.post(serverUrl + basePath + path + apiRequest.parameters.toPath(), new String(apiRequest.content.getBytes()), conn -> {
-		})));
+		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.post(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
 	@Override
@@ -72,6 +72,11 @@ public class VarClientHttp implements VarClient {
 		throw new UnsupportedOperationException("not yet implmenented");
 	}
 
+	@Override
+	public ApiRequest head(String path) {
+		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.head(serverUrl + basePath + path + apiRequest.parameters.toPath())));
+	}
+
 	private HttpResponse toResponse(ApiRequest apiRequest, HttpURLConnection conn) throws IOException {
 		apiRequest.headers.forEach((name, values) -> {
 					for (String value : values) {
@@ -79,6 +84,14 @@ public class VarClientHttp implements VarClient {
 					}
 				}
 		);
+
+		if(apiRequest.content!=null && !apiRequest.content.isEmpty()){
+			conn.setDoOutput(true);
+			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+			out.writeBytes(apiRequest.content);
+			out.flush();
+			out.close();
+		}
 
 		HttpResponse httpResponse = new HttpResponse();
 

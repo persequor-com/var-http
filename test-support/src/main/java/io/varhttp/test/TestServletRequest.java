@@ -220,12 +220,12 @@ public class TestServletRequest implements HttpServletRequest {
 
 	@Override
 	public Object getAttribute(String name) {
-		return apiRequest.attributes.get(name);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Enumeration<String> getAttributeNames() {
-		return Collections.enumeration(apiRequest.attributes.keySet());
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

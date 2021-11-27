@@ -15,4 +15,5 @@ public interface VarClient {
 	ApiRequest put(String path);
 	ApiRequest get(String path);
 	ApiRequest delete(String path);
+	ApiRequest head(String path);
 }
