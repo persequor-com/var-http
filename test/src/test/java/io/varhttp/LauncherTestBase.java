@@ -15,27 +15,9 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-public class LauncherTest {
+public class LauncherTestBase {
 
-	private static Launcher launcher;
-	private static VarClient varClient;
-
-	@BeforeClass
-	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
-		launcher = odinJector.getInstance(Launcher.class);
-		launcher.run();
-
-		VarClientHttp varClientHttp = odinJector.getInstance(VarClientHttp.class);
-		varClientHttp.withServerUrl("http://localhost:8088");
-		varClient = varClientHttp;
-	}
-
-
-	@AfterClass
-	public static void teardown() {
-		launcher.stop();
-	}
+	protected static VarClient varClient;
 
 	@Test
 	public void simple() throws Throwable {
