@@ -1,19 +1,9 @@
 package io.varhttp;
 
-import io.odinjector.OdinJector;
-import io.varhttp.test.HttpClient;
 import io.varhttp.test.VarClient;
-import io.varhttp.test.VarClientHttp;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.net.HttpURLConnection;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 public class LauncherTestBase {
 

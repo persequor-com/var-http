@@ -5,6 +5,8 @@
  */
 package io.varhttp.test;
 
+import io.varhttp.HttpHelper;
+
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.ReadListener;
@@ -18,16 +20,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
-import javax.servlet.http.HttpUtils;
 import javax.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,14 +38,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 public class TestServletRequest implements HttpServletRequest {
 
 	private final ApiRequest apiRequest;
 	private final String method;
 	private final URL path;
-	private Map<String, List<String>> parameters;
+	private Map<String, String[]> parameters;
 
 	public TestServletRequest(ApiRequest apiRequest, String method, URL path) {
 		this.apiRequest = apiRequest;
@@ -138,9 +141,16 @@ public class TestServletRequest implements HttpServletRequest {
 		throw new UnsupportedOperationException();
 	}
 
+	/*
+	 * FIXME: this doesn't correspond to the servlet API since decoding the path, but follows standalone
+	 */
 	@Override
 	public String getRequestURI() {
-		return path.getPath();
+		try {
+			return URLDecoder.decode(path.getPath(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	@Override
@@ -277,23 +287,28 @@ public class TestServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getParameter(String name) {
-		List<String> params = buildParameters().get(name);
-		if (params != null) {
-			return String.join(",", params);
-		} else {
-			return null;
-		}
+		String[] params = buildParameters().get(name);
+		return params == null ? null : params[0];
 	}
 
-	private Map<String, List<String>> buildParameters() {
-		if (parameters == null) {
-			parameters = new HashMap<>();
-			for (Map.Entry<String, String[]> queryParams : HttpUtils.parseQueryString(getQueryString() == null ? "" : getQueryString()).entrySet()) {
-				parameters.put(queryParams.getKey(), Arrays.asList(queryParams.getValue()));
+	private Map<String, String[]> buildParameters() {
+		try {
+			if (parameters == null) {
+				Map<String, List<String>> parsedParameters = new HashMap<>();
+				if (getQueryString() != null) {
+					parsedParameters.putAll(HttpHelper.parseQueryString(getQueryString()));
+
+				}
+				if ("application/x-www-form-urlencoded".equals(getContentType())) {
+					parsedParameters.putAll(HttpHelper.parseQueryString(apiRequest.content));
+				}
+				apiRequest.parameters.map.forEach((key, values) -> parsedParameters.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values));
+				parameters = parsedParameters.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 			}
-			parameters.putAll(apiRequest.parameters.map);
+			return parameters;
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
 		}
-		return parameters;
 	}
 
 	@Override
@@ -303,17 +318,12 @@ public class TestServletRequest implements HttpServletRequest {
 
 	@Override
 	public String[] getParameterValues(String name) {
-		List<String> params = buildParameters().get(name);
-		if (params != null) {
-			return params.toArray(new String[0]);
-		} else {
-			return new String[0];
-		}
+		return buildParameters().get(name);
 	}
 
 	@Override
 	public Map<String, String[]> getParameterMap() {
-		return buildParameters().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().toArray(new String[0])));
+		return buildParameters();
 	}
 
 	@Override

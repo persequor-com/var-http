@@ -304,6 +304,9 @@ public class VarHttpServletRequest implements HttpServletRequest {
 		return postData.get(name);
 	}
 
+	/*
+	 * FIXME: this doesn't correspond to the servlet API since URI is decoded
+	 */
 	@Override
 	public String getRequestURI() {
 		return ex.getRequestURI().getPath();
