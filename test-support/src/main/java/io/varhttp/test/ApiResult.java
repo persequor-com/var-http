@@ -8,7 +8,7 @@ package io.varhttp.test;
 import io.varhttp.Serializer;
 
 import java.io.StringReader;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -24,7 +24,7 @@ public class ApiResult {
 	}
 
 	public ApiResult hasStatusCode(int code) {
-		assertEquals("Expected status code "+code+" got "+response.getStatusCode()+"\n"+response.getContent(),code, response.getStatusCode());
+		assertEquals("Expected status code " + code + " got " + response.getStatusCode() + "\n" + response.getContent(), code, response.getStatusCode());
 		return this;
 	}
 
@@ -36,7 +36,7 @@ public class ApiResult {
 		return hasStatusCode(500);
 	}
 
-	public <T> T getContent(Class<T> clazz){
+	public <T> T getContent(Class<T> clazz) {
 		return serializer.deserialize(new StringReader(getContent()), clazz, response.getHeaders().get("content-type"));
 	}
 
@@ -85,7 +85,20 @@ public class ApiResult {
 
 	public ApiResult headerSize(String name, int expectedSize) {
 		List<String> headerValues = response.getHeaders().getAll(name);
-		assertEquals(expectedSize, headerValues == null?0:headerValues.size());
+		assertEquals(expectedSize, headerValues == null ? 0 : headerValues.size());
 		return this;
+	}
+
+	public String getHeader(String name) {
+		return response.getHeaders().get(name);
+	}
+
+	public String getLocation() {
+		return getHeader("location");
+	}
+
+	public List<String> getCookies() {
+		List<String> cookieHeaders = response.getHeaders().getAll("set-cookie");
+		return cookieHeaders == null ? Collections.emptyList() : cookieHeaders;
 	}
 }

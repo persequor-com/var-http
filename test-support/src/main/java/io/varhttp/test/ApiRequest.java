@@ -10,6 +10,8 @@ import io.varhttp.Serializer;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
 
 public class ApiRequest {
 	final ApiParameters parameters;
@@ -52,6 +54,12 @@ public class ApiRequest {
 		return this;
 	}
 
+	public ApiRequest basicAuth(String username, String password){
+		String encoded = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
+		headers.put("authorization", "Basic " + encoded);
+		return this;
+	}
+
 	public ApiRequest acceptEncoding(String s) {
 		headers.add("Accept-Encoding", s);
 		return this;
@@ -64,6 +72,11 @@ public class ApiRequest {
 
 	public ApiRequest contentType(String contentType) {
 		headers.add("Content-Type", contentType);
+		return this;
+	}
+
+	public ApiRequest cookies(Collection<String> cookies) {
+		headers.add("cookie", cookies);
 		return this;
 	}
 

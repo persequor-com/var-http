@@ -69,7 +69,7 @@ public class VarClientHttp implements VarClient {
 
 	@Override
 	public ApiRequest delete(String path) {
-		throw new UnsupportedOperationException("not yet implmenented");
+		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.delete(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
 	@Override
