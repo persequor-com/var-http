@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-public class LauncherTestBase {
+public abstract class LauncherTestBase {
 
 	protected static VarClient varClient;
 
