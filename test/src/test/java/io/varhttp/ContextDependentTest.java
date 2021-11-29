@@ -9,6 +9,7 @@ import io.varhttp.controllers.IMyContext;
 import io.varhttp.controllers.MyFirstContext;
 import io.varhttp.controllers.MySecondContext;
 import io.varhttp.controllers.withfilters.FilterCatcher;
+import io.varhttp.test.HttpClient;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

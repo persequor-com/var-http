@@ -61,24 +61,22 @@ public class VarHttpContext implements HttpHandler {
 			}
 		};
 
-		Map<String, String[]> parsePostData = new HashMap<>();
+		Map<String, List<String>> parsePostData = new HashMap<>();
 
 		try {
 			if (ex.getRequestURI().getQuery() != null) {
-				parseQueryString(ex.getRequestURI().getRawQuery())
-						.forEach((key, values) -> parsePostData.put(key, values.toArray(new String[0])));
+				parsePostData.putAll(HttpHelper.parseQueryString(ex.getRequestURI().getRawQuery()));
 			}
 
 			// check if any postdata to parse
 			if ("application/x-www-form-urlencoded".equals(ex.getRequestHeaders().getFirst("Content-Type"))) {
 				String wwwForm = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
-				parseQueryString(wwwForm)
-						.forEach((key, values) -> parsePostData.put(key, values.toArray(new String[0])));
+				parsePostData.putAll(HttpHelper.parseQueryString(wwwForm));
 			}
 		} finally {
 			newInput.reset();
 		}
-		final Map<String, String[]> postData = parsePostData;
+		final Map<String, String[]> postData = parsePostData.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 
 		VarHttpServletRequest req = new VarHttpServletRequest(ex, postData, is, new VarServletContext(ex), config);
 
@@ -90,16 +88,6 @@ public class VarHttpContext implements HttpHandler {
 		} catch (ServletException e) {
 			throw new IOException(e);
 		}
-	}
-
-	private Map<String, List<String>> parseQueryString(String queryString) throws UnsupportedEncodingException {
-		if (queryString == null) {
-			return Collections.emptyMap();
-		}
-		return Stream.of(URLDecoder.decode(queryString, Charsets.UTF_8.toString())
-						.split("&")).map(s -> s.split("="))
-				.filter(keyValue -> keyValue.length == 2)
-				.collect(groupingBy(keyValue -> keyValue[0].trim(), mapping(keyValue -> keyValue[1].trim(), toList())));
 	}
 
 	private static byte[] getBytes(InputStream in) throws IOException {

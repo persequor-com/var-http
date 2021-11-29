@@ -2,20 +2,19 @@ package io.varhttp;
 
 import io.odinjector.OdinJector;
 import io.varhttp.controllers.withfilters.FilterCatcher;
+import io.varhttp.test.VarClient;
+import io.varhttp.test.VarClientHttp;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-import java.net.HttpURLConnection;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ControllerFiltersTest {
 	static Launcher launcher;
-	static Thread thread;
+	private static VarClient varClient;
+
 	private static FilterCatcher filterCatcher;
 
 	@BeforeClass
@@ -23,8 +22,11 @@ public class ControllerFiltersTest {
 		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new ControllerFilterContext());
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
 		launcher = odinJector.getInstance(Launcher.class);
-		thread = new Thread(launcher);
-		thread.run();
+		launcher.run();
+
+		VarClientHttp varClientHttp = odinJector.getInstance(VarClientHttp.class);
+		varClientHttp.withServerUrl("http://localhost:8088");
+		varClient = varClientHttp;
 	}
 
 	@After
@@ -39,20 +41,16 @@ public class ControllerFiltersTest {
 
 	@Test
 	public void controllerMethodWhichIsFilteredOut() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/muh", "");
-		try {
-			HttpClient.readContent(con);
-			fail();
-		} catch (FileNotFoundException e) {
-			// This exception is expected
-			assertTrue(filterCatcher.getResult().isEmpty());
-		}
+		varClient.get("/muh")
+				.execute()
+				.notFound();
+		assertTrue(filterCatcher.getResult().isEmpty());
 	}
 
 	@Test
 	public void controllerMethodWhichIsNotFilteredOut() throws Throwable {
-		HttpURLConnection con = HttpClient.get("http://localhost:8088/login", "");
-
-		HttpClient.readContent(con);
+		varClient.get("/login")
+				.execute()
+				.isOk();
 	}
 }
