@@ -270,9 +270,11 @@ public class MyTestController {
 			try {
 				chain.doFilter(request, response);
 			} catch (RuntimeException exception) {
-				response.getWriter().println(exception.getClass().getName()+": "+exception.getMessage());
+				response.getWriter().print(exception.getClass().getName()+": "+exception.getMessage());
+				response.getWriter().flush();
 			} catch (ServletException exception) {
-				response.getWriter().println(exception.getCause().getClass().getName()+": "+exception.getCause().getMessage());
+				response.getWriter().print(exception.getCause().getClass().getName()+": "+exception.getCause().getMessage());
+				response.getWriter().flush();
 			}
 		}
 	}
