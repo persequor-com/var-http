@@ -80,13 +80,13 @@ public class ApiRequest {
 		return this;
 	}
 
-	public ApiRequest rawContent(String content, String contentType) {
+	public ApiRequest content(String content, String contentType) {
 		contentType(contentType);
 		this.content = content;
 		return this;
 	}
 
-	public ApiRequest content(Object content, String contentType) {
+	public ApiRequest contentSerialized(Object content, String contentType) {
 		contentType(contentType);
 		StringWriter writer = new StringWriter();
 		serializer.serialize(writer, content, contentType);
