@@ -8,6 +8,7 @@ package io.varhttp.test;
 import io.varhttp.Serializer;
 
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,6 +39,10 @@ public class ApiResult {
 
 	public <T> T getContent(Class<T> clazz) {
 		return serializer.deserialize(new StringReader(getContent()), clazz, response.getHeaders().get("content-type"));
+	}
+
+	public <T> T getContent(Type type) {
+		return serializer.deserialize(new StringReader(getContent()), type, response.getHeaders().get("content-type"));
 	}
 
 	public ApiResult badRequest() {

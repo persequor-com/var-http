@@ -156,4 +156,9 @@ public class HttpClient {
 	public static HttpURLConnection delete(String urlString) throws IOException {
 		return getConnection(urlString, "DELETE");
 	}
+
+
+	public static HttpURLConnection put(String urlString) throws IOException {
+		return getConnection(urlString, "PUT");
+	}
 }
