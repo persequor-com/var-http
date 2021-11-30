@@ -59,7 +59,7 @@ public class VarClientHttp implements VarClient {
 
 	@Override
 	public ApiRequest put(String path) {
-		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.delete(serverUrl + basePath + path + apiRequest.parameters.toPath())));
+		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.put(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
 	@Override
