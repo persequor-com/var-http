@@ -11,9 +11,9 @@ public interface VarClient {
 	VarClient withBasicAuth(String username, String password);
 	VarClient clearBasicAuth();
 
-	ApiRequest post(String path);
-	ApiRequest put(String path);
-	ApiRequest get(String path);
-	ApiRequest delete(String path);
-	ApiRequest head(String path);
+	VarClientRequest post(String path);
+	VarClientRequest put(String path);
+	VarClientRequest get(String path);
+	VarClientRequest delete(String path);
+	VarClientRequest head(String path);
 }

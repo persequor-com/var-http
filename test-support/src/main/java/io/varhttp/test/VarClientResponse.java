@@ -14,26 +14,26 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ApiResult {
+public class VarClientResponse {
 
 	private final HttpResponse response;
 	private final Serializer serializer;
 
-	public ApiResult(HttpResponse response, Serializer serializer) {
+	public VarClientResponse(HttpResponse response, Serializer serializer) {
 		this.response = response;
 		this.serializer = serializer;
 	}
 
-	public ApiResult hasStatusCode(int code) {
+	public VarClientResponse hasStatusCode(int code) {
 		assertEquals("Expected status code " + code + " got " + response.getStatusCode() + "\n" + response.getContent(), code, response.getStatusCode());
 		return this;
 	}
 
-	public ApiResult isOk() {
+	public VarClientResponse isOk() {
 		return hasStatusCode(200);
 	}
 
-	public ApiResult isInternalError() {
+	public VarClientResponse isInternalError() {
 		return hasStatusCode(500);
 	}
 
@@ -45,27 +45,27 @@ public class ApiResult {
 		return serializer.deserialize(new StringReader(getContent()), type, response.getHeaders().get("content-type"));
 	}
 
-	public ApiResult badRequest() {
+	public VarClientResponse badRequest() {
 		return hasStatusCode(400);
 	}
 
-	public ApiResult isUnsupportedMediaType() {
+	public VarClientResponse isUnsupportedMediaType() {
 		return hasStatusCode(415);
 	}
 
-	public ApiResult isCreated() {
+	public VarClientResponse isCreated() {
 		return hasStatusCode(201);
 	}
 
-	public ApiResult notFound() {
+	public VarClientResponse notFound() {
 		return hasStatusCode(404);
 	}
 
-	public ApiResult notAuthorized() {
+	public VarClientResponse notAuthorized() {
 		return hasStatusCode(401);
 	}
 
-	public ApiResult isForbidden() {
+	public VarClientResponse isForbidden() {
 		return hasStatusCode(403);
 	}
 
@@ -73,22 +73,22 @@ public class ApiResult {
 		return response.getContent();
 	}
 
-	public ApiResult contentType(String contentType) {
+	public VarClientResponse contentType(String contentType) {
 		assertEquals(contentType, response.getHeaders().get("content-type"));
 		return this;
 	}
 
-	public ApiResult content(String expected) {
+	public VarClientResponse content(String expected) {
 		assertEquals(expected, getContent());
 		return this;
 	}
 
-	public ApiResult header(String name, String expectedValue) {
+	public VarClientResponse header(String name, String expectedValue) {
 		assertEquals(expectedValue, response.getHeaders().get(name));
 		return this;
 	}
 
-	public ApiResult headerSize(String name, int expectedSize) {
+	public VarClientResponse headerSize(String name, int expectedSize) {
 		List<String> headerValues = response.getHeaders().getAll(name);
 		assertEquals(expectedSize, headerValues == null ? 0 : headerValues.size());
 		return this;
