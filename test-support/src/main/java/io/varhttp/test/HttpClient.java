@@ -24,7 +24,7 @@ public class HttpClient {
 
 	public static StringBuffer readContent(HttpURLConnection con) throws IOException {
 		InputStream inputStream = getInputStream(con);
-		if(inputStream == null){
+		if (inputStream == null) {
 			return new StringBuffer();
 		}
 		BufferedReader in = new BufferedReader(
@@ -51,14 +51,7 @@ public class HttpClient {
 
 
 	public static HttpURLConnection get(String urlString, String parameters) throws IOException {
-		URL url = new URL(urlString+(parameters!= null && !parameters.equals("") ? "?"+parameters : ""));
-
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		if (con instanceof HttpsURLConnection) {
-			setTrustStore((HttpsURLConnection) con);
-		}
-		con.setRequestMethod("GET");
-		return con;
+		return getConnection(urlString + (parameters != null && !parameters.equals("") ? "?" + parameters : ""), "GET");
 	}
 
 	public static SSLContext getSslContext() {
@@ -101,10 +94,9 @@ public class HttpClient {
 	}
 
 
-
-
 	public static HttpURLConnection post(String path) {
-		return post(path, null, conn -> {});
+		return post(path, null, conn -> {
+		});
 	}
 
 	public static HttpURLConnection post(String path, String body) {
@@ -113,7 +105,7 @@ public class HttpClient {
 
 	public static HttpURLConnection post(String path, String body, String contentType) {
 		return post(path, body,
-				connection -> connection.setRequestProperty( "Content-Type", contentType));
+				connection -> connection.setRequestProperty("Content-Type", contentType));
 	}
 
 	public static HttpURLConnection post(String path, String body, Consumer<HttpURLConnection> consumer) {
@@ -144,29 +136,29 @@ public class HttpClient {
 	}
 
 	public static HttpURLConnection head(String urlString) throws IOException {
-		URL url = new URL(urlString);
-
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		if (con instanceof HttpsURLConnection) {
-			setTrustStore((HttpsURLConnection) con);
-		}
-		con.setRequestMethod("HEAD");
-//		con.setDoOutput(true);
-//		DataOutputStream out = new DataOutputStream(con.getOutputStream());
-//		out.writeBytes(s1);
-//		out.flush();
-//		out.close();
-		return con;
+		return getConnection(urlString, "HEAD");
 	}
 
 	public static HttpURLConnection options(String urlString) throws IOException {
-		URL url = new URL(urlString);
+		return getConnection(urlString, "OPTIONS");
+	}
 
+	public static HttpURLConnection getConnection(String path, String method) throws IOException {
+		URL url = new URL(path);
 		HttpURLConnection con = (HttpURLConnection) url.openConnection();
 		if (con instanceof HttpsURLConnection) {
 			setTrustStore((HttpsURLConnection) con);
 		}
-		con.setRequestMethod("OPTIONS");
+		con.setRequestMethod(method);
 		return con;
+	}
+
+	public static HttpURLConnection delete(String urlString) throws IOException {
+		return getConnection(urlString, "DELETE");
+	}
+
+
+	public static HttpURLConnection put(String urlString) throws IOException {
+		return getConnection(urlString, "PUT");
 	}
 }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ApiParameters {
+class HttpParameters {
 	Map<String, List<String>> map = new HashMap<>();
 
 	public void add(String key, String... value) {

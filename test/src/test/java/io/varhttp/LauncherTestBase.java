@@ -183,7 +183,7 @@ public abstract class LauncherTestBase {
 	@Test
 	public void requestParametersPost() throws Throwable {
 		varClient.post("/requestParameters")
-				.rawContent("what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here", "application/x-www-form-urlencoded")
+				.content("what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here", "application/x-www-form-urlencoded")
 				.execute()
 				.content("theFuture-õõ is null");
 	}
@@ -198,7 +198,7 @@ public abstract class LauncherTestBase {
 	@Test
 	public void listObject() throws Throwable {
 		varClient.post("/listObject")
-				.rawContent("[{\"id\":\"id1\",\"name\":\"name1\"},{\"id\":\"id2\",\"name\":\"name2\"}]", "application/json")
+				.content("[{\"id\":\"id1\",\"name\":\"name1\"},{\"id\":\"id2\",\"name\":\"name2\"}]", "application/json")
 				.execute()
 				.content("[{\"id\":\"id1\",\"name\":\"name1!\"},{\"id\":\"id2\",\"name\":\"name2!\"}]");
 	}
@@ -220,7 +220,7 @@ public abstract class LauncherTestBase {
 	@Test
 	public void requestBodyString() throws Throwable {
 		varClient.post("/requestBodyString?otherParameter=param")
-				.rawContent("This is a string, the only string my friend", "text/plain")
+				.content("This is a string, the only string my friend", "text/plain")
 				.execute()
 				.content("This is a string, the only string my friend");
 	}
@@ -228,7 +228,7 @@ public abstract class LauncherTestBase {
 	@Test
 	public void requestBodyInputStream() throws Throwable {
 		varClient.post("/requestBodyInputStream")
-				.rawContent("I AM THE BODY", "text/plain")
+				.content("I AM THE BODY", "text/plain")
 				.execute()
 				.content("I AM THE BODY");
 	}

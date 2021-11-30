@@ -43,13 +43,13 @@ import static java.util.stream.Collectors.toMap;
 
 public class TestServletRequest implements HttpServletRequest {
 
-	private final ApiRequest apiRequest;
+	private final VarClientRequest varClientRequest;
 	private final String method;
 	private final URL path;
 	private Map<String, String[]> parameters;
 
-	public TestServletRequest(ApiRequest apiRequest, String method, URL path) {
-		this.apiRequest = apiRequest;
+	public TestServletRequest(VarClientRequest varClientRequest, String method, URL path) {
+		this.varClientRequest = varClientRequest;
 		this.method = method;
 		this.path = path;
 	}
@@ -61,7 +61,7 @@ public class TestServletRequest implements HttpServletRequest {
 
 	@Override
 	public Cookie[] getCookies() {
-		String cookie = apiRequest.headers.get("Cookie");
+		String cookie = varClientRequest.headers.get("Cookie");
 		if (cookie != null) {
 			String[] cookies = cookie.split(";");
 			return Arrays.stream(cookies).map(s -> s.split("=")).map(a -> new Cookie(a[0].trim(), a[1].trim())).toArray(Cookie[]::new);
@@ -77,18 +77,18 @@ public class TestServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getHeader(String name) {
-		return apiRequest.headers.get(name);
+		return varClientRequest.headers.get(name);
 	}
 
 	@Override
 	public Enumeration<String> getHeaders(String name) {
-		Collection<String> headers = apiRequest.headers.getAll(name);
+		Collection<String> headers = varClientRequest.headers.getAll(name);
 		return headers != null ? Collections.enumeration(headers) : Collections.emptyEnumeration();
 	}
 
 	@Override
 	public Enumeration<String> getHeaderNames() {
-		return Collections.enumeration(apiRequest.headers.getNames());
+		return Collections.enumeration(varClientRequest.headers.getNames());
 	}
 
 	@Override
@@ -265,7 +265,7 @@ public class TestServletRequest implements HttpServletRequest {
 
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(apiRequest.content.getBytes());
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(varClientRequest.content.getBytes());
 		return new ServletInputStream() {
 			public boolean isFinished() {
 				return inputStream.available() == 0;
@@ -300,9 +300,9 @@ public class TestServletRequest implements HttpServletRequest {
 
 				}
 				if ("application/x-www-form-urlencoded".equals(getContentType())) {
-					parsedParameters.putAll(HttpHelper.parseQueryString(apiRequest.content));
+					parsedParameters.putAll(HttpHelper.parseQueryString(varClientRequest.content));
 				}
-				apiRequest.parameters.map.forEach((key, values) -> parsedParameters.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values));
+				varClientRequest.parameters.map.forEach((key, values) -> parsedParameters.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values));
 				parameters = parsedParameters.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 			}
 			return parameters;
