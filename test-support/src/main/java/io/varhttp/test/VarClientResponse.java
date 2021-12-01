@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,73 +25,66 @@ public class VarClientResponse {
 		this.serializer = serializer;
 	}
 
-	public VarClientResponse hasStatusCode(int code) {
+	public VarClientResponse assertStatusCode(int code) {
 		assertEquals("Expected status code " + code + " got " + response.getStatusCode() + "\n" + response.getContent(), code, response.getStatusCode());
 		return this;
 	}
 
 	public VarClientResponse isOk() {
-		return hasStatusCode(200);
+		return assertStatusCode(200);
 	}
 
 	public VarClientResponse isInternalError() {
-		return hasStatusCode(500);
+		return assertStatusCode(500);
 	}
 
-	public <T> T getContent(Class<T> clazz) {
-		return serializer.deserialize(new StringReader(getContent()), clazz, response.getHeaders().get("content-type"));
-	}
-
-	public <T> T getContent(Type type) {
-		return serializer.deserialize(new StringReader(getContent()), type, response.getHeaders().get("content-type"));
-	}
-
-	public VarClientResponse badRequest() {
-		return hasStatusCode(400);
+	public VarClientResponse isBadRequest() {
+		return assertStatusCode(400);
 	}
 
 	public VarClientResponse isUnsupportedMediaType() {
-		return hasStatusCode(415);
+		return assertStatusCode(415);
 	}
 
 	public VarClientResponse isCreated() {
-		return hasStatusCode(201);
+		return assertStatusCode(201);
 	}
 
-	public VarClientResponse notFound() {
-		return hasStatusCode(404);
+	public VarClientResponse isNotFound() {
+		return assertStatusCode(404);
 	}
 
-	public VarClientResponse notAuthorized() {
-		return hasStatusCode(401);
+	public VarClientResponse isNotAuthorized() {
+		return assertStatusCode(401);
 	}
 
 	public VarClientResponse isForbidden() {
-		return hasStatusCode(403);
+		return assertStatusCode(403);
 	}
 
-	public String getContent() {
-		return response.getContent();
-	}
-
-	public VarClientResponse contentType(String contentType) {
+	public VarClientResponse assertContentType(String contentType) {
 		assertEquals(contentType, response.getHeaders().get("content-type"));
 		return this;
 	}
 
-	public VarClientResponse content(String expected) {
+	public VarClientResponse assertContent(String expected) {
 		assertEquals(expected, getContent());
 		return this;
 	}
 
-	public VarClientResponse header(String name, String expectedValue) {
+	public VarClientResponse assertHeader(String name, String expectedValue) {
 		assertEquals(expectedValue, response.getHeaders().get(name));
 		return this;
 	}
 
-	public VarClientResponse headerSize(String name, int expectedSize) {
+	public VarClientResponse assertHeaderSize(String name, int expectedSize) {
 		List<String> headerValues = response.getHeaders().getAll(name);
 		assertEquals(expectedSize, headerValues == null ? 0 : headerValues.size());
+		return this;
+	}
+
+	public VarClientResponse assertOnResponse(Consumer<HttpResponse> assertion) {
+		assertion.accept(response);
 		return this;
 	}
 
@@ -105,5 +99,17 @@ public class VarClientResponse {
 	public List<String> getCookies() {
 		List<String> cookieHeaders = response.getHeaders().getAll("set-cookie");
 		return cookieHeaders == null ? Collections.emptyList() : cookieHeaders;
+	}
+
+	public <T> T getContent(Class<T> clazz) {
+		return serializer.deserialize(new StringReader(getContent()), clazz, response.getHeaders().get("content-type"));
+	}
+
+	public <T> T getContent(Type type) {
+		return serializer.deserialize(new StringReader(getContent()), type, response.getHeaders().get("content-type"));
+	}
+
+	public String getContent() {
+		return response.getContent();
 	}
 }
