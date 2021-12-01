@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-class HttpHeaders {
+public class HttpHeaders {
 
 	private final Map<String, List<String>> headers = new HashMap<>();
 

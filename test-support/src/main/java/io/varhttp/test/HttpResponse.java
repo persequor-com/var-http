@@ -7,7 +7,7 @@ package io.varhttp.test;
 
 import java.nio.charset.Charset;
 
-class HttpResponse {
+public class HttpResponse {
 
 	private HttpHeaders headers;
 	private int statusCode;
