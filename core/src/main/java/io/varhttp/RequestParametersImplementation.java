@@ -3,6 +3,7 @@ package io.varhttp;
 import javax.servlet.http.HttpServletRequest;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +18,13 @@ public class RequestParametersImplementation implements RequestParameters {
 
 	@Override
 	public String get(String name) {
-
 		return request.getParameter(name);
 	}
 
 	@Override
-	public void remove(String name) {
-		request.getParameterMap().remove(name);
+	public List<String> getAll(String name) {
+		String[] paramValues = request.getParameterValues(name);
+		return paramValues == null ? Collections.emptyList() : Arrays.asList(paramValues);
 	}
 
 	@Override
