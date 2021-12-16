@@ -176,7 +176,7 @@ public abstract class LauncherTestBase {
 
 	@Test
 	public void requestParametersGet() throws Throwable {
-		varClient.get("/requestParameters?what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here")
+		varClient.get("/requestParameters?what-%C3%B5%C3%B5=theFuture-%C3%B5%C3%B5&where=here")
 				.execute()
 				.assertContent("theFuture-õõ is here");
 	}
@@ -184,7 +184,7 @@ public abstract class LauncherTestBase {
 	@Test
 	public void requestParametersPost() throws Throwable {
 		varClient.post("/requestParameters")
-				.content("what-%C3%B5%C3%B5%3DtheFuture-%C3%B5%C3%B5&where=here", "application/x-www-form-urlencoded")
+				.content("what-%C3%B5%C3%B5=theFuture-%C3%B5%C3%B5&where=here", "application/x-www-form-urlencoded")
 				.execute()
 				.assertContent("theFuture-õõ is here");
 	}

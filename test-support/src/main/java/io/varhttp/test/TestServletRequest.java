@@ -287,23 +287,19 @@ public class TestServletRequest implements HttpServletRequest {
 	}
 
 	private Map<String, String[]> buildParameters() {
-		try {
-			if (parameters == null) {
-				Map<String, List<String>> parsedParameters = new HashMap<>();
-				if (getQueryString() != null) {
-					parsedParameters.putAll(HttpHelper.parseQueryString(getQueryString()));
+		if (parameters == null) {
+			Map<String, List<String>> parsedParameters = new HashMap<>();
+			if (getQueryString() != null) {
+				parsedParameters.putAll(HttpHelper.parseQueryString(getQueryString()));
 
-				}
-				if ("application/x-www-form-urlencoded".equals(getContentType())) {
-					parsedParameters.putAll(HttpHelper.parseQueryString(varClientRequest.content));
-				}
-				varClientRequest.parameters.map.forEach((key, values) -> parsedParameters.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values));
-				parameters = parsedParameters.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 			}
-			return parameters;
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			if ("application/x-www-form-urlencoded".equals(getContentType())) {
+				parsedParameters.putAll(HttpHelper.parseQueryString(varClientRequest.content));
+			}
+			varClientRequest.parameters.map.forEach((key, values) -> parsedParameters.computeIfAbsent(key, k -> new ArrayList<>()).addAll(values));
+			parameters = parsedParameters.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 		}
+		return parameters;
 	}
 
 	@Override
