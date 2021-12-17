@@ -34,5 +34,13 @@ public class HttpHelperTest {
 		assertEquals(Arrays.asList("good"), actual.get("only"));
 	}
 
+	@Test
+	public void parseQueryString_spaceContainingParameters() throws Throwable{
+		Map<String, List<String>> actual = HttpHelper.parseQueryString("+my%20param+=+contains+spaces%20&var-http=yyy=zzz&&only=good");
+
+		assertEquals(2, actual.size());
+		assertEquals(Arrays.asList("good"), actual.get("only"));
+		assertEquals(Arrays.asList(" contains spaces "), actual.get(" my param "));
+	}
 
 }
