@@ -20,7 +20,7 @@ public class HttpHelper {
 		return Stream.of(queryString
 						.split("&")).map(s -> s.split("=", 3))
 				.filter(keyValue -> keyValue.length == 2)
-				.collect(groupingBy(keyValue -> silentDecode(keyValue[0]).trim(), mapping(keyValue -> silentDecode(keyValue[1]).trim(), toList())));
+				.collect(groupingBy(keyValue -> silentDecode(keyValue[0]), mapping(keyValue -> silentDecode(keyValue[1]), toList())));
 	}
 
 	private static String silentDecode(String input) {
