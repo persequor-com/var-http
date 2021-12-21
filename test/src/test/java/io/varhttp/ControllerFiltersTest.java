@@ -43,7 +43,7 @@ public class ControllerFiltersTest {
 	public void controllerMethodWhichIsFilteredOut() throws Throwable {
 		varClient.get("/muh")
 				.execute()
-				.notFound();
+				.isNotFound();
 		assertTrue(filterCatcher.getResult().isEmpty());
 	}
 

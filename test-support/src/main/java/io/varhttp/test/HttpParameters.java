@@ -1,8 +1,3 @@
-/* Copyright (C) Persequor ApS - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 2021-11-22
- */
 package io.varhttp.test;
 
 import java.io.UnsupportedEncodingException;
@@ -14,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ApiParameters {
+class HttpParameters {
 	Map<String, List<String>> map = new HashMap<>();
 
 	public void add(String key, String... value) {

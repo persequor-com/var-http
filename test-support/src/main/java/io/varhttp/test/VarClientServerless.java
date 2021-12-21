@@ -1,8 +1,3 @@
-/* Copyright (C) Persequor ApS - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>, 2021-11-22
- */
 package io.varhttp.test;
 
 import io.varhttp.Serializer;
@@ -49,37 +44,37 @@ public class VarClientServerless implements VarClient {
 	}
 
 	@Override
-	public ApiRequest post(String path) {
-		return new ApiRequest(defaultHeaders,
+	public VarClientRequest post(String path) {
+		return new VarClientRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "POST", apiRequest, varServlet));
 	}
 
 	@Override
-	public ApiRequest put(String path) {
-		return new ApiRequest(defaultHeaders,
+	public VarClientRequest put(String path) {
+		return new VarClientRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "PUT", apiRequest, varServlet));
 	}
 
 	@Override
-	public ApiRequest get(String path) {
-		return new ApiRequest(defaultHeaders,
+	public VarClientRequest get(String path) {
+		return new VarClientRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "GET", apiRequest, varServlet));
 	}
 
 	@Override
-	public ApiRequest delete(String path) {
-		return new ApiRequest(defaultHeaders,
+	public VarClientRequest delete(String path) {
+		return new VarClientRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "DELETE", apiRequest, varServlet));
 	}
 
 	@Override
-	public ApiRequest head(String path) {
-		return new ApiRequest(defaultHeaders,
+	public VarClientRequest head(String path) {
+		return new VarClientRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "HEAD", apiRequest, varServlet));
 	}
 
-	private HttpResponse executeRequest(String path, String method, ApiRequest apiRequest, VarServlet varServlet) throws IOException {
-		HttpServletRequest servletRequest = new TestServletRequest(apiRequest, method, new URL("https://component-test-host" + basePath + path));
+	private HttpResponse executeRequest(String path, String method, VarClientRequest varClientRequest, VarServlet varServlet) throws IOException {
+		HttpServletRequest servletRequest = new TestServletRequest(varClientRequest, method, new URL("https://component-test-host" + basePath + path));
 		TestServletResponse servletResponse = new TestServletResponse();
 		varServlet.handle(servletRequest, servletResponse);
 		return toHttpResponse(servletResponse);

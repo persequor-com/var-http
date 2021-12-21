@@ -1,38 +1,35 @@
 package io.varhttp;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RequestParametersImplementation implements RequestParameters {
-	private HttpServletRequest request;
+	private final Map<String, List<String>> decodedParams;
 
 	public RequestParametersImplementation(HttpServletRequest request) {
-		this.request = request;
+		this.decodedParams = HttpHelper.decodeRequestParameters(request.getParameterMap());
 	}
 
 	@Override
 	public String get(String name) {
-
-		return request.getParameter(name);
+		return decodedParams.containsKey(name) ? decodedParams.get(name).stream().findFirst().orElse(null) : null;
 	}
 
 	@Override
-	public void remove(String name) {
-		request.getParameterMap().remove(name);
+	public List<String> getAll(String name) {
+		List<String> paramValues = decodedParams.get(name);
+		return paramValues == null ? Collections.emptyList() : paramValues;
 	}
 
 	@Override
 	public boolean contains(String name) {
-		return request.getParameterMap().containsKey(name);
+		return decodedParams.containsKey(name);
 	}
 
 	@Override
 	public Map<String, List<String>> getMap() {
-		return request.getParameterMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> Arrays.asList(e.getValue())));
+		return decodedParams;
 	}
 }

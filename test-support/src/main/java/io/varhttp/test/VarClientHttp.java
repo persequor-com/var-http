@@ -1,8 +1,3 @@
-/* Copyright (C) Persequor ApS - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Persequor Development Team <partnersupport@persequor.com>,
- */
 package io.varhttp.test;
 
 import io.varhttp.Serializer;
@@ -53,42 +48,42 @@ public class VarClientHttp implements VarClient {
 	}
 
 	@Override
-	public ApiRequest post(String path) {
-		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.post(serverUrl + basePath + path + apiRequest.parameters.toPath())));
+	public VarClientRequest post(String path) {
+		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.post(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
 	@Override
-	public ApiRequest put(String path) {
-		throw new UnsupportedOperationException("not yet implmenented");
+	public VarClientRequest put(String path) {
+		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.put(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
 	@Override
-	public ApiRequest get(String path) {
-		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.get(serverUrl + basePath + path + apiRequest.parameters.toPath(), "")));
+	public VarClientRequest get(String path) {
+		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.get(serverUrl + basePath + path + apiRequest.parameters.toPath(), "")));
 	}
 
 	@Override
-	public ApiRequest delete(String path) {
-		throw new UnsupportedOperationException("not yet implmenented");
+	public VarClientRequest delete(String path) {
+		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.delete(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
 	@Override
-	public ApiRequest head(String path) {
-		return new ApiRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.head(serverUrl + basePath + path + apiRequest.parameters.toPath())));
+	public VarClientRequest head(String path) {
+		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.head(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
 
-	private HttpResponse toResponse(ApiRequest apiRequest, HttpURLConnection conn) throws IOException {
-		apiRequest.headers.forEach((name, values) -> {
+	private HttpResponse toResponse(VarClientRequest varClientRequest, HttpURLConnection conn) throws IOException {
+		varClientRequest.headers.forEach((name, values) -> {
 					for (String value : values) {
 						conn.addRequestProperty(name, value);
 					}
 				}
 		);
 
-		if(apiRequest.content!=null && !apiRequest.content.isEmpty()){
+		if(varClientRequest.content!=null && !varClientRequest.content.isEmpty()){
 			conn.setDoOutput(true);
 			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
-			out.writeBytes(apiRequest.content);
+			out.writeBytes(varClientRequest.content);
 			out.flush();
 			out.close();
 		}

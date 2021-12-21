@@ -146,10 +146,7 @@ public class MyTestController {
 	public String requestParameters(
 			RequestParameters requestParameters
 	) {
-		if (requestParameters.contains("where")) {
-			requestParameters.remove("where");
-		}
-		return requestParameters.get("what-õõ")+" is "+requestParameters.get("where");
+		return requestParameters.get("what-õõ") + " is " + requestParameters.get("where");
 	}
 
 	@Controller(path = "/dates")
