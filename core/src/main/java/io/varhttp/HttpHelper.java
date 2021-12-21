@@ -65,4 +65,14 @@ public class HttpHelper {
 				.collect(groupingBy(keyValue -> keyValue[0], mapping(keyValue -> keyValue[1], toList())));
 	}
 
+	public static Map<String, List<String>> parseQueryStringDecoded(String queryString) {
+		if (queryString == null) {
+			return Collections.emptyMap();
+		}
+		return Stream.of(queryString
+						.split("&")).map(s -> s.split("=", 3))
+				.filter(keyValue -> keyValue.length == 2)
+				.collect(groupingBy(keyValue -> silentDecode(keyValue[0]), mapping(keyValue -> silentDecode(keyValue[1]), toList())));
+	}
+
 }
