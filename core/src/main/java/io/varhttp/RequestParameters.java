@@ -3,21 +3,25 @@ package io.varhttp;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface to inject in your controllers to handle decoded request parameters
+ */
+
 public interface RequestParameters {
 
 	/**
 	 * Returns first value of the parameter
 	 *
-	 * @param name parameter name
-	 * @return value or null if parameter does not exist
+	 * @param name decoded parameter name
+	 * @return decoded value or null if parameter does not exist
 	 */
 	String get(String name);
 
 	/**
 	 * Returns all the values of the parameter
 	 *
-	 * @param name parameter name
-	 * @return value or empty list if parameter doesn't exist
+	 * @param name decoded parameter name
+	 * @return decoded values or empty list if parameter doesn't exist
 	 */
 	List<String> getAll(String name);
 

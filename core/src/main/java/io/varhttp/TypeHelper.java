@@ -27,11 +27,11 @@ public class TypeHelper {
 		typesHashMap.put(Double.class    , new Primitive(Double::valueOf, null));
 		typesHashMap.put(Float.class     , new Primitive(Float::valueOf, null));
 		typesHashMap.put(String.class    , new Primitive(String::valueOf, null));
-		typesHashMap.put(BigDecimal.class      , new Primitive(BigDecimal::new, null));
-		typesHashMap.put(BigInteger.class      , new Primitive(BigInteger::new, null));
-		typesHashMap.put(Date.class            , new Primitive(z -> Date.from(ZonedDateTime.parse(z, dateTimeFormatter).toInstant()), null));
-		typesHashMap.put(ZonedDateTime.class   , new Primitive(z -> ZonedDateTime.parse(z, dateTimeFormatter),null));
-		typesHashMap.put(LocalDate.class   , new Primitive(LocalDate::parse,null));
+		typesHashMap.put(BigDecimal.class      , new Primitive(z -> new BigDecimal(HttpHelper.decode(z)), null));
+		typesHashMap.put(BigInteger.class      , new Primitive(z -> new BigInteger(HttpHelper.decode(z)), null));
+		typesHashMap.put(Date.class            , new Primitive(z -> Date.from(ZonedDateTime.parse(HttpHelper.decode(z), dateTimeFormatter).toInstant()), null));
+		typesHashMap.put(ZonedDateTime.class   , new Primitive(z -> ZonedDateTime.parse(HttpHelper.decode(z), dateTimeFormatter),null));
+		typesHashMap.put(LocalDate.class   , new Primitive(z -> LocalDate.parse(HttpHelper.decode(z)),null));
 		typesHashMap.put(UUID.class        , new Primitive(UUID::fromString,null));
 
 	}
