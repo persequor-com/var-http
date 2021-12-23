@@ -46,7 +46,7 @@ jobs:
         id: versioning
         if: github.event_name != 'pull_request'
       - name: Publish package
-        run: ./gradlew -PprojVersion=${{steps.versioning.outputs.version}} publish
+        run: ./gradlew -PprojVersion=0.5.1-56 publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
