@@ -16,7 +16,7 @@ public class RequestParameterHandler implements IParameterHandler {
 
 	@Override
 	public Object handle(ControllerContext controllerContext) {
-		return convert.convert(controllerContext.request().getParameter(configuration.getName()), configuration.getType(), configuration.getDefaultValue());
+		return convert.convert(controllerContext.getParameters().get(configuration.getName()), configuration.getType(), configuration.getDefaultValue());
 	}
 
 	public static class Configuration extends MatchContext {
