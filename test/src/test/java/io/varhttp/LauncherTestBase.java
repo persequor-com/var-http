@@ -208,7 +208,7 @@ public abstract class LauncherTestBase {
 	public void listController_listNotSet() throws Throwable {
 		varClient.post("/listController")
 				.execute()
-				.assertContent("[]");
+				.assertContent("");
 	}
 
 	@Test

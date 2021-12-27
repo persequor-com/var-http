@@ -19,8 +19,7 @@ public class RequestParametersImplementation implements RequestParameters {
 
 	@Override
 	public List<String> getAll(String name) {
-		List<String> paramValues = decodedParams.get(name);
-		return paramValues == null ? Collections.emptyList() : paramValues;
+		return decodedParams.get(name);
 	}
 
 	@Override
