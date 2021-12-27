@@ -4,6 +4,7 @@ import io.varhttp.ControllerContext;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class RequestParameterListHandler implements IParameterHandler {
@@ -19,9 +20,9 @@ public class RequestParameterListHandler implements IParameterHandler {
 
 	@Override
 	public Object handle(ControllerContext controllerContext) {
-		String[] parameterValues = controllerContext.request().getParameterValues(configuration.getName());
+		List<String> parameterValues = controllerContext.getParameters().getAll(configuration.getName());
 		if (parameterValues != null) {
-			return Arrays.stream(parameterValues).map(p -> convert.convert(p, (Class<?>) listElementType, configuration.getDefaultValue())).collect(Collectors.toList());
+			return parameterValues.stream().map(p -> convert.convert(p, (Class<?>) listElementType, configuration.getDefaultValue())).collect(Collectors.toList());
 		} else {
 			return null;
 		}
