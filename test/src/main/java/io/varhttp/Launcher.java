@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 
 public class Launcher implements Runnable {
-	private Standalone standalone;
+	private final Standalone standalone;
 
 	@Inject
 	public Launcher(Standalone standalone) {
