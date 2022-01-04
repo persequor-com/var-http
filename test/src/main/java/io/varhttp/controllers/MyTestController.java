@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -56,6 +57,11 @@ public class MyTestController {
 	@Controller(path = "/requestParameter")
 	public String myTestRequestParameter(@RequestParameter(name = "var") String var, @RequestParameter(name = "datetime") ZonedDateTime date) {
 		return var + " " + date;
+	}
+
+	@Controller(path = "/uuid/{uuid1}")
+	public String uuid(@PathVariable(name = "uuid1") UUID uuid1, @RequestParameter(name = "uuid2") UUID uuid2) {
+		return uuid1.toString() + " " + uuid2.toString();
 	}
 
 	@Controller(path = "/header")
@@ -140,10 +146,7 @@ public class MyTestController {
 	public String requestParameters(
 			RequestParameters requestParameters
 	) {
-		if (requestParameters.contains("where")) {
-			requestParameters.remove("where");
-		}
-		return requestParameters.get("what")+" is "+requestParameters.get("where");
+		return requestParameters.get("what-õõ") + " is " + requestParameters.get("where");
 	}
 
 	@Controller(path = "/dates")
@@ -264,9 +267,11 @@ public class MyTestController {
 			try {
 				chain.doFilter(request, response);
 			} catch (RuntimeException exception) {
-				response.getWriter().println(exception.getClass().getName()+": "+exception.getMessage());
+				response.getWriter().print(exception.getClass().getName()+": "+exception.getMessage());
+				response.getWriter().flush();
 			} catch (ServletException exception) {
-				response.getWriter().println(exception.getCause().getClass().getName()+": "+exception.getCause().getMessage());
+				response.getWriter().print(exception.getCause().getClass().getName()+": "+exception.getCause().getMessage());
+				response.getWriter().flush();
 			}
 		}
 	}

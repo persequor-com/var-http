@@ -18,11 +18,13 @@ public class Launcher implements Runnable {
 
 	@Override
 	public void run() {
-		standalone.configure(config -> {
-			config.addControllerMatcher(new AltControllerMatcher());
-			config.addControllerPackage(MyTestController.class.getPackage());
-		});
+		standalone.configure(this::configure);
 		standalone.run();
+	}
+
+	public void configure(VarConfiguration varConfiguration) {
+		varConfiguration.addControllerMatcher(new AltControllerMatcher());
+		varConfiguration.addControllerPackage(MyTestController.class.getPackage());
 	}
 
 	public void stop() {

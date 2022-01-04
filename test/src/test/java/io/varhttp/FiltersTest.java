@@ -2,6 +2,7 @@ package io.varhttp;
 
 import io.odinjector.OdinJector;
 import io.varhttp.controllers.withfilters.FilterCatcher;
+import io.varhttp.test.HttpClient;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

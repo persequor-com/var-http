@@ -5,6 +5,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.26'
     implementation group: 'javax', name: 'javaee-web-api', version: '8.0.1'
     compile project(':core');
+    testImplementation project(':test-support')
     compile project(':serializer-guice');
 }
 

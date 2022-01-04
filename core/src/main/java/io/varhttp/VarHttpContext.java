@@ -1,18 +1,28 @@
 package io.varhttp;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.servlet.ReadListener;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpUtils;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.*;
 
 public class VarHttpContext implements HttpHandler {
 	private final HttpServlet servlet;
@@ -51,21 +61,22 @@ public class VarHttpContext implements HttpHandler {
 			}
 		};
 
-		Map<String, String[]> parsePostData = new HashMap<>();
+		Map<String, List<String>> parsePostData = new HashMap<>();
 
 		try {
 			if (ex.getRequestURI().getQuery() != null) {
-				parsePostData.putAll(HttpUtils.parseQueryString(ex.getRequestURI().getRawQuery()));
+				parsePostData.putAll(HttpHelper.parseQueryString(ex.getRequestURI().getRawQuery()));
 			}
 
 			// check if any postdata to parse
 			if ("application/x-www-form-urlencoded".equals(ex.getRequestHeaders().getFirst("Content-Type"))) {
-				parsePostData.putAll(HttpUtils.parsePostData(inBytes.length, is));
+				String wwwForm = CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
+				parsePostData.putAll(HttpHelper.parseQueryString(wwwForm));
 			}
 		} finally {
 			newInput.reset();
 		}
-		final Map<String, String[]> postData = parsePostData;
+		final Map<String, String[]> postData = parsePostData.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 
 		VarHttpServletRequest req = new VarHttpServletRequest(ex, postData, is, new VarServletContext(ex), config);
 
