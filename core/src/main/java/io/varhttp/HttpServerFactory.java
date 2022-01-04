@@ -80,6 +80,7 @@ public class HttpServerFactory {
             tmf.init(keyStore);
 
             // Set up the HTTPS context and parameters
+            sslContext = SSLContext.getInstance("TLS");
             sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | KeyManagementException e) {
             throw new VarInitializationException(e);
@@ -88,8 +89,6 @@ public class HttpServerFactory {
 
     public void setSslContext(InputStream x509Certificate, InputStream privateKey) {
         try {
-            sslContext = SSLContext.getInstance("TLS");
-
             // Initialise the keystore
             char[] password = "".toCharArray();
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
