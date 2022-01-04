@@ -6,8 +6,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import java.io.InputStream;
+import java.security.KeyStore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -68,5 +71,17 @@ public class Standalone implements Runnable {
 
 	public CompletableFuture<Boolean> getStarted() {
 		return started;
+	}
+
+	public void setSslContext(InputStream x509Certificate, InputStream privateKey) {
+		serverFactory.setSslContext(x509Certificate, privateKey);
+	}
+
+	public void setSslContext(SSLContext sslContext) {
+		serverFactory.setSslContext(sslContext);
+	}
+
+	public void setSslContext(KeyStore keyStore, char[] password) {
+		serverFactory.setSslContext(keyStore, password);
 	}
 }
