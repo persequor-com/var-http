@@ -7,5 +7,5 @@ dependencies {
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.2'
     implementation group: 'javax.inject', name: 'javax.inject', version: '1'
 
-    compile project(':core')
+    compile project(':var-core')
 }
