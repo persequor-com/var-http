@@ -106,7 +106,7 @@ Once done, you can simply use typed Objects in your controller methods.
 ## Servlet
 Var is built on top of the java-standard HttpServlet.
 
-##Logging
+## Logging
 Var comes with SLF4J, making it natively compatible with all the most common loggers (Logback, Log4J, native Java, etc).
 SLF4J is a logger abstraction for Java, allowing streamlining the logs coming from different libraries.
 Read more about SLF4J and how to configure it [here](https://www.slf4j.org/).
