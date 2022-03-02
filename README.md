@@ -28,12 +28,23 @@ Read more on how to work with GitHub packages [here](https://docs.github.com/en/
 
 ***Please note that GitHub Packages requires authentication***
 
-For Gradle : 
+For Gradle :
 ```groovy
 dependencies {
-    implementation 'io.var-http:core:0.1.0-86'
+    implementation 'io.var-http:var-core:1.0.1-2'
 }
 ```
+
+For Maven :
+```xml
+<dependency>
+    <groupId>io.var-http</groupId>
+    <artifactId>var-core</artifactId>
+    <version>1.0.1-2</version>
+</dependency> 
+```
+
+You should be ready to get going now ! To carry on, have a look at the var-core [documentation](./var-core/README.md).
 
 ## Build from source
 Var-HTTP uses [Gradle]((https://docs.gradle.org/6.7/userguide/userguide.html)) as build tool.
