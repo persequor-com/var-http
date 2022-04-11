@@ -1,5 +1,6 @@
 package io.varhttp;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.security.KeyStore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
@@ -26,6 +28,7 @@ public class Standalone implements Runnable {
 	private final HttpServerFactory serverFactory;
 	private HttpServer server;
 	private final Map<String, HttpServlet> servlets = new LinkedHashMap<>();
+	private ExecutorService threadPool;
 
 	@Inject
 	public Standalone(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
@@ -40,7 +43,7 @@ public class Standalone implements Runnable {
 		servlet.configure(configuration);
 	}
 
-	public void registerServlet(String path, HttpServlet servlet){
+	public void registerServlet(String path, HttpServlet servlet) {
 		servlets.put(path, servlet);
 	}
 
@@ -55,14 +58,20 @@ public class Standalone implements Runnable {
 			}
 			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue(), varConfig));
 		}
-		server.setExecutor(Executors.newCachedThreadPool());
+		threadPool = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("var-http-thread-pool-%d").build());
+		server.setExecutor(threadPool);
 		server.start();
 		started.complete(true);
 		logger.info("var-http started");
 	}
 
 	public void stop() {
-		server.stop(0);
+		if (server != null) {
+			server.stop(1); //stop listening and await(block) for at most 1 sec while all the current requests are done
+		}
+		if (threadPool != null) {
+			threadPool.shutdownNow();
+		}
 	}
 
 	public VarServlet getServlet() {
