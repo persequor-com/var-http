@@ -74,7 +74,7 @@ public class ControllerExecution  {
 	private void fail(int responseCode, Throwable e, HttpServletResponse response) {
 		logger.error("Controller execution failed", e);
 		response.setStatus(500);
-		fail(responseCode, e.getClass().getName() + " \n" + e.getMessage(), response);
+		fail(responseCode, e.getClass().getName() + " " + e.getMessage(), response);
 	}
 
 	public void fail(int responseCode, String message, HttpServletResponse response) {
