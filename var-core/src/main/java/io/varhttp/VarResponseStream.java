@@ -57,9 +57,7 @@ public class VarResponseStream implements ResponseStream {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
 
 			if (object instanceof String) {
-				forcedContentType = forcedContentType != null ? forcedContentType : "text/plain";
-
-				String contentType = getContentType(forcedContentType, false);
+				String contentType = getContentType(forcedContentType != null ? forcedContentType : "text/plain", false);
 				streamWriter.write((String) object);
 				response.setContentType(contentType);
 			} else {
