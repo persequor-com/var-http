@@ -56,15 +56,15 @@ public class VarResponseStream implements ResponseStream {
 	public void write(Object object, String forcedContentType) {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
 
+			String contentType;
 			if (object instanceof String) {
-				String contentType = getContentType(forcedContentType != null ? forcedContentType : "text/plain", false);
+				contentType = getContentType(forcedContentType != null ? forcedContentType : "text/plain", false);
 				streamWriter.write((String) object);
-				response.setContentType(contentType);
 			} else {
-				String contentType = getContentType(forcedContentType, true);
+				contentType = getContentType(forcedContentType, true);
 				serializer.serialize(streamWriter, object, contentType);
-				response.setContentType(contentType);
 			}
+			response.setContentType(contentType);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
