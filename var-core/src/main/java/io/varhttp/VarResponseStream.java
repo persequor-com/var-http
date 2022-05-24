@@ -61,8 +61,7 @@ public class VarResponseStream implements ResponseStream {
 				streamWriter.write((String) object);
 				response.setContentType(validContentTypes.getHighestPriority().getType());
 			} else {
-				ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
-				String contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority().getType();
+				String contentType = getContentTypeForObject(forcedContentType);
 				serializer.serialize(streamWriter, object, contentType);
 				response.setContentType(contentType);
 			}
@@ -70,6 +69,17 @@ public class VarResponseStream implements ResponseStream {
 			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private String getContentTypeForObject(String forcedContentType) {
+		ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
+
+		try {
+			return validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority().getType();
+
+		} catch (ContentTypeException e) {
+			throw new ContentTypeException("Requested Content-Type " + forcedContentType + " is not supported");
 		}
 	}
 }
