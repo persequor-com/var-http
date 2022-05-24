@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 public class VarResponseStream implements ResponseStream {
 
@@ -55,16 +56,15 @@ public class VarResponseStream implements ResponseStream {
 	public void write(Object object, String forcedContentType) {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
 
+			String contentType;
 			if (object instanceof String) {
-				String contentType = forcedContentType != null ? forcedContentType : "text/plain";
-				ContentTypes validContentTypes = context.acceptedTypes().limitTo(contentType);
+				contentType = getContentType(forcedContentType != null ? forcedContentType : "text/plain", false);
 				streamWriter.write((String) object);
-				response.setContentType(validContentTypes.getHighestPriority().getType());
 			} else {
-				String contentType = getContentTypeForObject(forcedContentType);
+				contentType = getContentType(forcedContentType, true);
 				serializer.serialize(streamWriter, object, contentType);
-				response.setContentType(contentType);
 			}
+			response.setContentType(contentType);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -72,14 +72,30 @@ public class VarResponseStream implements ResponseStream {
 		}
 	}
 
-	private String getContentTypeForObject(String forcedContentType) {
+	private String getContentType(String forcedContentType, boolean limitToSerializerSupportTypes) {
 		ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
 
-		try {
-			return validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority().getType();
-
-		} catch (ContentTypeException e) {
-			throw new ContentTypeException("Requested Content-Type " + forcedContentType + " is not supported");
+		if(validContentTypes.isEmpty()) {
+			return throwContentTypeError(context.acceptedTypes());
 		}
+
+		try {
+			if(limitToSerializerSupportTypes) {
+				validContentTypes = validContentTypes.limitTo(serializer.supportedTypes());
+			}
+
+			return validContentTypes.getHighestPriority().getType();
+		} catch (ContentTypeException e) {
+			return throwContentTypeError(validContentTypes);
+		}
+	}
+
+	private String throwContentTypeError(ContentTypes contentTypes) throws ContentTypeException {
+		String accepted = contentTypes
+				.stream()
+				.map(ContentTypes.ContentType::getType)
+				.collect(Collectors.joining(","));
+
+		throw new ContentTypeException("Requested Content-Type " + accepted + " is not supported");
 	}
 }

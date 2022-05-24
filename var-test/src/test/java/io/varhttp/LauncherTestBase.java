@@ -367,14 +367,19 @@ public abstract class LauncherTestBase {
 
 	@Test
 	public void noSerializerCustomContentType_unhappy() throws Throwable {
-		varClient.get("/no-serializer-custom-content-type-response-helper")
+		String response = varClient.get("/no-serializer-custom-content-type-response-helper")
 				.accept("my/xml")
 				.execute()
-				.isUnsupportedMediaType();
+				.isUnsupportedMediaType()
+				.getContent();
 
-		varClient.get("/no-serializer-custom-content-type-annotation")
+		assertEquals("io.varhttp.ContentTypeException Requested Content-Type my/xml is not supported", response);
+
+		response = varClient.get("/no-serializer-custom-content-type-annotation")
 				.accept("my/xml")
 				.execute()
-				.isUnsupportedMediaType();
+				.isUnsupportedMediaType()
+				.getContent();
+		assertEquals("io.varhttp.ContentTypeException Requested Content-Type my/xml is not supported", response);
 	}
 }
