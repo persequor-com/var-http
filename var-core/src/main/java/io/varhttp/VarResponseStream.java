@@ -80,11 +80,15 @@ public class VarResponseStream implements ResponseStream {
 		}
 
 		try {
+			ContentTypes.ContentType contentType;
+
 			if(limitToSerializerSupportTypes) {
-				validContentTypes = validContentTypes.limitTo(serializer.supportedTypes());
+				contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority();
+			} else {
+				contentType = validContentTypes.getHighestPriority();
 			}
 
-			return validContentTypes.getHighestPriority().getType();
+			return contentType.getType();
 		} catch (ContentTypeException e) {
 			return throwContentTypeError(validContentTypes);
 		}
