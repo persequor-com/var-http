@@ -373,13 +373,13 @@ public abstract class LauncherTestBase {
 				.isUnsupportedMediaType()
 				.getContent();
 
-		assertEquals("io.varhttp.ContentTypeException Requested Content-Type my/xml is not supported", response);
+		assertEquals("io.varhttp.ContentTypeException Requested Content-Type 'my/xml' is not supported", response);
 
 		response = varClient.get("/no-serializer-custom-content-type-annotation")
 				.accept("my/xml")
 				.execute()
 				.isUnsupportedMediaType()
 				.getContent();
-		assertEquals("io.varhttp.ContentTypeException Requested Content-Type my/xml is not supported", response);
+		assertEquals("io.varhttp.ContentTypeException Requested Content-Type 'my/xml' is not supported", response);
 	}
 }

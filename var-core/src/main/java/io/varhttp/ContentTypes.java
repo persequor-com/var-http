@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
@@ -36,9 +37,9 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 		types.forEach(this::add);
 	}
 
-	public ContentType getHighestPriority() {
+	public ContentType getHighestPriority(ContentTypes requestedContentTypes) {
 		if (isEmpty()) {
-			throw new ContentTypeException("Requested Content-Type is not supported");
+			throw new ContentTypeException(String.format("Requested Content-Type '%s' is not supported", requestedContentTypes));
 		}
 		return this.first();
 	}
@@ -151,5 +152,10 @@ public class ContentTypes extends TreeSet<ContentTypes.ContentType> {
 			result = 31 * result + (int) (temp ^ (temp >>> 32));
 			return result;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return this.stream().map(ContentType::getType).collect(Collectors.joining(","));
 	}
 }
