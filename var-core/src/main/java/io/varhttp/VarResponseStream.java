@@ -25,7 +25,7 @@ public class VarResponseStream implements ResponseStream {
 	@Override
 	public BufferedWriter getContentWriter(String fileName, String contentType, Charset charset) {
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + fileName + '"');
-		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority().getType());
+		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority(context.acceptedTypes()).getType());
 		response.setCharacterEncoding(charset.name());
 		try {
 			return new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(response.getOutputStream()), charset));
@@ -36,7 +36,7 @@ public class VarResponseStream implements ResponseStream {
 
 	@Override
 	public OutputStream getOutputStream(String contentType, Charset charset) {
-		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority().getType());
+		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority(context.acceptedTypes()).getType());
 		if(charset != null) {
 			response.setCharacterEncoding(charset.name());
 		}
@@ -56,50 +56,21 @@ public class VarResponseStream implements ResponseStream {
 	public void write(Object object, String forcedContentType) {
 		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
 
-			String contentType;
 			if (object instanceof String) {
-				contentType = getContentType(forcedContentType != null ? forcedContentType : "text/plain", false);
+				String contentType = forcedContentType != null ? forcedContentType : "text/plain";
+				ContentTypes validContentTypes = context.acceptedTypes().limitTo(contentType);
+				response.setContentType(validContentTypes.getHighestPriority(context.acceptedTypes()).getType());
 				streamWriter.write((String) object);
 			} else {
-				contentType = getContentType(forcedContentType, true);
+				ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
+				String contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority(context.acceptedTypes()).getType();
+				response.setContentType(contentType);
 				serializer.serialize(streamWriter, object, contentType);
 			}
-			response.setContentType(contentType);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private String getContentType(String forcedContentType, boolean limitToSerializerSupportTypes) {
-		ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
-
-		if(validContentTypes.isEmpty()) {
-			return throwContentTypeError(context.acceptedTypes());
-		}
-
-		try {
-			ContentTypes.ContentType contentType;
-
-			if(limitToSerializerSupportTypes) {
-				contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority();
-			} else {
-				contentType = validContentTypes.getHighestPriority();
-			}
-
-			return contentType.getType();
-		} catch (ContentTypeException e) {
-			return throwContentTypeError(validContentTypes);
-		}
-	}
-
-	private String throwContentTypeError(ContentTypes contentTypes) throws ContentTypeException {
-		String accepted = contentTypes
-				.stream()
-				.map(ContentTypes.ContentType::getType)
-				.collect(Collectors.joining(","));
-
-		throw new ContentTypeException("Requested Content-Type " + accepted + " is not supported");
 	}
 }
