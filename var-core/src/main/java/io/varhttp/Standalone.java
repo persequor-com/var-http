@@ -28,7 +28,7 @@ public class Standalone implements Runnable {
 	private final HttpServerFactory serverFactory;
 	private HttpServer server;
 	private final Map<String, HttpServlet> servlets = new LinkedHashMap<>();
-	private ExecutorService threadPool;
+	private ExecutorService executor;
 
 	@Inject
 	public Standalone(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
@@ -58,8 +58,10 @@ public class Standalone implements Runnable {
 			}
 			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue(), varConfig));
 		}
-		threadPool = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("var-http-thread-pool-%d").build());
-		server.setExecutor(threadPool);
+		if (executor == null) {
+			executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("var-http-thread-pool-%d").build());
+		}
+		server.setExecutor(executor);
 		server.start();
 		started.complete(true);
 		logger.info("var-http started");
@@ -69,8 +71,8 @@ public class Standalone implements Runnable {
 		if (server != null) {
 			server.stop(1); //stop listening and await(block) for at most 1 sec while all the current requests are done
 		}
-		if (threadPool != null) {
-			threadPool.shutdownNow();
+		if (executor != null) {
+			executor.shutdownNow();
 		}
 	}
 
@@ -92,5 +94,14 @@ public class Standalone implements Runnable {
 
 	public void setSslContext(KeyStore keyStore, char[] password) {
 		serverFactory.setSslContext(keyStore, password);
+	}
+
+	/**
+	 * In case no executor is set the default one will be used: Executors.newCachedThreadPool
+	 *
+	 * @param executor an executor to be used to process HTTP requests
+	 */
+	public void setExecutor(ExecutorService executor) {
+		this.executor = executor;
 	}
 }
