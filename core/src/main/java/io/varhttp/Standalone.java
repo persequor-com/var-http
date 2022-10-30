@@ -31,7 +31,7 @@ public class Standalone implements Runnable {
 	public Standalone(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
 					  ObjectFactory objectFactory, ControllerFilter controllerFilter, HttpServerFactory serverFactory) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter);
+		this.servlet = new VarServlet(parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, null, null);
 		servlets.put("/", servlet);
 		this.serverFactory = serverFactory;
 	}
@@ -55,6 +55,7 @@ public class Standalone implements Runnable {
 			}
 			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue(), varConfig));
 		}
+
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.start();
 		started.complete(true);
@@ -63,6 +64,7 @@ public class Standalone implements Runnable {
 
 	public void stop() {
 		server.stop(0);
+		servlets.values().forEach(HttpServlet::destroy);
 	}
 
 	public VarServlet getServlet() {

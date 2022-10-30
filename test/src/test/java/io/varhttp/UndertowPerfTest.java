@@ -10,27 +10,21 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
-public class PerfTest {
-	static PerfLauncher launcher;
+public class UndertowPerfTest {
+	static LauncherUndertow launcher;
 	static Thread thread;
 
 	@BeforeClass
 	public static void setup() throws InterruptedException, ExecutionException, TimeoutException {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)));
-		launcher = odinJector.getInstance(PerfLauncher.class);
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext());
+		launcher = odinJector.getInstance(LauncherUndertow.class);
 		thread = new Thread(launcher);
 		thread.run();
 		launcher.isStarted().get(5, TimeUnit.SECONDS);
@@ -55,10 +49,11 @@ public class PerfTest {
 				for (int i = 0; i < reps; i++) {
 					int classnum = (int) (Math.random() * 7) + 1;
 					int methodNum = (int) (Math.random() * 5) + 1;
-					String path = "http://localhost:8089/class" + classnum + "/controller" + methodNum+"/muhbuh?name="+classnum+methodNum;
+					String path = "http://localhost:8088/class" + classnum + "/controller" + methodNum+"/muhbuh?name="+classnum+methodNum;
+					System.out.println(path);
 					try {
 						HttpURLConnection con = HttpClient.post(path, body, "text/plain");
-
+						assertEquals(200,con.getResponseCode());
 						String output = HttpClient.readContent(con).toString();
 						assertEquals("muh", output);
 					} catch (Exception e) {

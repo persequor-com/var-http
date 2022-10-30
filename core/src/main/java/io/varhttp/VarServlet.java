@@ -1,7 +1,12 @@
 package io.varhttp;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,18 +14,23 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VarServlet extends HttpServlet {
 	private final BaseVarConfigurationContext baseConfigurationContext;
 	Logger logger = LoggerFactory.getLogger(VarServlet.class);
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
+	private List<VarWebSocket> webSockets = new ArrayList<>();
+	private ExecutorService executorService = Executors.newCachedThreadPool();
+	private RegisteredWebSockets registeredWebSockets;
 
-	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
+	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
+		this.registeredWebSockets = registeredWebSockets;
 
-		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter);
+		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
 		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 
@@ -95,10 +105,24 @@ public class VarServlet extends HttpServlet {
 		}
 	}
 
+
+
 	public void configure(Consumer<VarConfiguration> configuration) {
-		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler);
+		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler, registeredWebSockets, null);
 		configuration.accept(varConfiguration);
 		baseConfigurationContext.applyMappings();
 		varConfiguration.applyMappings();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		for (VarWebSocket webSocket : webSockets) {
+			try {
+				webSocket.close();
+			} catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		}
 	}
 }

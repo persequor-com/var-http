@@ -28,12 +28,16 @@ public class VarConfigurationContextTest {
     private Method notFoundControllerMethod;
 
     private VarConfigurationContext varConfigurationContext;
+    @Mock
+    private RegisteredWebSockets registeredWebSockets;
+    @Mock
+    private IWebSocketProvider webSocketProvider;
 
     @Before
     public void setUp() throws NoSuchMethodException {
         notFoundControllerMethod = VarConfigurationContextTest.class.getMethod("notFound");
 
-        varConfigurationContext = new VarConfigurationContext(servlet, baseContext, parameterHandler);
+        varConfigurationContext = new VarConfigurationContext(servlet, baseContext, parameterHandler, registeredWebSockets, webSocketProvider);
     }
 
     @Test

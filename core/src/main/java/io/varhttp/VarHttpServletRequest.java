@@ -17,10 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,12 +31,12 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	private final HttpExchange ex;
 	private final Map<String, String[]> postData;
-	private final ServletInputStream is;
+	private final InputStream is;
 	private final Map<String, Object> attributes = new HashMap<>();
 	private final ServletContext context;
 	private final VarConfig config;
 
-	public VarHttpServletRequest(HttpExchange ex, Map<String, String[]> postData, ServletInputStream is, ServletContext context, VarConfig config) {
+	public VarHttpServletRequest(HttpExchange ex, Map<String, String[]> postData, InputStream is, ServletContext context, VarConfig config) {
 		this.ex = ex;
 		this.postData = postData;
 		this.is = is;
@@ -205,7 +202,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
-		return is;
+		return new WrappedServletInputStream(is);
 	}
 
 	@Override

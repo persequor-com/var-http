@@ -63,6 +63,11 @@ public class VarClientHttp implements VarClient {
 	}
 
 	@Override
+	public VarClientRequest webSocket(String path) {
+		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.get(serverUrl + basePath + path + apiRequest.parameters.toPath(), ""), true));
+	}
+
+	@Override
 	public VarClientRequest delete(String path) {
 		return new VarClientRequest(defaultHeaders, serializer, apiRequest -> toResponse(apiRequest, HttpClient.delete(serverUrl + basePath + path + apiRequest.parameters.toPath())));
 	}
@@ -73,6 +78,10 @@ public class VarClientHttp implements VarClient {
 	}
 
 	private HttpResponse toResponse(VarClientRequest varClientRequest, HttpURLConnection conn) throws IOException {
+		return toResponse(varClientRequest, conn, false);
+	}
+
+	private HttpResponse toResponse(VarClientRequest varClientRequest, HttpURLConnection conn, boolean upgradeToWebsocket) throws IOException {
 		varClientRequest.headers.forEach((name, values) -> {
 					for (String value : values) {
 						conn.addRequestProperty(name, value);
@@ -80,17 +89,31 @@ public class VarClientHttp implements VarClient {
 				}
 		);
 
+		HttpResponse httpResponse = new HttpResponse();
+
 		if(varClientRequest.content!=null && !varClientRequest.content.isEmpty()){
 			conn.setDoOutput(true);
-			DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+			httpResponse.setOutputStream(conn.getOutputStream());
+			DataOutputStream out = new DataOutputStream(httpResponse.getOutputStream());
 			out.writeBytes(varClientRequest.content);
 			out.flush();
 			out.close();
+		} else if (upgradeToWebsocket) {
+//			conn.setDoOutput(true);
+//			httpResponse.setOutputStream(conn.getOutputStream());
+//			DataOutputStream out = new DataOutputStream(httpResponse.getOutputStream());
+//			out.flush();
 		}
 
-		HttpResponse httpResponse = new HttpResponse();
 
-		httpResponse.setContent(HttpClient.readContent(conn).toString());
+//		if (httpResponse.getStatusCode() != 101) {
+		StringBuffer response = HttpClient.readContent(conn, httpResponse);
+		if (response != null) {
+			httpResponse.setContent(response.toString());
+		}
+//		} else {
+//			httpResponse.setContent(HttpClient.readContent(conn, httpResponse, false).toString());
+//		}
 
 		httpResponse.setContentType(conn.getContentType());
 		httpResponse.setContentEncoding(conn.getContentEncoding());

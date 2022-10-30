@@ -24,13 +24,18 @@ public class VarConfigurationContext {
 	List<Runnable> mappings = new ArrayList<>();
 	ControllerListener onControllerAdd;
 
+	private RegisteredWebSockets registeredWebSockets;
+	private IWebSocketProvider webSocketProvider;
+
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
-								   ParameterHandler parameterHandler) {
+								   ParameterHandler parameterHandler, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
 		this.varServlet = varServlet;
 		this.parameterHandler = parameterHandler;
 		this.parentContext = parentContext;
+		this.registeredWebSockets = registeredWebSockets;
+		this.webSocketProvider = webSocketProvider;
 	}
-	
+
 	ParameterHandler getParameterHandler() {
 		if (parameterHandler == null) {
 			return parentContext.getParameterHandler();
@@ -104,7 +109,15 @@ public class VarConfigurationContext {
 		replaceAll(filters, getFilterAnnotations(method.getDeclaringClass().getAnnotations()));
 		replaceAll(filters, getFilterAnnotations(method.getClass().getAnnotations()));
 		replaceAll(filters, getFilterAnnotations(method.getAnnotations()));
+		replaceAll(filters, getWebsocketFilters(method));
 		return getFilters(method, filters);
+	}
+
+	private Set<FilterTuple> getWebsocketFilters(Method method) {
+		if (method.isAnnotationPresent(WebSocket.class)) {
+			return new HashSet<>(Collections.singletonList(new FilterTuple(webSocketProvider.getWebsocketFilterClass())));
+		}
+		return Collections.emptySet();
 	}
 
 
@@ -118,7 +131,7 @@ public class VarConfigurationContext {
 		List<Object> filters = new ArrayList<>(getInitializedDefaultFilters(method));
 		filters.addAll(getInitializedVarDefaultFilterExecutions(method));
 		filters.addAll(filterAnnotations.stream().map(f -> {
-			Class<?> filterClass = f.getFilter().value();
+			Class<?> filterClass = f.getFilterClass();
 			if (Filter.class.isAssignableFrom(filterClass)) {
 				return getAndInitializeFilter(method, f);
 			} else {

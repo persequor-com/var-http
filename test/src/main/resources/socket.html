@@ -1,0 +1,37 @@
+<html>
+<head>
+    <script type="text/javascript">
+document.cookie = 'X-Authorization=authToken; path=/';
+let socket = new WebSocket("ws://localhost:8088/api/socketInit", []);
+
+socket.onopen = function(e) {
+    alert("[open] Connection established");
+    alert("Sending to server");
+    socket.send(JSON.stringify({'id':'My name is john'}));
+};
+
+socket.onmessage = function(event) {
+    alert(`[message] Data received from server: ${event.data}`);
+};
+
+socket.onclose = function(event) {
+    if (event.wasClean) {
+        console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+        console.log('[close] Connection died');
+    }
+};
+
+socket.onerror = function(error) {
+    console.log(`[error] ${error.message}`);
+};
+
+function sendMessage() {
+    socket.send(JSON.stringify({'id':'My name is john'}));
+}
+    </script>
+</head>
+<input type="button" onclick="sendMessage()" value="Send" />
+</html>

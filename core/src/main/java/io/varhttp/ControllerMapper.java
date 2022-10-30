@@ -53,6 +53,7 @@ public class ControllerMapper {
 						if (onControllerAdd != null) {
 							onControllerAdd.onAdd(urlMapKey, method);
 						}
+
 						context.addExecution(controllerClass, method, urlMapKey, classPath, matchResult.get(), context);
 					} catch (Exception e) {
 						logger.error("Unable to register controller", e);

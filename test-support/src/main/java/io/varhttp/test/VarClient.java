@@ -9,6 +9,7 @@ public interface VarClient {
 	VarClientRequest post(String path);
 	VarClientRequest put(String path);
 	VarClientRequest get(String path);
+	VarClientRequest webSocket(String path);
 	VarClientRequest delete(String path);
 	VarClientRequest head(String path);
 }

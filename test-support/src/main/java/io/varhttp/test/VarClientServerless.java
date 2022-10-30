@@ -62,6 +62,11 @@ public class VarClientServerless implements VarClient {
 	}
 
 	@Override
+	public VarClientRequest webSocket(String path) {
+		throw new RuntimeException("Websockets does not yet work in serverless tests");
+	}
+
+	@Override
 	public VarClientRequest delete(String path) {
 		return new VarClientRequest(defaultHeaders,
 				serializer, apiRequest -> executeRequest(path, "DELETE", apiRequest, varServlet));

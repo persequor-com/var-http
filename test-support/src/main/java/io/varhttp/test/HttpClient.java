@@ -23,25 +23,42 @@ public class HttpClient {
 	private static SSLContext sslContext;
 
 	public static StringBuffer readContent(HttpURLConnection con) throws IOException {
+		return readContent(con, null, true);
+	}
+
+	public static StringBuffer readContent(HttpURLConnection con, HttpResponse httpResponse) throws IOException {
+		return readContent(con, httpResponse, true);
+	}
+
+	public static StringBuffer readContent(HttpURLConnection con, HttpResponse httpResponse, boolean closeConnection) throws IOException {
 		InputStream inputStream = getInputStream(con);
+		closeConnection = con.getResponseCode() != 101;
+		if (httpResponse != null) {
+			httpResponse.setInputStream(inputStream);
+		}
 		if (inputStream == null) {
 			return new StringBuffer();
 		}
-		BufferedReader in = new BufferedReader(
-				new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-		String inputLine;
-		StringBuffer content = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			content.append(inputLine);
+		if (con.getResponseCode() != 101) {
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+			String inputLine;
+
+			StringBuffer content = new StringBuffer();
+			while ((inputLine = in.readLine()) != null) {
+				content.append(inputLine);
+			}
+			in.close();
+			con.disconnect();
+			return content;
 		}
-		in.close();
-		con.disconnect();
-		return content;
+
+		return null;
 	}
 
 	private static InputStream getInputStream(HttpURLConnection conn) throws IOException {
 		int statusCode = conn.getResponseCode();
-		if (statusCode >= 200 && statusCode < 400) {
+		if ((statusCode >= 200 && statusCode < 400) || statusCode == 101) {
 			// Create an InputStream in order to extract the response object
 			return conn.getInputStream();
 		} else {

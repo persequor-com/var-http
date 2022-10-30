@@ -9,12 +9,7 @@ import javax.servlet.ReadListener;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,31 +30,17 @@ public class VarHttpContext implements HttpHandler {
 
 	@Override
 	public void handle(HttpExchange ex) throws IOException {
-		byte[] inBytes = getBytes(ex.getRequestBody());
-		ex.getRequestBody().close();
-		final ByteArrayInputStream newInput = new ByteArrayInputStream(inBytes);
-		final ServletInputStream is = new ServletInputStream() {
 
-			@Override
-			public boolean isFinished() {
-				return newInput.available() == 0;
-			}
+//		InputStream requestBody = ex.getRequestBody();
+//		byte[] inBytes = getBytes(ex.getRequestBody());
+//		ex.getRequestBody().close();
+//		ex.getRequestBody().close();
+//		final ByteArrayInputStream newInput = new ByteArrayInputStream(inBytes);
+		ex.setStreams(new VarWrappedInputStream(ex.getRequestBody()), new VarWrappedOutputStream(ex.getResponseBody()));
+		InputStream newInput = ex.getRequestBody();
 
-			@Override
-			public boolean isReady() {
-				return newInput.available() > 0;
-			}
+		InputStream is = newInput;
 
-			@Override
-			public void setReadListener(ReadListener readListener) {
-				throw new RuntimeException("?");
-			}
-
-			@Override
-			public int read() throws IOException {
-				return newInput.read();
-			}
-		};
 
 		Map<String, List<String>> parsePostData = new HashMap<>();
 
@@ -74,7 +55,7 @@ public class VarHttpContext implements HttpHandler {
 				parsePostData.putAll(HttpHelper.parseQueryString(wwwForm));
 			}
 		} finally {
-			newInput.reset();
+//			is.reset();
 		}
 		final Map<String, String[]> postData = parsePostData.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 

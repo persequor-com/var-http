@@ -37,13 +37,17 @@ public class ExecutionMapTest {
 	private VarServlet servlet;
 	@Mock
 	private ParameterHandler parameterHandler;
+	@Mock
+	private RegisteredWebSockets registeredWebSockets;
+	@Mock
+	private IWebSocketProvider webSocketProvider;
 
 	@Before
 	public void setup() {
 		when(parentContext.getNotFoundController()).thenReturn(parentContextExe);
 		executionMap = new ExecutionMap(parentContext);
-		context = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
-		otherContext = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
+		context = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler, registeredWebSockets, webSocketProvider));
+		otherContext = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler, registeredWebSockets, webSocketProvider));
 	}
 
 	@Test
