@@ -4,6 +4,8 @@ import io.odinjector.OdinJector;
 import io.varhttp.test.VarClient;
 import io.varhttp.test.VarClientHttp;
 import io.varhttp.test.VarClientResponse;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,48 +42,37 @@ public class VarWebSocketIT  {
 
     @Test
     public void happyPath() throws Throwable {
-        VarClientResponse response = varClient
-                .webSocket("/api/socketInit")
-                .header("Sec-WebSocket-Key", "7WdRDSTRc2boRfvbRnQakg==")
-                .header("Sec-WebSocket-Version", "13")
-                .header("Upgrade", "websocket")
-                .header("Authorization", "My user")
-                .execute();
-        System.out.println(response.getContent());
-        response.assertStatusCode(101);
 
-        InputStream inputStream = response.getInputStream();
-        OutputStream outputStream = response.getOutputStream();
-
-        outputStream.write(new byte[]{(byte) 129, (byte) 134, (byte) 167, (byte) 225, (byte) 225, (byte) 210, (byte) 198, (byte) 131, (byte) 130, (byte) 182, (byte) 194, (byte) 135});
-        outputStream.flush();
-//        outputStream.write("\n\n".getBytes());
-
-        byte[] frame = null;
-        for(int i=0;i<10;i++) {
+        WsClient wsClient = new WsClient(new URI("http://localhost:8088/api/socketInit"));
 
 
-            if (inputStream.available() > 0) {
-                frame = helper.readFrame(inputStream);
-                String stringFrame = new String(frame);
-                assertEquals("Welcome My user", stringFrame);
-                break;
-            }
-            Thread.sleep(500);
-        }
-        if (frame == null) {
-            throw new RuntimeException("no frame?");
+    }
+
+    public static class WsClient extends WebSocketClient {
+
+        public WsClient(URI serverUri) {
+            super(serverUri);
         }
 
-
-        if (inputStream.available() > 0) {
-            frame = helper.readFrame(inputStream);
-            String stringFrame = new String(frame);
-            assertEquals("Welcome My user", stringFrame);
-        } else {
-            throw new RuntimeException("No frame?!");
+        @Override
+        public void onOpen(ServerHandshake handshakedata) {
+            assertEquals(101, handshakedata.getHttpStatus());
+            send("kilroy");
         }
 
-        int a = 0;
+        @Override
+        public void onMessage(String message) {
+            assertEquals("kilroy was here", message);
+        }
+
+        @Override
+        public void onClose(int code, String reason, boolean remote) {
+
+        }
+
+        @Override
+        public void onError(Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

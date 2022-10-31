@@ -14,7 +14,7 @@ dependencies {
     implementation group: 'io.undertow', name: 'undertow-servlet', version: '2.2.18.Final'
 // https://mvnrepository.com/artifact/io.undertow/undertow-websockets-jsr
     implementation group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.18.Final'
-
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 }
 
 test{
