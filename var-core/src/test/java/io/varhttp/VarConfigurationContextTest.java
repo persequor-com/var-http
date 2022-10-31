@@ -33,7 +33,7 @@ public class VarConfigurationContextTest {
     public void setUp() throws NoSuchMethodException {
         notFoundControllerMethod = VarConfigurationContextTest.class.getMethod("notFound");
 
-        varConfigurationContext = new VarConfigurationContext(servlet, baseContext, parameterHandler);
+        varConfigurationContext = new VarConfigurationContext(servlet, baseContext, parameterHandler, null, null);
     }
 
     @Test

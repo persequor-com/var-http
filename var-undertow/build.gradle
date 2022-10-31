@@ -1,0 +1,14 @@
+
+dependencies {
+// https://mvnrepository.com/artifact/io.undertow/undertow-core
+    implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.18.Final'
+// https://mvnrepository.com/artifact/io.undertow/undertow-servlet
+    implementation group: 'io.undertow', name: 'undertow-servlet', version: '2.2.18.Final'
+// https://mvnrepository.com/artifact/io.undertow/undertow-websockets-jsr
+    implementation group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.18.Final'
+    compile project(':var-core');
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation group: 'javax.inject', name: 'javax.inject', version: '1'
+    implementation 'org.slf4j:slf4j-api:1.7.26'
+
+}
