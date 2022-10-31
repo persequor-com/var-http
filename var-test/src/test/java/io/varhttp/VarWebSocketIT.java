@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 
 public class VarWebSocketIT  {
     protected static VarClient varClient;
-    protected static WebSocketHelper helper = new WebSocketHelper();
 
     private static LauncherUndertow launcher;
 
