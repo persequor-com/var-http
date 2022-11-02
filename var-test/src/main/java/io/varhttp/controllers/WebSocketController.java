@@ -5,6 +5,7 @@ import io.varhttp.*;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 @ControllerClass
 public class WebSocketController {
@@ -33,10 +34,18 @@ public class WebSocketController {
     public void js(ResponseStream response) {
         try {
             try(InputStream jsStream = WebSocketController.class.getResourceAsStream("/socket.html")) {
-                jsStream.transferTo(response.getOutputStream("text/html"));
+                transferTo(jsStream, response.getOutputStream("text/html"));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void transferTo(InputStream source, OutputStream target) throws IOException {
+        byte[] buf = new byte[8192];
+        int length;
+        while ((length = source.read(buf)) != -1) {
+            target.write(buf, 0, length);
         }
     }
 
