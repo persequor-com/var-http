@@ -92,4 +92,11 @@ public class VarHttpServletRequestTest {
 		when(httpContext.getServer()).thenReturn(httpServer);
 		assertFalse(request.isSecure());
 	}
+
+	@Test
+	public void getCookies_noEqualSign() {
+		when(headers.getFirst("Cookie")).thenReturn("I-am-the-cookie");
+		Cookie[] actual = request.getCookies();
+		assertEquals(0, actual.length);
+	}
 }
