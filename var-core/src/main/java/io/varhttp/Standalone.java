@@ -12,11 +12,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Standalone implements Runnable {
@@ -67,12 +69,22 @@ public class Standalone implements Runnable {
 		logger.info("var-http started");
 	}
 
-	public void stop() {
+	public void stop(Duration awaitTimeout) {
+		final long shutdownStart = System.currentTimeMillis();
 		if (server != null) {
-			server.stop(1); //stop listening and await(block) for at most 1 sec while all the current requests are done
+			server.stop((int) awaitTimeout.getSeconds()); //stop listening and await(block) for at most timeout seconds
 		}
 		if (executor != null) {
 			executor.shutdownNow();
+			final long timeoutLeft = awaitTimeout.toMillis() - (System.currentTimeMillis() - shutdownStart);
+			if (timeoutLeft > 0) {
+				try {
+					executor.awaitTermination(timeoutLeft, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return;
+				}
+			}
 		}
 	}
 
