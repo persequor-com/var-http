@@ -1,6 +1,8 @@
 package io.varhttp;
 
 import io.varhttp.controllers.MyTestController;
+
+import java.time.Duration;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 
@@ -28,7 +30,7 @@ public class Launcher implements Runnable {
 	}
 
 	public void stop() {
-		standalone.stop();
+		standalone.stop(Duration.ofSeconds(1));
 	}
 
 	public VarServlet getServlet() {
