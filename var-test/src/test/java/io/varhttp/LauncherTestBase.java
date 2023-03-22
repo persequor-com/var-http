@@ -2,7 +2,9 @@ package io.varhttp;
 
 import io.varhttp.test.VarClient;
 import org.junit.Test;
+import sun.misc.IOUtils;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -241,6 +243,17 @@ public abstract class LauncherTestBase {
 				.assertHeaderSize("Content-Type", 1)
 				.assertContentType("text/test")
 				.assertContent("tadaaa");
+	}
+
+	@Test
+	public void responseStream_getOutputStream_contentType_download() throws Throwable {
+		InputStream downloaded = varClient.post("/responseStream_getOutputStream_contentType")
+				.downloadable()
+				.execute()
+				.assertHeaderSize("Content-Type", 1)
+				.assertContentType("text/test")
+				.download();
+		assertEquals("tadaaa", new String(IOUtils.readAllBytes(downloaded)));
 	}
 
 	@Test
