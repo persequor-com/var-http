@@ -5,6 +5,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,15 @@ public class HttpClient {
 		in.close();
 		con.disconnect();
 		return content;
+	}
+
+	public static InputStream readDownloadableContent(HttpURLConnection con) throws IOException {
+		InputStream inputStream = getInputStream(con);
+		if (inputStream == null) {
+			return new ByteArrayInputStream(new byte[]{});
+		}
+		con.disconnect();
+		return inputStream;
 	}
 
 	private static InputStream getInputStream(HttpURLConnection conn) throws IOException {

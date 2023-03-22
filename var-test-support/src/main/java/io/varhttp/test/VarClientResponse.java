@@ -2,6 +2,7 @@ package io.varhttp.test;
 
 import io.varhttp.Serializer;
 
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -106,5 +107,9 @@ public class VarClientResponse {
 
 	public String getContent() {
 		return response.getContent();
+	}
+
+	public InputStream download() {
+		return response.getInputStream();
 	}
 }

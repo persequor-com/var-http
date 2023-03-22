@@ -12,6 +12,7 @@ public class VarClientRequest {
 	final HttpParameters parameters;
 	final HttpHeaders headers = new HttpHeaders();
 	String content = "";
+	boolean downloadable = false;
 
 	private final ThrowingFunction<VarClientRequest, HttpResponse, IOException> execution;
 	private final HttpHeaders defaultHeaders;
@@ -32,6 +33,11 @@ public class VarClientRequest {
 
 	public VarClientRequest header(String key, String... value) {
 		headers.add(key, Arrays.asList(value));
+		return this;
+	}
+
+	public VarClientRequest downloadable() {
+		this.downloadable = true;
 		return this;
 	}
 

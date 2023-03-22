@@ -1,5 +1,6 @@
 package io.varhttp.test;
 
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
 public class HttpResponse {
@@ -13,6 +14,7 @@ public class HttpResponse {
 	private int contentLoggingLimit;
 	private String mediaType;
 	private String statusMessage;
+	private InputStream inputStream;
 
 	public int getStatusCode() {
 		return statusCode;
@@ -93,5 +95,14 @@ public class HttpResponse {
 	public HttpResponse setStatusMessage(String statusMessage) {
 		this.statusMessage = statusMessage;
 		return this;
+	}
+
+	public HttpResponse setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+		return this;
+	}
+
+	public InputStream getInputStream() {
+		return inputStream;
 	}
 }
