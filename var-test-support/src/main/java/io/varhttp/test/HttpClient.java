@@ -45,7 +45,6 @@ public class HttpClient {
 		if (inputStream == null) {
 			return new ByteArrayInputStream(new byte[]{});
 		}
-		con.disconnect();
 		return inputStream;
 	}
 
