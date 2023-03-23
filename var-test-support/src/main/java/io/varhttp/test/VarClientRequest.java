@@ -12,8 +12,7 @@ public class VarClientRequest {
 	final HttpParameters parameters;
 	final HttpHeaders headers = new HttpHeaders();
 	String content = "";
-	boolean downloadable = false;
-
+	private ContentFormat contentFormat;
 	private final ThrowingFunction<VarClientRequest, HttpResponse, IOException> execution;
 	private final HttpHeaders defaultHeaders;
 	private final Serializer serializer;
@@ -23,7 +22,8 @@ public class VarClientRequest {
 		this.serializer = serializer;
 		this.execution = execution;
 		this.defaultHeaders = defaultHeaders;
-		parameters = new HttpParameters();
+		this.parameters = new HttpParameters();
+		this.contentFormat = ContentFormat.STRING_CONTENT;
 	}
 
 	public VarClientRequest parameter(String key, String... value) {
@@ -36,8 +36,12 @@ public class VarClientRequest {
 		return this;
 	}
 
-	public VarClientRequest downloadable() {
-		this.downloadable = true;
+	public ContentFormat getContentFormat() {
+		return contentFormat;
+	}
+
+	public VarClientRequest setContentFormat(ContentFormat contentFormat) {
+		this.contentFormat = contentFormat;
 		return this;
 	}
 
@@ -93,5 +97,10 @@ public class VarClientRequest {
 		serializer.serialize(writer, content, contentType);
 		this.content = writer.toString();
 		return this;
+	}
+
+	public enum ContentFormat {
+		STREAM_CONTENT,
+		STRING_CONTENT
 	}
 }

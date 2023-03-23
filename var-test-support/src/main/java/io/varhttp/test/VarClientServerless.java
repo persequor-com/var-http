@@ -5,7 +5,6 @@ import io.varhttp.VarServlet;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Base64;
@@ -78,16 +77,11 @@ public class VarClientServerless implements VarClient {
 		HttpServletRequest servletRequest = new TestServletRequest(varClientRequest, method, new URL("https://component-test-host" + basePath + path));
 		TestServletResponse servletResponse = new TestServletResponse();
 		varServlet.handle(servletRequest, servletResponse);
-		return toHttpResponse(servletResponse, varClientRequest.downloadable);
+		return toHttpResponse(servletResponse, varClientRequest.getContentFormat());
 	}
 
-	private HttpResponse toHttpResponse(TestServletResponse testServletResponse, boolean downloadable) throws IOException {
-		HttpResponse httpResponse = new HttpResponse();
-		if (downloadable) {
-			httpResponse.setInputStream(new ByteArrayInputStream(testServletResponse.outputStream.toByteArray()));
-		} else {
-			httpResponse.setContent(testServletResponse.outputStream.toString());
-		}
+	private HttpResponse toHttpResponse(TestServletResponse testServletResponse, VarClientRequest.ContentFormat contentFormat) throws IOException {
+		HttpResponse httpResponse = VarClient.getHttpResponseWithContent(contentFormat, testServletResponse);
 		httpResponse.setContentType(testServletResponse.getContentType());
 		httpResponse.setContentEncoding(testServletResponse.getCharacterEncoding());
 		HttpHeaders headers = new HttpHeaders();

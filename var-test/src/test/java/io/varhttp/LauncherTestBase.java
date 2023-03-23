@@ -1,6 +1,7 @@
 package io.varhttp;
 
 import io.varhttp.test.VarClient;
+import io.varhttp.test.VarClientRequest;
 import org.junit.Test;
 import sun.misc.IOUtils;
 
@@ -248,7 +249,7 @@ public abstract class LauncherTestBase {
 	@Test
 	public void responseStream_getOutputStream_contentType_download() throws Throwable {
 		InputStream downloaded = varClient.post("/responseStream_getOutputStream_contentType")
-				.downloadable()
+				.setContentFormat(VarClientRequest.ContentFormat.STREAM_CONTENT)
 				.execute()
 				.assertHeaderSize("Content-Type", 1)
 				.assertContentType("text/test")
