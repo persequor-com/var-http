@@ -46,7 +46,7 @@ public class DefaultFiltersTest {
 	@Test
 	public void defaultFilter() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
-		HttpClient.readContent(con);
+		HttpClient.readResponse(con);
 		List<String> result = filterCatcher.getResult();
 		assertEquals("Logging was called before\n/my-test\nLogging was called after", String.join("\n", result));
 	}

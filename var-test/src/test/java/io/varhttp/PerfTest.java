@@ -58,7 +58,7 @@ public class PerfTest {
 					try {
 						HttpURLConnection con = HttpClient.post(path, body, "text/plain");
 
-						String output = HttpClient.readContent(con).toString();
+						String output = HttpClient.readResponse(con).getContent();
 						assertEquals("muh", output);
 					} catch (Exception e) {
 						System.out.println(path+" failed");

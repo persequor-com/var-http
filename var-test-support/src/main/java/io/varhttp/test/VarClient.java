@@ -1,5 +1,9 @@
 package io.varhttp.test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+
 public interface VarClient {
 
 	VarClient withBasePath(String basePath);
