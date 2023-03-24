@@ -65,7 +65,7 @@ public class FilterOrderTest {
 	@Test
 	public void fullFilterOrder() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/filter-order", "");
-		HttpClient.readContent(con);
+		HttpClient.readResponse(con);
 		List<String> result = filterCatcher.getResult();
 		assertEquals("in;DefaultFilter1\n" +
 				"in;DefaultFilter2\n" +

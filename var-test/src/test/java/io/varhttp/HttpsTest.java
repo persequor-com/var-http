@@ -2,6 +2,7 @@ package io.varhttp;
 
 import io.odinjector.OdinJector;
 import io.varhttp.test.HttpClient;
+import io.varhttp.test.HttpResponse;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,8 +33,8 @@ public class HttpsTest {
 	public void simple() throws Throwable {
 		HttpURLConnection con = HttpClient.get("https://localhost:8089/my-test", "");
 
-		StringBuffer content = HttpClient.readContent(con);
+		HttpResponse httpResponse = HttpClient.readResponse(con);
 
-		assertEquals("Simple string", content.toString());
+		assertEquals("Simple string", httpResponse.getContent());
 	}
 }

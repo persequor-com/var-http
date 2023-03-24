@@ -81,7 +81,7 @@ public class VarClientServerless implements VarClient {
 	}
 
 	private HttpResponse toHttpResponse(TestServletResponse testServletResponse, VarClientRequest.ContentFormat contentFormat) throws IOException {
-		HttpResponse httpResponse = VarClient.getHttpResponseWithContent(contentFormat, testServletResponse);
+		HttpResponse httpResponse = HttpClient.readResponse(contentFormat, testServletResponse);
 		httpResponse.setContentType(testServletResponse.getContentType());
 		httpResponse.setContentEncoding(testServletResponse.getCharacterEncoding());
 		HttpHeaders headers = new HttpHeaders();

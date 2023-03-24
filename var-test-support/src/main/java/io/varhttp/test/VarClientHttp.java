@@ -88,7 +88,7 @@ public class VarClientHttp implements VarClient {
 			out.close();
 		}
 
-		HttpResponse httpResponse = VarClient.getHttpResponseWithContent(varClientRequest.getContentFormat(), conn);
+		HttpResponse httpResponse = HttpClient.readResponse(varClientRequest.getContentFormat(), conn);
 
 		httpResponse.setContentType(conn.getContentType());
 		httpResponse.setContentEncoding(conn.getContentEncoding());

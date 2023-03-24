@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ContextDependentTest {
 	static Standalone launcher;
@@ -68,11 +68,11 @@ public class ContextDependentTest {
 	@Test
 	public void contextDependentControllers() throws Throwable {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/contextdependent", "");
-		String actual = HttpClient.readContent(con).toString();
+		String actual = HttpClient.readResponse(con).getContent();
 		assertEquals("MyFirstContext", actual);
 
 		con = HttpClient.get("http://localhost:8088/anothercontextdependent", "");
-actual = HttpClient.readContent(con).toString();
+		actual = HttpClient.readResponse(con).getContent();
 		assertEquals("MySecondContext", actual);
 
 		assertEquals(1, FirstFilter.callCount.get());
@@ -95,6 +95,7 @@ actual = HttpClient.readContent(con).toString();
 
 	public static class FirstFilter implements Filter {
 		static AtomicInteger callCount = new AtomicInteger(0);
+
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 			callCount.incrementAndGet();
@@ -104,6 +105,7 @@ actual = HttpClient.readContent(con).toString();
 
 	public static class BaseFilter implements Filter {
 		static AtomicInteger callCount = new AtomicInteger(0);
+
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 			callCount.incrementAndGet();

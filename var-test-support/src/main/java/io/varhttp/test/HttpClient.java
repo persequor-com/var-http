@@ -6,6 +6,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +24,41 @@ import java.util.function.Consumer;
 public class HttpClient {
 	private static SSLContext sslContext;
 
-	public static StringBuffer readContent(HttpURLConnection con) throws IOException {
+	public static HttpResponse readResponse(VarClientRequest.ContentFormat contentFormat, HttpURLConnection conn) throws IOException {
+		return readResponse(contentFormat,
+				() -> readDownloadableContent(conn),
+				() -> readContent(conn).toString());
+	}
+
+	public static HttpResponse readResponse(HttpURLConnection conn) throws IOException {
+		return readResponse(VarClientRequest.ContentFormat.STRING_CONTENT,
+				() -> readDownloadableContent(conn),
+				() -> readContent(conn).toString());
+	}
+
+	static HttpResponse readResponse(VarClientRequest.ContentFormat contentFormat, TestServletResponse testServletResponse) throws IOException {
+		ByteArrayOutputStream outputStream = testServletResponse.outputStream;
+		return readResponse(contentFormat,
+				() -> new ByteArrayInputStream(testServletResponse.outputStream.toByteArray()),
+				outputStream::toString);
+	}
+
+	private static HttpResponse readResponse(VarClientRequest.ContentFormat contentFormat,
+											 Supplier<InputStream> inputStream, Supplier<String> stringContent) throws IOException {
+		HttpResponse httpResponse = new HttpResponse();
+		switch (contentFormat) {
+			case STREAM_CONTENT:
+				httpResponse.setInputStream(inputStream.get());
+				break;
+			case STRING_CONTENT:
+				httpResponse.setContent(stringContent.get());
+				break;
+			default:
+		}
+		return httpResponse;
+	}
+
+	private static StringBuffer readContent(HttpURLConnection con) throws IOException {
 		InputStream inputStream = getInputStream(con);
 		if (inputStream == null) {
 			return new StringBuffer();
@@ -40,7 +75,7 @@ public class HttpClient {
 		return content;
 	}
 
-	public static InputStream readDownloadableContent(HttpURLConnection con) throws IOException {
+	private static InputStream readDownloadableContent(HttpURLConnection con) throws IOException {
 		InputStream inputStream = getInputStream(con);
 		if (inputStream == null) {
 			return new ByteArrayInputStream(new byte[]{});
@@ -169,5 +204,10 @@ public class HttpClient {
 
 	public static HttpURLConnection put(String urlString) throws IOException {
 		return getConnection(urlString, "PUT");
+	}
+
+	@FunctionalInterface
+	private interface Supplier<T> {
+		T get() throws IOException;
 	}
 }

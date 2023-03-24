@@ -2,6 +2,7 @@ package io.varhttp;
 
 import io.odinjector.OdinJector;
 import io.varhttp.test.HttpClient;
+import io.varhttp.test.HttpResponse;
 import org.junit.After;
 import org.junit.Test;
 
@@ -31,9 +32,9 @@ public class IsRequestSecureTest {
 
         HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
 
-        StringBuffer content = HttpClient.readContent(con);
+        HttpResponse response  = HttpClient.readResponse(con);
 
-        assertEquals("true", content.toString());
+        assertEquals("true", response.getContent());
     }
 
     @Test
@@ -46,8 +47,8 @@ public class IsRequestSecureTest {
         HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
         headers.forEach(con::setRequestProperty);
 
-        StringBuffer content = HttpClient.readContent(con);
-        assertEquals("true", content.toString());
+        HttpResponse response = HttpClient.readResponse(con);
+        assertEquals("true", response.getContent());
 
         headers = new HashMap<>();
         headers.put("X-Forwarded-Proto", "http");
@@ -55,8 +56,8 @@ public class IsRequestSecureTest {
         con = HttpClient.get("http://localhost:8088/is-secure", "");
         headers.forEach(con::setRequestProperty);
 
-        content = HttpClient.readContent(con);
-        assertEquals("false", content.toString());
+        response = HttpClient.readResponse(con);
+        assertEquals("false", response.getContent());
     }
 
     @Test
@@ -66,9 +67,9 @@ public class IsRequestSecureTest {
 
         HttpURLConnection con = HttpClient.get("http://localhost:8088/is-secure", "");
 
-        StringBuffer content = HttpClient.readContent(con);
+        HttpResponse response = HttpClient.readResponse(con);
 
-        assertEquals("false", content.toString());
+        assertEquals("false", response.getContent());
     }
 
     private void createLauncher(VarConfig varConfig) {
