@@ -90,7 +90,7 @@ public class VarClientHttp implements VarClient {
 
 		HttpResponse httpResponse = new HttpResponse();
 
-		httpResponse.setContent(HttpClient.readContent(conn).toString());
+		httpResponse.setContent(HttpClient.readDownloadableContent(conn));
 
 		httpResponse.setContentType(conn.getContentType());
 		httpResponse.setContentEncoding(conn.getContentEncoding());
