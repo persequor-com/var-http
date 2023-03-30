@@ -22,6 +22,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
@@ -61,7 +62,7 @@ public class ContextDependentTest {
 
 	@AfterClass
 	public static void teardown() {
-		launcher.stop();
+		launcher.stop(Duration.ofSeconds(1));
 	}
 
 	@Test

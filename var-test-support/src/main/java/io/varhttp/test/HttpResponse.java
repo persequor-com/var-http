@@ -1,12 +1,21 @@
 package io.varhttp.test;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class HttpResponse {
 
 	private HttpHeaders headers;
 	private int statusCode;
+	private InputStream contentStream;
+
 	private String content;
+
 	private String contentType;
 	private String contentEncoding;
 	private Charset contentCharset;
@@ -22,13 +31,29 @@ public class HttpResponse {
 		this.statusCode = statusCode;
 		return this;
 	}
-
 	public String getContent() {
+		if (content == null) {
+			StringBuilder textBuilder = new StringBuilder();
+			try (Reader reader = new BufferedReader(new InputStreamReader(contentStream, StandardCharsets.UTF_8))) {
+				int c = 0;
+				while ((c = reader.read()) != -1) {
+					textBuilder.append((char) c);
+				}
+				return content = textBuilder.toString();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return content;
 	}
 
-	public HttpResponse setContent(String content) {
-		this.content = content;
+	public InputStream downloadContent() {
+		return contentStream;
+	}
+
+
+	public HttpResponse setContent(InputStream content) {
+		this.contentStream = content;
 		return this;
 	}
 
