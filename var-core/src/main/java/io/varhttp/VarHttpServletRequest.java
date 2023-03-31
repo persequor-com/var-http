@@ -225,7 +225,7 @@ public class VarHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getPathInfo() {
-		return ex.getRequestURI().getPath().substring(getServletPath().length());
+		return ex.getRequestURI().getPath();
 	}
 
 	@Override

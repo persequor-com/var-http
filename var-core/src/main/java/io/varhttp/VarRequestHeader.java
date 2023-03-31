@@ -30,7 +30,7 @@ public class VarRequestHeader implements RequestHeader {
 
 	@Override
 	public String getPath() {
-		return request.getPathInfo();
+		return request.getServletPath();
 	}
 
 	@Override

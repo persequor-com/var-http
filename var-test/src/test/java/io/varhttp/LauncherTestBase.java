@@ -2,8 +2,6 @@ package io.varhttp;
 
 import io.varhttp.test.VarClient;
 import org.junit.Test;
-import sun.misc.IOUtils;
-
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -261,7 +259,7 @@ public abstract class LauncherTestBase {
 				.assertHeaderSize("Content-Type", 1)
 				.assertContentType("text/test")
 				.downloadContent();
-		assertEquals("tadaaa", new String(IOUtils.readAllBytes(downloaded)));
+		assertEquals("tadaaa", new String(downloaded.readAllBytes()));
 	}
 
 	@Test

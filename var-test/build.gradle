@@ -1,20 +1,28 @@
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'io.odinjector:odinjector:0.0.1-50'
-    implementation 'org.slf4j:slf4j-simple:1.7.26'
-    implementation group: 'javax', name: 'javaee-web-api', version: '8.0.1'
-    compile project(':var-core');
-    testImplementation project(':var-test-support')
-    compile project(':var-serializer-guice');
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+    testImplementation 'org.mockito:mockito-core:3.1.0'
+    implementation'io.odinjector:odinjector:0.0.1-50'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.4'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.4'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.4'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4'
 
-    compile project(':var-undertow');
+    implementation group: 'javax', name: 'javaee-web-api', version: '8.0.1'
+    implementation project(':var-core');
+    testImplementation project(':var-test-support')
+    implementation project(':var-serializer-guice');
+
+    implementation project(':var-undertow');
     // https://mvnrepository.com/artifact/io.undertow/undertow-core
-    implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.18.Final'
+    implementation group: 'io.undertow', name: 'undertow-core', version: '2.2.23.Final'
 // https://mvnrepository.com/artifact/io.undertow/undertow-servlet
-    implementation group: 'io.undertow', name: 'undertow-servlet', version: '2.2.18.Final'
+    implementation group: 'io.undertow', name: 'undertow-servlet', version: '2.2.23.Final'
 // https://mvnrepository.com/artifact/io.undertow/undertow-websockets-jsr
-    implementation group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.18.Final'
+    implementation group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.23.Final'
     implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 }
 
