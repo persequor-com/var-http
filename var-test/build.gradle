@@ -1,6 +1,6 @@
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
     compile 'io.odinjector:odinjector:0.0.1-50'
     implementation 'org.slf4j:slf4j-simple:1.7.26'
     implementation group: 'javax', name: 'javaee-web-api', version: '8.0.1'
