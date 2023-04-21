@@ -4,6 +4,8 @@ allprojects {
 
     group 'io.var-http'
     version = project.findProperty('projVersion') ?: '1.0'
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 
     repositories {
         mavenCentral()
