@@ -124,6 +124,36 @@ public class VarServletTest {
 	}
 
 	@Test
+	public void handleGet_withRedirectAndQueryString_queryStringIsIgnored() throws IOException {
+		VarHttpServletRequest request = mock(VarHttpServletRequest.class);
+		when(request.getMethod()).thenReturn("GET");
+		when(request.getPathInfo()).thenReturn("/redirected-test");
+		when(request.getQueryString()).thenReturn("param1=value1&param2=value2");
+		when(request.getContentType()).thenReturn("application/json");
+		when(request.getCharacterEncoding()).thenReturn("UTF-8");
+		when(request.getServletPath()).thenReturn("");
+		when(request.getContextPath()).thenReturn("");
+		when(request.getRequestURI()).thenReturn("/redirected-test");
+		when(request.getRequestURL()).thenReturn(new StringBuffer("/redirected-test"));
+		VarHttpServletResponse response = mock(VarHttpServletResponse.class);
+
+		ControllerExecution usedController = mock(ControllerExecution.class);
+		servlet.executions.put(context, new Request(HttpMethod.GET, "/test"), usedController);
+		ControllerExecution unusedController = mock(ControllerExecution.class);
+		servlet.executions.put(context, new Request(HttpMethod.GET, "/other"), unusedController);
+
+		when(response.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+
+		servlet.redirect("/redirected-test", "/test");
+
+		servlet.doGet(request, response);
+
+		verify(usedController, times(1)).execute(any());
+		verify(unusedController, never()).execute(any());
+		verify(response, times(0)).setStatus(404);
+	}
+
+	@Test
 	public void handlePost_withRedirect_happyPath() throws IOException {
 		VarHttpServletRequest request = mock(VarHttpServletRequest.class);
 		when(request.getMethod()).thenReturn("POST");
