@@ -11,7 +11,7 @@ import java.lang.reflect.Parameter;
 
 @Singleton
 public class VarWebSocketHandler implements IParameterHandlerMatcher {
-    private RegisteredWebSockets registeredWebSockets;
+    private final RegisteredWebSockets registeredWebSockets;
 
     @Inject
     public VarWebSocketHandler(RegisteredWebSockets registeredWebSockets) {

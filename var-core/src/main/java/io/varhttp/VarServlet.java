@@ -22,8 +22,8 @@ public class VarServlet extends HttpServlet {
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
 	private List<VarWebSocket> webSockets = new ArrayList<>();
-	private ExecutorService executorService = Executors.newCachedThreadPool();
-	private RegisteredWebSockets registeredWebSockets;
+	private final ExecutorService executorService = Executors.newCachedThreadPool();
+	private final RegisteredWebSockets registeredWebSockets;
 
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
 		this.parameterHandler = parameterHandler;
