@@ -19,7 +19,8 @@ public class ControllerFiltersTest {
 
 	@BeforeClass
 	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new ControllerFilterContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new ControllerFilterContext())
+				.addContext(new UndertowContext());
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
 		launcher = odinJector.getInstance(Launcher.class);
 		launcher.run();
