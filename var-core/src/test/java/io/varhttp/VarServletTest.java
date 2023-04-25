@@ -3,17 +3,18 @@ package io.varhttp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletOutputStream;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.hamcrest.CoreMatchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VarServletTest {
@@ -124,7 +125,7 @@ public class VarServletTest {
 	}
 
 	@Test
-	public void handleGet_withRedirectAndQueryString_queryStringIsIgnored() throws IOException {
+	public void handleGet_withRedirectAndQueryString_queryStringDoesNotAffectRedirecting() throws IOException {
 		VarHttpServletRequest request = mock(VarHttpServletRequest.class);
 		when(request.getMethod()).thenReturn("GET");
 		when(request.getPathInfo()).thenReturn("/redirected-test");
@@ -147,6 +148,46 @@ public class VarServletTest {
 		servlet.redirect("/redirected-test", "/test");
 
 		servlet.doGet(request, response);
+
+		verify(usedController, times(1)).execute(any());
+		verify(unusedController, never()).execute(any());
+		verify(response, times(0)).setStatus(404);
+	}
+
+	@Test
+	public void handleGet_withRedirectAndQueryString_queryStringIsPreserved() throws IOException {
+		VarHttpServletRequest request = mock(VarHttpServletRequest.class);
+		when(request.getMethod()).thenReturn("GET");
+		when(request.getPathInfo()).thenReturn("/redirected-test");
+		when(request.getQueryString()).thenReturn("param1=value1&param2=value2");
+		when(request.getContentType()).thenReturn("application/json");
+		when(request.getCharacterEncoding()).thenReturn("UTF-8");
+		when(request.getServletPath()).thenReturn("");
+		when(request.getContextPath()).thenReturn("");
+		when(request.getRequestURI()).thenReturn("/redirected-test");
+		when(request.getRequestURL()).thenReturn(new StringBuffer("/redirected-test"));
+		VarHttpServletResponse response = mock(VarHttpServletResponse.class);
+
+		ControllerExecution usedController = mock(ControllerExecution.class);
+		servlet.executions.put(context, new Request(HttpMethod.GET, "/test"), usedController);
+		ControllerExecution unusedController = mock(ControllerExecution.class);
+		servlet.executions.put(context, new Request(HttpMethod.GET, "/other"), unusedController);
+
+		when(response.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+		CountDownLatch latch = new CountDownLatch(1);
+		doAnswer(invocation -> {
+			ControllerContext context = (ControllerContext) invocation.getArguments()[0];
+			if(context.getParameters().get("param1").equals("value1") &&
+					context.getParameters().get("param2").equals("value2")) {
+				latch.countDown();
+			}
+			return null;
+		}).when(usedController).execute(any());
+
+		servlet.redirect("/redirected-test", "/test");
+
+		servlet.doGet(request, response);
+
 
 		verify(usedController, times(1)).execute(any());
 		verify(unusedController, never()).execute(any());
