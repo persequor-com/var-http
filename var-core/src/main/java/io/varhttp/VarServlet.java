@@ -70,7 +70,7 @@ public class VarServlet extends HttpServlet {
 		Request r = new Request(httpMethod, servletPath);
 
 		final String[] requestPath;
-		if(redirects.containsKey(r.path)) {
+		if (redirects.containsKey(r.path)) {
 			requestPath = redirects.get(r.path).substring(1).split("/");
 		} else {
 			requestPath = r.path.substring(1).split("/");

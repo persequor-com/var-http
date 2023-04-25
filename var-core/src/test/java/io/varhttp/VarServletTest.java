@@ -4,16 +4,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletOutputStream;
-
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -177,7 +173,7 @@ public class VarServletTest {
 		CountDownLatch latch = new CountDownLatch(1);
 		doAnswer(invocation -> {
 			ControllerContext context = (ControllerContext) invocation.getArguments()[0];
-			if(context.getParameters().get("param1").equals("value1") &&
+			if (context.getParameters().get("param1").equals("value1") &&
 					context.getParameters().get("param2").equals("value2")) {
 				latch.countDown();
 			}
@@ -223,5 +219,4 @@ public class VarServletTest {
 		verify(unusedController, never()).execute(any());
 		verify(response, times(0)).setStatus(404);
 	}
-
 }
