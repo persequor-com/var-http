@@ -3,13 +3,13 @@ package io.varhttp;
 import io.varhttp.performance.Class1;
 
 import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public class PerfLauncher implements Runnable {
-	private Standalone standalone;
+	private VarUndertow standalone;
+
 	@Inject
-	public PerfLauncher(Standalone standalone) {
+	public PerfLauncher(VarUndertow standalone) {
 		this.standalone = standalone;
 	}
 

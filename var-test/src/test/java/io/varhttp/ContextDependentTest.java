@@ -27,16 +27,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 
 public class ContextDependentTest {
-	static Standalone launcher;
+	static VarUndertow launcher;
 	static Thread thread;
 	private static FilterCatcher filterCatcher;
 
 	@BeforeClass
 	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new ControllerFilterContext()).addContext(new Context1());
-		OdinJector odinJector2 = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new ControllerFilterContext()).addContext(new Context2());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext())
+				.addContext(new ControllerFilterContext()).addContext(new Context1());
+		OdinJector odinJector2 = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext())
+				.addContext(new ControllerFilterContext()).addContext(new Context2());
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
-		launcher = odinJector.getInstance(Standalone.class);
+		launcher = odinJector.getInstance(VarUndertow.class);
 		launcher.configure(baseConfiguration -> {
 			baseConfiguration.addDefaultFilter(BaseFilter.class);
 			baseConfiguration.configure(varConfiguration -> {

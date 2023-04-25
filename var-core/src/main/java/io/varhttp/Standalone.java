@@ -19,6 +19,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+
+/**
+ * Use undertow version instead. Since it has some bugs fixed and more features implemented(e.g. websockets)
+ */
+@Deprecated
 public class Standalone implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(Standalone.class);
 	private final CompletableFuture<Boolean> started = new CompletableFuture<>();

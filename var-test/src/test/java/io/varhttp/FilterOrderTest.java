@@ -21,15 +21,15 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class FilterOrderTest {
-	static Standalone launcher;
+	static VarUndertow launcher;
 	static Thread thread;
 	private static FilterCatcher filterCatcher;
 
 	@BeforeClass
 	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext());
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
-		launcher = odinJector.getInstance(Standalone.class);
+		launcher = odinJector.getInstance(VarUndertow.class);
 		launcher.configure(config -> {
 			config.addDefaultVarFilter(DefaultFilter1.class);
 			config.addDefaultVarFilter(DefaultFilter2.class);
