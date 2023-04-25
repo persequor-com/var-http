@@ -82,9 +82,7 @@ public class VarServlet extends HttpServlet {
 
 		if (exe != null) {
 			try {
-
 				exe.execute(new ControllerContext(request, response));
-
 			} catch (Exception e) {
 				logger.error("Execution failed: " + e.getMessage(), e);
 				response.setStatus(500);
@@ -103,7 +101,6 @@ public class VarServlet extends HttpServlet {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	public void configure(Consumer<VarConfiguration> configuration) {
 		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler);
