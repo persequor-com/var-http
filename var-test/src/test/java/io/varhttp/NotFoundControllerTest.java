@@ -23,7 +23,8 @@ public class NotFoundControllerTest {
 	@BeforeClass
 	public static void setup() {
 		OdinJector odinJector = OdinJector.create()
-				.addContext(new OdinContext(new VarConfig().setPort(8088)));
+				.addContext(new OdinContext(new VarConfig().setPort(8088)))
+				.addContext(new UndertowContext());
 
 		launcher = odinJector.getInstance(Launcher.class);
 		launcher.configure(config -> {
