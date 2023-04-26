@@ -8,9 +8,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -157,6 +163,11 @@ public class VarServletTest {
 		when(request.getMethod()).thenReturn("GET");
 		when(request.getPathInfo()).thenReturn("/redirected-test");
 		when(request.getQueryString()).thenReturn("param1=value1&param2=value2");
+		when(request.getParameterMap()).thenAnswer(invocation -> {
+			Map<String, List<String>> stringListMap = HttpHelper.parseQueryString(request.getQueryString());
+			return stringListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toArray(new String[0])));
+		});
+		when(context.getParameterHandler()).thenCallRealMethod();
 		when(request.getContentType()).thenReturn("application/json");
 		when(request.getCharacterEncoding()).thenReturn("UTF-8");
 		when(request.getServletPath()).thenReturn("");
@@ -184,8 +195,7 @@ public class VarServletTest {
 
 		servlet.doGet(request, response);
 
-		//noinspection ResultOfMethodCallIgnored Ignored since we only care if it fails
-		latch.await(100, TimeUnit.MILLISECONDS);
+		assertTrue(latch.await(1000, TimeUnit.MILLISECONDS));
 
 		verify(usedController, times(1)).execute(any());
 		verify(unusedController, never()).execute(any());
