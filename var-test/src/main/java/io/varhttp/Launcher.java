@@ -13,7 +13,7 @@ public class Launcher implements Runnable {
 	}
 
 	public void setSsl() {
-//		standalone.setSslContext(Launcher.class.getResourceAsStream("/test.pem"), Launcher.class.getResourceAsStream("/test.key"));
+		standalone.setSslContext(Launcher.class.getResourceAsStream("/test.pem"), Launcher.class.getResourceAsStream("/test.key"));
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class HttpsTest {
 
 	@BeforeClass
 	public static void setup() throws InterruptedException {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)));
+		OdinJector odinJector = OdinJector.create().addContext(new UndertowContext()).addContext(new OdinContext(new VarConfig().setPort(8089)));
 		launcher = odinJector.getInstance(Launcher.class);
 		launcher.setSsl();
 		thread = new Thread(launcher);
