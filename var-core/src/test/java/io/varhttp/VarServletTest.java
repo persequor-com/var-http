@@ -174,8 +174,7 @@ public class VarServletTest {
 		CountDownLatch latch = new CountDownLatch(1);
 		doAnswer(invocation -> {
 			ControllerContext context = (ControllerContext) invocation.getArguments()[0];
-			if (context.getParameters().get("param1").equals("value1") &&
-					context.getParameters().get("param2").equals("value2")) {
+			if (context.getParameters().get("param1").equals("value1") && context.getParameters().get("param2").equals("value2")) {
 				latch.countDown();
 			}
 			return null;
