@@ -17,15 +17,16 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class VarServlet extends HttpServlet {
 	private final BaseVarConfigurationContext baseConfigurationContext;
-	Logger logger = LoggerFactory.getLogger(VarServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(VarServlet.class);
+	private final VarConfig varConfig;
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
 	private List<VarWebSocket> webSockets = new ArrayList<>();
-	private final ExecutorService executorService = Executors.newCachedThreadPool();
 	private final RegisteredWebSockets registeredWebSockets;
 
-	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
+	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
+		this.varConfig = varConfig;
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
 		this.registeredWebSockets = registeredWebSockets;
@@ -85,7 +86,7 @@ public class VarServlet extends HttpServlet {
 
 		if (exe != null) {
 			try {
-				exe.execute(new ControllerContext(request, response));
+				exe.execute(new ControllerContext(request, response, varConfig));
 			} catch (Exception e) {
 				logger.error("Execution failed: "+e.getMessage(), e);
 				response.setStatus(500);

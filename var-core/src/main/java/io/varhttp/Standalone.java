@@ -39,7 +39,7 @@ public class Standalone implements Runnable {
 	public Standalone(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
 					  ObjectFactory objectFactory, ControllerFilter controllerFilter, HttpServerFactory serverFactory) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, null, null);
+		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, null, null);
 		servlets.put("/", servlet);
 		this.serverFactory = serverFactory;
 	}

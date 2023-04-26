@@ -9,8 +9,8 @@ public class ControllerContext {
 	private final ContentTypes accepted = new ContentTypes();
 	private VarFilterChain filterChain;
 
-	public ControllerContext(HttpServletRequest request, HttpServletResponse response) {
-		this.request = request;
+	public ControllerContext(HttpServletRequest request, HttpServletResponse response, VarConfig varConfig) {
+		this.request = new VarHttpServletRequest2(varConfig, request);
 		this.response = response;
 	}
 

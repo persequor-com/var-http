@@ -60,7 +60,7 @@ public class VarUndertow implements Runnable {
         this.registeredWebSockets = registeredWebSockets;
         this.varConfig = varConfig;
         this.webSocketHandler = webSocketHandler;
-        this.servlet = new VarServlet(parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, this.registeredWebSockets, webSocketProvider);
+        this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, this.registeredWebSockets, webSocketProvider);
         servlets.put("/", servlet);
     }
 
