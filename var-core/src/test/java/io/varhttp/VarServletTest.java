@@ -9,6 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.*;
 
@@ -151,7 +152,7 @@ public class VarServletTest {
 	}
 
 	@Test
-	public void handleGet_withRedirectAndQueryString_queryStringIsPreserved() throws IOException {
+	public void handleGet_withRedirectAndQueryString_queryStringIsPreserved() throws IOException, InterruptedException {
 		VarHttpServletRequest request = mock(VarHttpServletRequest.class);
 		when(request.getMethod()).thenReturn("GET");
 		when(request.getPathInfo()).thenReturn("/redirected-test");
@@ -184,6 +185,8 @@ public class VarServletTest {
 
 		servlet.doGet(request, response);
 
+		//noinspection ResultOfMethodCallIgnored Ignored since we only care if it fails
+		latch.await(100, TimeUnit.MILLISECONDS);
 
 		verify(usedController, times(1)).execute(any());
 		verify(unusedController, never()).execute(any());
