@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
-class HttpHelper {
+public class HttpHelper {
 
 	private static String silentDecode(String input) {
 		try {
@@ -22,7 +22,6 @@ class HttpHelper {
 			throw new IllegalStateException("Unable to decode part of query string", e);
 		}
 	}
-
 
 	public static Map<String, List<String>> parseQueryString(String queryString) {
 		if (queryString == null) {
