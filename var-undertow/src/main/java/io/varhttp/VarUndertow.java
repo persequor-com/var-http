@@ -2,10 +2,13 @@ package io.varhttp;
 
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.server.handlers.GracefulShutdownHandler;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.servlet.Servlets;
-import io.undertow.servlet.api.*;
-import io.undertow.websockets.WebSocketConnectionCallback;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.InstanceHandle;
+import io.undertow.servlet.api.ServletInfo;
 import io.varhttp.parameterhandlers.VarWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -55,6 +59,7 @@ public class VarUndertow implements Runnable {
 	private Undertow server;
 	private SSLContext sslContext;
 	private ExecutorService executorService;
+	private GracefulShutdownHandler gracefulShutdown;
 
 	@Inject
 	public VarUndertow(RegisteredWebSockets registeredWebSockets, VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
@@ -110,7 +115,7 @@ public class VarUndertow implements Runnable {
 			path.addPrefixPath("/", manager.start());
 
 			Undertow.Builder builder = Undertow.builder()
-					.setHandler(path);
+					.setHandler(this.gracefulShutdown = new GracefulShutdownHandler(path));
 
 			if (sslContext != null) {
 				builder.addHttpsListener(varConfig.getPort(), "localhost", sslContext);
@@ -135,8 +140,16 @@ public class VarUndertow implements Runnable {
 		}
 	}
 
-	public void stop() {
-		server.stop();
+	public void stop(Duration awaitTimeout) {
+		gracefulShutdown.shutdown();
+		try {
+			gracefulShutdown.awaitShutdown(awaitTimeout.toMillis());
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(e);
+		} finally {
+			server.stop();
+		}
 		servlets.values().forEach(HttpServlet::destroy);
 	}
 

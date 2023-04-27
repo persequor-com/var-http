@@ -3,6 +3,7 @@ package io.varhttp;
 import io.varhttp.controllers.MyTestController;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -27,7 +28,7 @@ public class LauncherUndertow implements Runnable {
 	}
 
 	public void stop() {
-		varUndertow.stop();
+		varUndertow.stop(Duration.ofSeconds(20));
 	}
 
 	public VarServlet getServlet() {

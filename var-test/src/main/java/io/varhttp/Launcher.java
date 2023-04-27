@@ -1,6 +1,8 @@
 package io.varhttp;
 
 import io.varhttp.controllers.MyTestController;
+
+import java.time.Duration;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 
@@ -27,8 +29,10 @@ public class Launcher implements Runnable {
 		varConfiguration.addControllerPackage(MyTestController.class.getPackage());
 	}
 
-	public void stop() {
-		standalone.stop();
+	public Thread stop() {
+		Thread stopper = new Thread(() -> standalone.stop(Duration.ofSeconds(20)));
+		stopper.start();
+		return stopper;
 	}
 
 	public VarServlet getServlet() {

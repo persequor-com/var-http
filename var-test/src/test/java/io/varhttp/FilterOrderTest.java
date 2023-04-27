@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -58,7 +59,7 @@ public class FilterOrderTest {
 
 	@AfterClass
 	public static void teardown() {
-		launcher.stop();
+		launcher.stop(Duration.ofSeconds(20));
 	}
 
 	@Test

@@ -3,6 +3,7 @@ package io.varhttp;
 import io.varhttp.performance.Class1;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -26,7 +27,7 @@ public class PerfLauncher implements Runnable {
 	}
 
 	public void stop() {
-		undertow.stop();
+		undertow.stop(Duration.ofSeconds(20));
 	}
 
 	public Future<Boolean> isStarted() {
