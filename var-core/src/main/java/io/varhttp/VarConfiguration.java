@@ -92,4 +92,8 @@ public class VarConfiguration {
 	public void onControllerAdd(ControllerListener methodConsumer) {
 		context.onControllerAdd(methodConsumer);
 	}
+
+	public void addRedirect(String from, String to) {
+		context.addRedirect(from, to);
+	}
 }

@@ -1,13 +1,14 @@
 package io.varhttp;
 
-import java.io.IOException;
-import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class VarServlet extends HttpServlet {
 	private final BaseVarConfigurationContext baseConfigurationContext;
@@ -15,6 +16,7 @@ public class VarServlet extends HttpServlet {
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
+	private HashMap<String, String> redirects = new HashMap<>();
 
 	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
 		this.parameterHandler = parameterHandler;
@@ -67,7 +69,12 @@ public class VarServlet extends HttpServlet {
 		}
 		Request r = new Request(httpMethod, servletPath);
 
-		final String[] requestPath = r.path.substring(1).split("/");
+		final String[] requestPath;
+		if (redirects.containsKey(r.path)) {
+			requestPath = redirects.get(r.path).substring(1).split("/");
+		} else {
+			requestPath = r.path.substring(1).split("/");
+		}
 
 		ControllerExecution exe = null;
 
@@ -77,7 +84,7 @@ public class VarServlet extends HttpServlet {
 			try {
 				exe.execute(new ControllerContext(request, response));
 			} catch (Exception e) {
-				logger.error("Execution failed: "+e.getMessage(), e);
+				logger.error("Execution failed: " + e.getMessage(), e);
 				response.setStatus(500);
 				return;
 			}
@@ -100,5 +107,9 @@ public class VarServlet extends HttpServlet {
 		configuration.accept(varConfiguration);
 		baseConfigurationContext.applyMappings();
 		varConfiguration.applyMappings();
+	}
+
+	public void redirect(String from, String to) {
+		redirects.put(from, to);
 	}
 }

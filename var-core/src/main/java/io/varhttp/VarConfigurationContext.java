@@ -97,6 +97,10 @@ public class VarConfigurationContext {
 		}
 	}
 
+	public void addRedirect(String from, String to) {
+		varServlet.redirect(from, to);
+	}
+
 	private List<Object> getFilters(Method method) {
 		LinkedHashSet<FilterTuple> filters = new LinkedHashSet<>();
 		replaceAll(filters, getFilterAnnotations(method.getDeclaringClass().getPackage().getAnnotations()));
