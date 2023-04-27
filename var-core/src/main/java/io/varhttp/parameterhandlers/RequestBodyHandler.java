@@ -2,6 +2,8 @@ package io.varhttp.parameterhandlers;
 
 import io.varhttp.ControllerContext;
 import io.varhttp.Serializer;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -21,9 +23,9 @@ public class RequestBodyHandler implements IParameterHandler {
 	@Override
 	public Object handle(ControllerContext controllerContext) {
 		try {
-			Reader body = controllerContext.request().getReader();
+			HttpServletRequest request = controllerContext.request();
 			if (String.class.isAssignableFrom(matchContext.getType())) {
-				return toString(body);
+				return toString(request.getReader());
 			}
 
 			Type type = matchContext.getParameter().getParameterizedType();
@@ -32,11 +34,11 @@ public class RequestBodyHandler implements IParameterHandler {
 			}
 			Object bodyString;
 			if (InputStream.class.isAssignableFrom(matchContext.getType())) {
-				return controllerContext.request().getInputStream();
+				return request.getInputStream();
 			} else if (type.getTypeName().equals(String.class.getName())) {
-				bodyString = toString(body);
+				bodyString = toString(request.getReader());
 			} else {
-				bodyString = serializer.deserialize(body, type, controllerContext.request().getContentType());
+				bodyString = serializer.deserialize(request.getReader(), type, request.getContentType());
 			}
 			if (Optional.class.isAssignableFrom(matchContext.getType())) {
 				return Optional.ofNullable(bodyString);
