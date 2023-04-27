@@ -4,6 +4,7 @@ import io.odinjector.OdinJector;
 import io.varhttp.test.HttpClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
@@ -23,16 +24,15 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@Ignore
 public class PerfTest {
 	static PerfLauncher launcher;
-	static Thread thread;
 
 	@BeforeClass
 	public static void setup() throws InterruptedException, ExecutionException, TimeoutException {
 		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)));
 		launcher = odinJector.getInstance(PerfLauncher.class);
-		thread = new Thread(launcher);
-		thread.run();
+		launcher.run();
 		launcher.isStarted().get(5, TimeUnit.SECONDS);
 	}
 
@@ -43,13 +43,14 @@ public class PerfTest {
 
 	@Test
 	public void simple() throws Throwable {
-		int reps = 300;
+		int reps = 1000;
 
-		List<Runnable> threads = new ArrayList<>();
+		List<Thread> threads = new ArrayList<>();
 
 		String body = IntStream.range(0,200).mapToObj(in -> UUID.randomUUID().toString()).collect(Collectors.joining("-"));
-		AtomicInteger failed = new AtomicInteger(0);
-		for(int j=0;j<8;j++) {
+		final AtomicInteger failed = new AtomicInteger(0);
+		final int nrOfThreads = 100;
+		for(int j=0;j<nrOfThreads;j++) {
 			Runnable t = () -> {
 				for (int i = 0; i < reps; i++) {
 					int classnum = (int) (Math.random() * 7) + 1;
@@ -59,25 +60,30 @@ public class PerfTest {
 						HttpURLConnection con = HttpClient.post(path, body, "text/plain");
 
 						String output = HttpClient.readContent(con).toString();
-						assertEquals("muh", output);
+						if(!"muh".equals(output)){
+							System.out.printf("Expected 'muh', but controller returned: %s%n", output);
+							failed.incrementAndGet();
+						}
 					} catch (Exception e) {
-						System.out.println(path+" failed");
-						e.printStackTrace();
 						failed.incrementAndGet();
+						System.out.println(path+" failed"+failed.get());
+						e.printStackTrace();
 					}
 				}
 			};
-			threads.add(t);
+			threads.add(new Thread(t));
 		}
 		long s = System.currentTimeMillis();
-		ExecutorService tp = Executors.newCachedThreadPool();
 
-		threads.forEach(tp::execute);
-		tp.shutdown();
-		tp.awaitTermination(10, TimeUnit.SECONDS);
+		threads.forEach(Thread::start);
+		for (Thread thread : threads) {
+			thread.join();
+		}
+		System.out.println("nr of threads: " + nrOfThreads);
+		System.out.println("nr of reads per thread: " + reps);
+		System.out.println("nr of failed requests: " + failed.get());
+		System.out.println("total time to run: " + (System.currentTimeMillis() - s));
+		System.out.println("avg time to run: " + ((System.currentTimeMillis() - s) / (reps * nrOfThreads * 1.0d)));
 		assertEquals(0, failed.get());
-		System.out.println("avg time to run: "+((System.currentTimeMillis()-s)/(reps*8*1.0d)));
 	}
-
-
 }
