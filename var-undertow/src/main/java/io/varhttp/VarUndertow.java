@@ -9,6 +9,8 @@ import io.undertow.websockets.WebSocketConnectionCallback;
 import io.varhttp.parameterhandlers.VarWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnio.Xnio;
+import org.xnio.XnioWorker;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -38,168 +40,169 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class VarUndertow implements Runnable {
 
-    private final static Logger logger = LoggerFactory.getLogger(VarUndertow.class);
-    private final CompletableFuture<Boolean> started = new CompletableFuture<>();
-    private RegisteredWebSockets registeredWebSockets;
-    protected VarServlet servlet;
+	private final static Logger logger = LoggerFactory.getLogger(VarUndertow.class);
+	private final CompletableFuture<Boolean> started = new CompletableFuture<>();
+	protected VarServlet servlet;
 
-    protected VarConfig varConfig;
-    private final Map<String, HttpServlet> servlets = new LinkedHashMap<>();
-    private Undertow server;
-    private SSLContext sslContext;
-    private WebSocketConnectionCallback webSocketHandler;
+	protected VarConfig varConfig;
+	private final Map<String, HttpServlet> servlets = new LinkedHashMap<>();
+	private Undertow server;
+	private SSLContext sslContext;
+	private ExecutorService executorService;
 
-    @Inject
-    public VarUndertow(RegisteredWebSockets registeredWebSockets, VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
-                       ObjectFactory objectFactory, ControllerFilter controllerFilter, WebSocketConnectionCallback webSocketHandler, IWebSocketProvider webSocketProvider) {
-        this.registeredWebSockets = registeredWebSockets;
-        this.varConfig = varConfig;
-        this.webSocketHandler = webSocketHandler;
-        this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, this.registeredWebSockets, webSocketProvider);
-        servlets.put("/", servlet);
-    }
+	@Inject
+	public VarUndertow(RegisteredWebSockets registeredWebSockets, VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
+					   ObjectFactory objectFactory, ControllerFilter controllerFilter, IWebSocketProvider webSocketProvider) {
+		this.varConfig = varConfig;
+		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
+		servlets.put("/", servlet);
+	}
 
-    public void configure(Consumer<VarConfiguration> configuration) {
-        servlet.configure(c -> {
-            c.addParameterHandler(UndertowVarWebSocketHandler.class);
-            c.addParameterHandler(VarWebSocketHandler.class);
-            configuration.accept(c);
-        });
-    }
+	public void configure(Consumer<VarConfiguration> configuration) {
+		servlet.configure(c -> {
+			c.addParameterHandler(UndertowVarWebSocketHandler.class);
+			c.addParameterHandler(VarWebSocketHandler.class);
+			configuration.accept(c);
+		});
+	}
 
-    public void registerServlet(String path, HttpServlet servlet) {
-        servlets.put(path, servlet);
-    }
+	public void registerServlet(String path, HttpServlet servlet) {
+		servlets.put(path, servlet);
+	}
 
-    @Override
-    public void run() {
-        try {
-            DeploymentInfo servletBuilder = Servlets.deployment()
-                    .setClassLoader(VarUndertow.class.getClassLoader())
-                    .setContextPath("/");
-            for (Map.Entry<String, HttpServlet> servlet : servlets.entrySet()) {
+	@Override
+	public void run() {
+		try {
+			DeploymentInfo servletBuilder = Servlets.deployment()
+					.setClassLoader(VarUndertow.class.getClassLoader())
+					.setContextPath("/");
+			for (Map.Entry<String, HttpServlet> servlet : servlets.entrySet()) {
 
-                ServletInfo servletInfo = Servlets.servlet(servlet.getKey(), servlet.getValue().getClass(), new InstanceFactory<Servlet>() {
-                            @Override
-                            public InstanceHandle<Servlet> createInstance() throws InstantiationException {
-                                return new InstanceHandle<Servlet>() {
-                                    @Override
-                                    public Servlet getInstance() {
-                                        return servlet.getValue();
-                                    }
+				ServletInfo servletInfo = Servlets.servlet(servlet.getKey(), servlet.getValue().getClass(), () -> new InstanceHandle<>() {
+					@Override
+					public Servlet getInstance() {
+						return servlet.getValue();
+					}
 
-                                    @Override
-                                    public void release() {
-                                        servlet.getValue().destroy();
-                                    }
-                                };
-                            }
-                        })
-                        .addMapping(servlet.getKey());
+					@Override
+					public void release() {
+						servlet.getValue().destroy();
+					}
+				}).addMapping(servlet.getKey());
 
-                servletBuilder.addServlets(servletInfo);
-                servletBuilder.setDeploymentName("Depname");
-            }
+				servletBuilder.addServlets(servletInfo);
+				servletBuilder.setDeploymentName("Var deployment");
+			}
 
 
-            DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
+			DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
 
-            manager.deploy();
-            PathHandler path = Handlers.path(Handlers.redirect("/"));
+			manager.deploy();
+			PathHandler path = Handlers.path(Handlers.redirect("/"));
 
 //            path.addExactPath("/api/socketInit", websocket(webSocketHandler));
-            path.addPrefixPath("/", manager.start());
+			path.addPrefixPath("/", manager.start());
 
-            Undertow.Builder builder = Undertow.builder()
-                    .setHandler(path);
+			Undertow.Builder builder = Undertow.builder()
+					.setHandler(path);
 
-            if (sslContext != null) {
-                builder.addHttpsListener(varConfig.getPort(), "localhost", sslContext);
-            } else {
-                builder.addHttpListener(varConfig.getPort(), "localhost");
-            }
+			if (sslContext != null) {
+				builder.addHttpsListener(varConfig.getPort(), "localhost", sslContext);
+			} else {
+				builder.addHttpListener(varConfig.getPort(), "localhost");
+			}
 
-            server = builder.build();
+			if (this.executorService != null) {
+				XnioWorker.Builder workerBuilder = Xnio.getInstance().createWorkerBuilder();
+				workerBuilder.setExternalExecutorService(executorService);
+				builder.setWorker(workerBuilder.build());
+			}
 
-            server.start();
+			server = builder.build();
 
-            started.complete(true);
-            logger.info("var-http started");
-        } catch (Exception exception) {
-            throw new RuntimeException(exception);
-        }
-    }
+			server.start();
 
-    public void stop() {
-        server.stop();
-        servlets.values().forEach(HttpServlet::destroy);
-    }
+			started.complete(true);
+			logger.info("var-http started");
+		} catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
+	}
 
-    public void setSslContext(InputStream x509Certificate, InputStream privateKey) {
-        try {
-            // Initialise the keystore
-            char[] password = "".toCharArray();
-            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            ks.load(null, password);
-            java.security.cert.Certificate certificate = CertificateFactory.getInstance("X.509")
-                    .generateCertificate(x509Certificate);
+	public void stop() {
+		server.stop();
+		servlets.values().forEach(HttpServlet::destroy);
+	}
 
-            String text = new BufferedReader(
-                    new InputStreamReader(privateKey, StandardCharsets.UTF_8))
-                    .lines()
-                    .collect(Collectors.joining("\n"));
+	public void setSslContext(InputStream x509Certificate, InputStream privateKey) {
+		try {
+			// Initialise the keystore
+			char[] password = "".toCharArray();
+			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+			ks.load(null, password);
+			java.security.cert.Certificate certificate = CertificateFactory.getInstance("X.509")
+					.generateCertificate(x509Certificate);
 
-            text = text.replaceAll("-----(BEGIN|END) PRIVATE KEY-----","").replace("\n","");
-            text = text.replaceAll("","");
-            byte[] dec = Base64.getDecoder().decode(text);
+			String text = new BufferedReader(
+					new InputStreamReader(privateKey, StandardCharsets.UTF_8))
+					.lines()
+					.collect(Collectors.joining("\n"));
 
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(dec);
+			text = text.replaceAll("-----(BEGIN|END) PRIVATE KEY-----", "").replace("\n", "");
+			text = text.replaceAll("", "");
+			byte[] dec = Base64.getDecoder().decode(text);
 
-            PrivateKey privKey = KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(dec);
 
-
-            ks.setCertificateEntry("server", certificate);
-            ks.setKeyEntry("server", privKey,"".toCharArray(), new Certificate[]{certificate});
+			PrivateKey privKey = KeyFactory.getInstance("RSA").generatePrivate(keySpec);
 
 
-            setSslContext(ks, password);
-            // Set up the key manager factory
-        } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException |
-                 InvalidKeySpecException e) {
-            throw new VarInitializationException(e);
-        }
-    }
+			ks.setCertificateEntry("server", certificate);
+			ks.setKeyEntry("server", privKey, "".toCharArray(), new Certificate[]{certificate});
 
-    public void setSslContext(KeyStore keyStore, char[] password) {
-        try {
-            // Set up the key manager factory
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            kmf.init(keyStore, password);
 
-            // Set up the trust manager factory
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            tmf.init(keyStore);
+			setSslContext(ks, password);
+			// Set up the key manager factory
+		} catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException |
+				 InvalidKeySpecException e) {
+			throw new VarInitializationException(e);
+		}
+	}
 
-            // Set up the HTTPS context and parameters
-            sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | KeyManagementException e) {
-            throw new VarInitializationException(e);
-        }
-    }
+	public void setSslContext(KeyStore keyStore, char[] password) {
+		try {
+			// Set up the key manager factory
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			kmf.init(keyStore, password);
 
-    public VarServlet getServlet() {
-        return servlet;
-    }
+			// Set up the trust manager factory
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+			tmf.init(keyStore);
 
-    public CompletableFuture<Boolean> getStarted() {
-        return started;
-    }
+			// Set up the HTTPS context and parameters
+			sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+		} catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | KeyManagementException e) {
+			throw new VarInitializationException(e);
+		}
+	}
 
+	public VarServlet getServlet() {
+		return servlet;
+	}
+
+	public CompletableFuture<Boolean> getStarted() {
+		return started;
+	}
+
+	public void setExecutor(ExecutorService executorService) {
+		this.executorService = executorService;
+	}
 }
 

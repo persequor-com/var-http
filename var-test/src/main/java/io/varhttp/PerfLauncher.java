@@ -3,32 +3,34 @@ package io.varhttp;
 import io.varhttp.performance.Class1;
 
 import javax.inject.Inject;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class PerfLauncher implements Runnable {
-	private VarUndertow standalone;
+	private final VarUndertow undertow;
 
 	@Inject
-	public PerfLauncher(VarUndertow standalone) {
-		this.standalone = standalone;
+	public PerfLauncher(VarUndertow undertow) {
+		this.undertow = undertow;
 	}
 
 	@Override
 	public void run() {
 		long s = System.currentTimeMillis();
-		standalone.configure(configuration -> {
+		undertow.setExecutor(Executors.newCachedThreadPool());
+		undertow.configure(configuration -> {
 			configuration.addControllerPackage(Class1.class.getPackage());
 		});
-		standalone.run();
+		undertow.run();
 		System.out.println("Startup time: "+(System.currentTimeMillis()-s));
 	}
 
 	public void stop() {
-		standalone.stop();
+		undertow.stop();
 	}
 
 	public Future<Boolean> isStarted() {
-		return standalone.getStarted();
+		return undertow.getStarted();
 	}
 
 }
