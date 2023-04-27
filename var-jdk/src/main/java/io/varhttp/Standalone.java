@@ -57,11 +57,11 @@ public class Standalone implements Runnable {
 		server = serverFactory.getServer();
 		for (Map.Entry<String, HttpServlet> servlet : servlets.entrySet()) {
 			try {
-				servlet.getValue().init(new VarServletConfig(servlet.getValue()));
+				servlet.getValue().init(new JdkServletConfig(servlet.getValue()));
 			} catch (ServletException e) {
 				throw new IllegalStateException(e);
 			}
-			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue(), varConfig));
+			server.createContext(servlet.getKey(), new JdkHttpContext(servlet.getValue(), varConfig));
 		}
 		if (executor == null) {
 			executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("var-http-thread-pool-%d").build());

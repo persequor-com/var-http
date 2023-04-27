@@ -44,6 +44,15 @@ allprojects {
 subprojects {
     apply plugin: 'java-library'
 
+
+    dependencies {
+        testImplementation group: 'junit', name: 'junit', version: '4.12'
+        implementation group: 'javax.inject', name: 'javax.inject', version: '1'
+        testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+        implementation 'org.slf4j:slf4j-api:1.7.26'
+    }
+
+
     test {
         jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED', '--add-opens=jdk.httpserver/com.sun.net.httpserver=ALL-UNNAMED'
 

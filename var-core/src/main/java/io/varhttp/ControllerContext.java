@@ -10,7 +10,7 @@ public class ControllerContext {
 	private VarFilterChain filterChain;
 
 	public ControllerContext(HttpServletRequest request, HttpServletResponse response, VarConfig varConfig) {
-		this.request = new VarHttpServletRequest2(varConfig, request);
+		this.request = new VarHttpServletRequest(varConfig, request);
 		this.response = response;
 	}
 

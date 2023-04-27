@@ -1,7 +1,7 @@
 package io.varhttp;
 
 import com.sun.net.httpserver.HttpExchange;
-import java.util.Arrays;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
@@ -16,8 +16,8 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VarHttpServletResponse implements HttpServletResponse {
-	private static final Logger logger = LoggerFactory.getLogger(VarHttpServletResponse.class);
+public class JdkHttpServletResponse implements HttpServletResponse {
+	private static final Logger logger = LoggerFactory.getLogger(JdkHttpServletResponse.class);
 
 	final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 	final ServletOutputStream servletOutputStream = new ServletOutputStream() {
@@ -42,7 +42,7 @@ public class VarHttpServletResponse implements HttpServletResponse {
 	private final PrintWriter printWriter;
 	private int status = HttpServletResponse.SC_OK;
 
-	public VarHttpServletResponse(HttpExchange ex) {
+	public JdkHttpServletResponse(HttpExchange ex) {
 		this.ex = ex;
 		printWriter = new PrintWriter(servletOutputStream);
 	}
