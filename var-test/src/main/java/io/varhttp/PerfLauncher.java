@@ -18,11 +18,11 @@ public class PerfLauncher implements Runnable {
 	@Override
 	public void run() {
 		long s = System.currentTimeMillis();
+		standalone.setExecutor(Executors.newCachedThreadPool());
 		standalone.configure(configuration -> {
 			configuration.addControllerPackage(Class1.class.getPackage());
 		});
 		standalone.run();
-		standalone.setExecutor(Executors.newCachedThreadPool());
 		System.out.println("Startup time: " + (System.currentTimeMillis() - s));
 	}
 
