@@ -1,16 +1,16 @@
 package io.varhttp;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +71,7 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void handle(HttpServletRequest request, HttpServletResponse response) {
+		lockDefaultEncoding(request);
 		final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
 		String servletPath = request.getRequestURI();
 		if (servletPath.contains("?")) {
@@ -106,6 +107,16 @@ public class VarServlet extends HttpServlet {
 		}
 	}
 
+	private static void lockDefaultEncoding(HttpServletRequest request) {
+		String characterEncoding = request.getCharacterEncoding();
+		if(characterEncoding == null){
+			try {
+				request.setCharacterEncoding(Charsets.UTF_8.toString());
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 
 
 	public void configure(Consumer<VarConfiguration> configuration) {
