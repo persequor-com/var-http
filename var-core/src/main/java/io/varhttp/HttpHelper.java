@@ -13,44 +13,13 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
-public class HttpHelper {
-
-	public static Map<String, List<String>> decodeRequestParameters(Map<String, String[]> queryString) {
-		return queryString
-				.entrySet()
-				.stream()
-				.collect(Collectors.toMap(
-						entry -> silentDecode(entry.getKey()),
-						entry -> Stream.of(entry.getValue()).map(HttpHelper::silentDecode).collect(toList())));
-	}
-
-	public static List<String> decodeRequestParameters(String[] queryString) {
-		return Stream.of(queryString)
-				.map(HttpHelper::silentDecode)
-				.collect(toList());
-	}
-
-	public static String encode(String value) {
-		return silentEncode(value);
-	}
-
-	public static String decode(String value) {
-		return silentDecode(value);
-	}
+class HttpHelper {
 
 	private static String silentDecode(String input) {
 		try {
 			return URLDecoder.decode(input, Charsets.UTF_8.toString());
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException("Unable to decode part of query string", e);
-		}
-	}
-
-	private static String silentEncode(String input) {
-		try {
-			return URLEncoder.encode(input, Charsets.UTF_8.toString());
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException("Unable to encode part of query string", e);
 		}
 	}
 
