@@ -1,6 +1,7 @@
 package io.varhttp.parameterhandlers;
 
 import io.varhttp.ControllerContext;
+import io.varhttp.HttpHelper;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +19,7 @@ public class PathVariableParameterHandler implements IParameterHandler {
 
 	@Override
 	public Object handle(ControllerContext controllerContext) {
-		Matcher matcher = pattern.matcher(controllerContext.request().getRequestURI());
+		Matcher matcher = pattern.matcher(HttpHelper.decode(controllerContext.request().getRequestURI(), controllerContext.request()));
 
 		if(matcher.find()) {
 			return convert.convert(matcher.group(1), matchContext.getType(), matchContext.getDefaultValue());

@@ -2,6 +2,7 @@ package io.varhttp;
 
 import com.google.common.base.Charsets;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -16,8 +17,12 @@ import static java.util.stream.Collectors.*;
 public class HttpHelper {
 
 	private static String silentDecode(String input) {
+		return URLDecoder.decode(input, Charsets.UTF_8);
+	}
+
+	private static String silentDecode(String input, String charset) {
 		try {
-			return URLDecoder.decode(input, Charsets.UTF_8.toString());
+			return URLDecoder.decode(input, charset);
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException("Unable to decode part of query string", e);
 		}
@@ -43,4 +48,8 @@ public class HttpHelper {
 				.collect(groupingBy(keyValue -> silentDecode(keyValue[0]), mapping(keyValue -> silentDecode(keyValue[1]), toList())));
 	}
 
+	public static CharSequence decode(String input, HttpServletRequest request) {
+		final String charset = request.getCharacterEncoding() == null ? Charsets.UTF_8.name() : request.getCharacterEncoding();
+		return silentDecode(input, charset);
+	}
 }
