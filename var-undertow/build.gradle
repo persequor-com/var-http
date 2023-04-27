@@ -11,6 +11,6 @@ dependencies {
     api(group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.18.Final') {
         exclude group: 'org.wildfly.client', module: 'wildfly-client-config'
     }
-    implementation project(':var-core')
+    api project(':var-core')
 
 }
