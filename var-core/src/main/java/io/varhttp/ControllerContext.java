@@ -11,7 +11,7 @@ public class ControllerContext {
 
 	public ControllerContext(HttpServletRequest request, HttpServletResponse response, VarConfig varConfig) {
 		this.request = new VarHttpServletRequest(varConfig, request);
-		this.response = response;
+		this.response = new VarHttpServletResponse(response);
 	}
 
 	public HttpServletRequest request() {
