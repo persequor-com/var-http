@@ -21,7 +21,7 @@ public class UndertowWebSocketVarFilter {
     @FilterMethod
     public void undertowFilter(VarFilterChain filterChain, HttpServletRequest req) throws Exception {
         try {
-            HttpServletRequestImpl request = (HttpServletRequestImpl)req;
+            HttpServletRequestImpl request = (HttpServletRequestImpl) ( (VarHttpServletRequest)req).getRequest();
             ws.handleRequest(request.getExchange());
         } catch (Exception e) {
             throw new RuntimeException(e);
