@@ -1,18 +1,13 @@
 package io.varhttp;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.function.Consumer;
 
 @Singleton
 public class VarServlet extends HttpServlet {
@@ -21,6 +16,7 @@ public class VarServlet extends HttpServlet {
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
 	private ControllerMapper controllerMapper;
+	private HashMap<String, String> redirects = new HashMap<>();
 	private List<VarWebSocket> webSockets = new ArrayList<>();
 	private final ExecutorService executorService = Executors.newCachedThreadPool();
 	private final RegisteredWebSockets registeredWebSockets;
@@ -77,7 +73,12 @@ public class VarServlet extends HttpServlet {
 		}
 		Request r = new Request(httpMethod, servletPath);
 
-		final String[] requestPath = r.path.substring(1).split("/");
+		final String[] requestPath;
+		if (redirects.containsKey(r.path)) {
+			requestPath = redirects.get(r.path).substring(1).split("/");
+		} else {
+			requestPath = r.path.substring(1).split("/");
+		}
 
 		ControllerExecution exe = null;
 
@@ -87,7 +88,7 @@ public class VarServlet extends HttpServlet {
 			try {
 				exe.execute(new ControllerContext(request, response));
 			} catch (Exception e) {
-				logger.error("Execution failed: "+e.getMessage(), e);
+				logger.error("Execution failed: " + e.getMessage(), e);
 				response.setStatus(500);
 				return;
 			}
@@ -105,13 +106,15 @@ public class VarServlet extends HttpServlet {
 		}
 	}
 
-
-
 	public void configure(Consumer<VarConfiguration> configuration) {
 		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler, registeredWebSockets, null);
 		configuration.accept(varConfiguration);
 		baseConfigurationContext.applyMappings();
 		varConfiguration.applyMappings();
+	}
+
+	public void redirect(String from, String to) {
+		redirects.put(from, to);
 	}
 
 	@Override
