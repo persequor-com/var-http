@@ -406,7 +406,11 @@ public class JdkHttpServletRequest implements HttpServletRequest {
 			return new Cookie[0];
 		}
 		String[] cookies = cookieString.split(";");
-		return Arrays.stream(cookies).map(s -> s.split("=")).map(a -> new Cookie(a[0].trim(), a[1].trim())).toArray(Cookie[]::new);
+		return Arrays.stream(cookies)
+				.filter(s -> s.contains("="))
+				.map(s -> s.split("="))
+				.map(a -> new Cookie(a[0].trim(), a[1].trim()))
+				.toArray(Cookie[]::new);
 	}
 
 	@Override
