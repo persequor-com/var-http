@@ -1,7 +1,6 @@
 package io.varhttp;
 
 import io.varhttp.controllers.MyTestController;
-
 import java.time.Duration;
 import java.util.function.Consumer;
 import javax.inject.Inject;

@@ -5,6 +5,7 @@ import io.varhttp.VarServlet;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Base64;
@@ -82,7 +83,7 @@ public class VarClientServerless implements VarClient {
 
 	private HttpResponse toHttpResponse(TestServletResponse testServletResponse) throws IOException {
 		HttpResponse httpResponse = new HttpResponse();
-		httpResponse.setContent(testServletResponse.outputStream.toString());
+		httpResponse.setContent(new ByteArrayInputStream(testServletResponse.outputStream.toByteArray()));
 		httpResponse.setContentType(testServletResponse.getContentType());
 		httpResponse.setContentEncoding(testServletResponse.getCharacterEncoding());
 		HttpHeaders headers = new HttpHeaders();

@@ -93,4 +93,11 @@ public class VarHttpServletRequestTest {
 		Mockito.when(httpContext.getServer()).thenReturn(httpServer);
 		assertFalse(request.isSecure());
 	}
+
+	@Test
+	public void getCookies_noEqualSign() {
+		Mockito.when(headers.getFirst("Cookie")).thenReturn("I-am-the-cookie");
+		Cookie[] actual = request.getCookies();
+		assertEquals(0, actual.length);
+	}
 }
