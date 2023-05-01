@@ -14,15 +14,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VarServletTest {
 
 	private VarServlet servlet;
+	@Mock
+	VarConfig varConfig;
 	@Mock
 	private ParameterHandler parameterHandler;
 	@Mock
@@ -33,10 +39,14 @@ public class VarServletTest {
 	private ControllerFilter controllerFilter;
 	@Mock
 	private VarConfigurationContext context;
+	@Mock
+	RegisteredWebSockets registeredWebSockets;
+	@Mock
+	IWebSocketProvider webSocketProvider;
 
 	@Before
 	public void setup() {
-		servlet = new VarServlet(parameterHandler, controllerMapper, objectFactory, controllerFilter);
+		servlet = new VarServlet(varConfig, parameterHandler, controllerMapper, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
 	}
 
 	@Test
