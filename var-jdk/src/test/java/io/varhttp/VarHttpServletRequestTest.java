@@ -1,27 +1,28 @@
 package io.varhttp;
 
-import com.sun.net.httpserver.*;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VarHttpServletRequestTest {
 
-	VarHttpServletRequest request;
+	JdkHttpServletRequest request;
 	@Mock
 	private HttpExchange ex;
 	@Mock
@@ -40,13 +41,13 @@ public class VarHttpServletRequestTest {
 
 	@Before
 	public void setup() {
-		request = new VarHttpServletRequest(ex, postData, inputStream, new VarServletContext(ex), config);
-		when(ex.getRequestHeaders()).thenReturn(headers);
+		request = new JdkHttpServletRequest(ex, postData, inputStream, new JdkServletContext(ex), config);
+		Mockito.when(ex.getRequestHeaders()).thenReturn(headers);
 	}
 
 	@Test
 	public void getCookies_happyPath() {
-		when(headers.getFirst("Cookie")).thenReturn("my=cookie; is=yours");
+		Mockito.when(headers.getFirst("Cookie")).thenReturn("my=cookie; is=yours");
 		Cookie[] actual = request.getCookies();
 		assertEquals(2, actual.length);
 		assertEquals("my", actual[0].getName());
@@ -57,45 +58,45 @@ public class VarHttpServletRequestTest {
 
 	@Test
 	public void getCookies_null() {
-		when(headers.getFirst("Cookie")).thenReturn(null);
+		Mockito.when(headers.getFirst("Cookie")).thenReturn(null);
 		Cookie[] actual = request.getCookies();
 		assertEquals(0, actual.length);
 	}
 
 	@Test
 	public void isSecure_With_VarConfig() {
-		when(config.isForceRequestSecure()).thenReturn(true);
+		Mockito.when(config.isForceRequestSecure()).thenReturn(true);
 		assertTrue(request.isSecure());
 	}
 
 	@Test
 	public void isSecure_XForwardedProto() {
-		when(config.isForceRequestSecure()).thenReturn(false);
+		Mockito.when(config.isForceRequestSecure()).thenReturn(false);
 
-		when(headers.getFirst("X-Forwarded-Proto")).thenReturn("https");
+		Mockito.when(headers.getFirst("X-Forwarded-Proto")).thenReturn("https");
 
 		assertTrue(request.isSecure());
 
-		when(headers.getFirst("X-Forwarded-Proto")).thenReturn("http");
+		Mockito.when(headers.getFirst("X-Forwarded-Proto")).thenReturn("http");
 
 		assertFalse(request.isSecure());
 	}
 
 	@Test
 	public void isSecure_requestContext() {
-		when(config.isForceRequestSecure()).thenReturn(false);
-		when(ex.getHttpContext()).thenReturn(httpContext);
+		Mockito.when(config.isForceRequestSecure()).thenReturn(false);
+		Mockito.when(ex.getHttpContext()).thenReturn(httpContext);
 
-		when(httpContext.getServer()).thenReturn(httpsServer);
+		Mockito.when(httpContext.getServer()).thenReturn(httpsServer);
 		assertTrue(request.isSecure());
 
-		when(httpContext.getServer()).thenReturn(httpServer);
+		Mockito.when(httpContext.getServer()).thenReturn(httpServer);
 		assertFalse(request.isSecure());
 	}
 
 	@Test
 	public void getCookies_noEqualSign() {
-		when(headers.getFirst("Cookie")).thenReturn("I-am-the-cookie");
+		Mockito.when(headers.getFirst("Cookie")).thenReturn("I-am-the-cookie");
 		Cookie[] actual = request.getCookies();
 		assertEquals(0, actual.length);
 	}

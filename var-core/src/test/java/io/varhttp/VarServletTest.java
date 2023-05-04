@@ -14,8 +14,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -23,6 +21,8 @@ import static org.mockito.Mockito.*;
 public class VarServletTest {
 
 	private VarServlet servlet;
+	@Mock
+	VarConfig varConfig;
 	@Mock
 	private ParameterHandler parameterHandler;
 	@Mock
@@ -36,7 +36,7 @@ public class VarServletTest {
 
 	@Before
 	public void setup() {
-		servlet = new VarServlet(parameterHandler, controllerMapper, objectFactory, controllerFilter);
+		servlet = new VarServlet(varConfig, parameterHandler, controllerMapper, objectFactory, controllerFilter);
 	}
 
 	@Test

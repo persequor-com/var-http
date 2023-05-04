@@ -44,11 +44,11 @@ public class OnControllerAddTest {
 						"returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream","js",
 						"headController", "altControllerAnnotation", "altControllerAnnotation", "checkedException",
 						"uncheckedException", "checkedException_varFilter", "uncheckedException_varFilter",
-						"myTest", "redirect", "redirectRelative", "url", "contextdependent", "contextdependent", "uuid"));
+						"myTest", "redirect", "redirectRelative", "url", "contextdependent", "uuid"));
 		Set<String> expectedPaths =
 				new TreeSet<>(Arrays.asList("/header-path-info/*", "/requestParameter", "/headController", "/login",
 						"/my-test-serialized", "/no-serializer-custom-content-type-response-helper",
-						"/no-serializer-custom-content-type-annotation", "/contextdependent", "/header", "/listObject",
+						"/no-serializer-custom-content-type-annotation", "/contextdependent", "/controllable-endpoint", "/header", "/listObject",
 						"/redirects/target", "/primitivesBoxed", "/my-test", "/redirects/redirect", "/dates",
 						"/unchecked-exception", "/altControllerAnnotation", "/defaultValue", "/pathVar/{pathVar}",
 						"/getOutputStream_addiionalContentType", "/listController", "/http-servlet-request/*",

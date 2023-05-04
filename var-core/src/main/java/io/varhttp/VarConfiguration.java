@@ -13,19 +13,13 @@ public class VarConfiguration {
 	private final VarConfigurationContext context;
 	private ControllerMapper controllerMapper = null;
 	private final ParameterHandler parameterHandler;
-	private ExceptionRegistry exceptionRegistry;
 	List<Runnable> mappings = new ArrayList<>();
-	private RegisteredWebSockets registeredWebSockets;
-	private IWebSocketProvider webSocketProvider;
 
-
-	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
+	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler) {
 		this.servlet = servlet;
 		this.controllerMapper = controllerMapper;
 		this.context = context;
 		this.parameterHandler = parameterHandler;
-		this.registeredWebSockets = registeredWebSockets;
-		this.webSocketProvider = webSocketProvider;
 	}
 
 	public void addControllerPackage(Package controllerPackage) {
@@ -82,8 +76,8 @@ public class VarConfiguration {
 	}
 
 	public void configure(Consumer<VarConfiguration> configurationConsumer) {
-		VarConfigurationContext newContext = new VarConfigurationContext(servlet, context, parameterHandler, registeredWebSockets, webSocketProvider);
-		VarConfiguration configuration = new VarConfiguration(servlet, controllerMapper, newContext, parameterHandler, registeredWebSockets, webSocketProvider);
+		VarConfigurationContext newContext = new VarConfigurationContext(servlet, context, parameterHandler);
+		VarConfiguration configuration = new VarConfiguration(servlet, controllerMapper, newContext, parameterHandler);
 		configurationConsumer.accept(configuration);
 		newContext.applyMappings();
 		configuration.applyMappings();

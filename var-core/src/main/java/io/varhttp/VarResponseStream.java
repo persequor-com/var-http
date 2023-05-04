@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 public class VarResponseStream implements ResponseStream {
 
@@ -37,7 +36,7 @@ public class VarResponseStream implements ResponseStream {
 	@Override
 	public OutputStream getOutputStream(String contentType, Charset charset) {
 		response.setContentType(context.acceptedTypes().limitTo(contentType).getHighestPriority(context.acceptedTypes()).getType());
-		if(charset != null) {
+		if (charset != null) {
 			response.setCharacterEncoding(charset.name());
 		}
 		try {
@@ -54,18 +53,21 @@ public class VarResponseStream implements ResponseStream {
 
 	@Override
 	public void write(Object object, String forcedContentType) {
-		try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
-
-			if (object instanceof String) {
+		try {
+			if (object instanceof String stringToWrite) {
 				String contentType = forcedContentType != null ? forcedContentType : "text/plain";
 				ContentTypes validContentTypes = context.acceptedTypes().limitTo(contentType);
 				response.setContentType(validContentTypes.getHighestPriority(context.acceptedTypes()).getType());
-				streamWriter.write((String) object);
+				try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
+					streamWriter.write(stringToWrite);
+				}
 			} else {
 				ContentTypes validContentTypes = context.acceptedTypes().limitTo(forcedContentType);
 				String contentType = validContentTypes.limitTo(serializer.supportedTypes()).getHighestPriority(context.acceptedTypes()).getType();
 				response.setContentType(contentType);
-				serializer.serialize(streamWriter, object, contentType);
+				try (OutputStreamWriter streamWriter = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)) {
+					serializer.serialize(streamWriter, object, contentType);
+				}
 			}
 		} catch (RuntimeException e) {
 			throw e;
@@ -73,4 +75,5 @@ public class VarResponseStream implements ResponseStream {
 			throw new RuntimeException(e);
 		}
 	}
+
 }

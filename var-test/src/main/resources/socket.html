@@ -5,13 +5,13 @@ document.cookie = 'X-Authorization=authToken; path=/';
 let socket = new WebSocket("ws://localhost:8088/api/socketInit", []);
 
 socket.onopen = function(e) {
-    alert("[open] Connection established");
-    alert("Sending to server");
-    socket.send(JSON.stringify({'id':'My name is john'}));
+    console.log("[open] Connection established");
+    console.log("Sending to server");
+    console.log(JSON.stringify({'id':'My name is john'}));
 };
 
 socket.onmessage = function(event) {
-    alert(`[message] Data received from server: ${event.data}`);
+    console.log(`[message] Data received from server: ${event.data}`);
 };
 
 socket.onclose = function(event) {
@@ -29,7 +29,7 @@ socket.onerror = function(error) {
 };
 
 function sendMessage() {
-    socket.send(JSON.stringify({'id':'My name is john'}));
+    socket.send("Ping!");
 }
     </script>
 </head>

@@ -6,11 +6,6 @@ import java.util.HashSet;
 import java.util.Optional;
 
 public class VarWebSocketMatcher implements ControllerMatcher {
-	private final RegisteredWebSockets registeredWebSockets;
-
-	public VarWebSocketMatcher(RegisteredWebSockets registeredWebSockets) {
-		this.registeredWebSockets = registeredWebSockets;
-	}
 
 	@Override
 	public Optional<ControllerMatch> find(Method method) {

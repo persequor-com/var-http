@@ -1,32 +1,36 @@
 package io.varhttp;
 
+import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Singleton
 public class VarServlet extends HttpServlet {
 	private final BaseVarConfigurationContext baseConfigurationContext;
-	Logger logger = LoggerFactory.getLogger(VarServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(VarServlet.class);
+	private final VarConfig varConfig;
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
-	private ControllerMapper controllerMapper;
-	private HashMap<String, String> redirects = new HashMap<>();
-	private List<VarWebSocket> webSockets = new ArrayList<>();
-	private final ExecutorService executorService = Executors.newCachedThreadPool();
-	private final RegisteredWebSockets registeredWebSockets;
+	private final ControllerMapper controllerMapper;
+	private final HashMap<String, String> redirects = new HashMap<>();
 
-	public VarServlet(ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
+	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
+		this.varConfig = varConfig;
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
-		this.registeredWebSockets = registeredWebSockets;
 
-		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
+		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter);
 		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 
@@ -66,6 +70,7 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void handle(HttpServletRequest request, HttpServletResponse response) {
+		lockDefaultEncoding(request);
 		final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
 		String servletPath = request.getRequestURI();
 		if (servletPath.contains("?")) {
@@ -86,7 +91,7 @@ public class VarServlet extends HttpServlet {
 
 		if (exe != null) {
 			try {
-				exe.execute(new ControllerContext(request, response));
+				exe.execute(new ControllerContext(request, response, varConfig));
 			} catch (Exception e) {
 				logger.error("Execution failed: " + e.getMessage(), e);
 				response.setStatus(500);
@@ -106,8 +111,19 @@ public class VarServlet extends HttpServlet {
 		}
 	}
 
+	private static void lockDefaultEncoding(HttpServletRequest request) {
+		String characterEncoding = request.getCharacterEncoding();
+		if(characterEncoding == null){
+			try {
+				request.setCharacterEncoding(Charsets.UTF_8.toString());
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
 	public void configure(Consumer<VarConfiguration> configuration) {
-		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler, registeredWebSockets, null);
+		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler);
 		configuration.accept(varConfiguration);
 		baseConfigurationContext.applyMappings();
 		varConfiguration.applyMappings();
@@ -115,17 +131,5 @@ public class VarServlet extends HttpServlet {
 
 	public void redirect(String from, String to) {
 		redirects.put(from, to);
-	}
-
-	@Override
-	public void destroy() {
-		super.destroy();
-		for (VarWebSocket webSocket : webSockets) {
-			try {
-				webSocket.close();
-			} catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		}
 	}
 }

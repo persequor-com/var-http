@@ -42,8 +42,8 @@ public class ExecutionMapTest {
 	public void setup() {
 		when(parentContext.getNotFoundController()).thenReturn(parentContextExe);
 		executionMap = new ExecutionMap(parentContext);
-		context = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler, null, null));
-		otherContext = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler, null, null));
+		context = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
+		otherContext = spy(new VarConfigurationContext(servlet, parentContext, parameterHandler));
 	}
 
 	@Test

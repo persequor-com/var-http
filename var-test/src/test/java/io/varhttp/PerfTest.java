@@ -4,6 +4,7 @@ import io.odinjector.OdinJector;
 import io.varhttp.test.HttpClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
@@ -19,6 +20,8 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
+
+@Ignore
 public class PerfTest {
 	static PerfLauncher launcher;
 

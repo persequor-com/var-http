@@ -21,6 +21,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+
+/**
+ * Use undertow version instead. Since it has some bugs fixed and more features implemented(e.g. websockets)
+ */
+@Deprecated
 public class Standalone implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(Standalone.class);
 	private final CompletableFuture<Boolean> started = new CompletableFuture<>();
@@ -36,7 +41,7 @@ public class Standalone implements Runnable {
 	public Standalone(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
 					  ObjectFactory objectFactory, ControllerFilter controllerFilter, HttpServerFactory serverFactory) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, null, null);
+		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter);
 		servlets.put("/", servlet);
 		this.serverFactory = serverFactory;
 	}
@@ -54,11 +59,11 @@ public class Standalone implements Runnable {
 		server = serverFactory.getServer();
 		for (Map.Entry<String, HttpServlet> servlet : servlets.entrySet()) {
 			try {
-				servlet.getValue().init(new VarServletConfig(servlet.getValue()));
+				servlet.getValue().init(new JdkServletConfig(servlet.getValue()));
 			} catch (ServletException e) {
 				throw new IllegalStateException(e);
 			}
-			server.createContext(servlet.getKey(), new VarHttpContext(servlet.getValue(), varConfig));
+			server.createContext(servlet.getKey(), new JdkHttpContext(servlet.getValue(), varConfig));
 		}
 		if (executor == null) {
 			executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("var-http-thread-pool-%d").build());

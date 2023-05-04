@@ -10,8 +10,8 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 
 
 	@Inject
-	public BaseVarConfigurationContext(VarServlet varServlet, ParameterHandler parameterHandler, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
-		super(varServlet, null, parameterHandler, registeredWebSockets, webSocketProvider);
+	public BaseVarConfigurationContext(VarServlet varServlet, ParameterHandler parameterHandler, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
+		super(varServlet, null, parameterHandler);
 		this.parameterHandler = parameterHandler;
 		this.objectFactory = objectFactory;
 		this.controllerFilter = controllerFilter;
@@ -26,7 +26,7 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		parameterHandler.addParameterHandler(HttpServletResponseParameterHandler.class);
 		parameterHandler.addParameterHandler(VarFilterChainParameterHandler.class);
 		controllerMatchers.add(new VarControllerMatcher());
-		controllerMatchers.add(new VarWebSocketMatcher(registeredWebSockets));
+		controllerMatchers.add(new VarWebSocketMatcher());
 		exceptionRegistry = new ExceptionRegistry();
 	}
 

@@ -20,7 +20,7 @@ public class VarWebSocketIT  {
 
     @BeforeClass
     public static void setup() {
-        OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext());
+        OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
         launcher = odinJector.getInstance(LauncherUndertow.class);
         launcher.run();
 

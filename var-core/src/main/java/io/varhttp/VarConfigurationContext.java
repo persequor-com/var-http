@@ -2,12 +2,22 @@ package io.varhttp;
 
 import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
+
+import javax.servlet.Filter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.Filter;
 
 public class VarConfigurationContext {
 	private VarServlet varServlet;
@@ -24,16 +34,11 @@ public class VarConfigurationContext {
 	List<Runnable> mappings = new ArrayList<>();
 	ControllerListener onControllerAdd;
 
-	private RegisteredWebSockets registeredWebSockets;
-	private IWebSocketProvider webSocketProvider;
-
 	public VarConfigurationContext(VarServlet varServlet, VarConfigurationContext parentContext,
-								   ParameterHandler parameterHandler, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
+								   ParameterHandler parameterHandler) {
 		this.varServlet = varServlet;
 		this.parameterHandler = parameterHandler;
 		this.parentContext = parentContext;
-		this.registeredWebSockets = registeredWebSockets;
-		this.webSocketProvider = webSocketProvider;
 	}
 
 	ParameterHandler getParameterHandler() {
@@ -113,17 +118,8 @@ public class VarConfigurationContext {
 		replaceAll(filters, getFilterAnnotations(method.getDeclaringClass().getAnnotations()));
 		replaceAll(filters, getFilterAnnotations(method.getClass().getAnnotations()));
 		replaceAll(filters, getFilterAnnotations(method.getAnnotations()));
-		replaceAll(filters, getWebsocketFilters(method));
 		return getFilters(method, filters);
 	}
-
-	private Set<FilterTuple> getWebsocketFilters(Method method) {
-		if (method.isAnnotationPresent(WebSocket.class) && webSocketProvider != null) {
-			return new HashSet<>(Collections.singletonList(new FilterTuple(webSocketProvider.getWebsocketFilterClass())));
-		}
-		return Collections.emptySet();
-	}
-
 
 	private void replaceAll(LinkedHashSet<FilterTuple> filters, Set<FilterTuple> filterAnnotations) {
 		filters.removeAll(filterAnnotations);

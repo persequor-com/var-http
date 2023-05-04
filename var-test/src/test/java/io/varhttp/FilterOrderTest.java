@@ -1,11 +1,11 @@
 package io.varhttp;
 
 import io.odinjector.OdinJector;
+import io.varhttp.controllers.withfilters.FilterCatcher;
 import io.varhttp.filterorder.DefaultFilter1;
 import io.varhttp.filterorder.DefaultFilter2;
 import io.varhttp.filterorder.DefaultFilter3;
 import io.varhttp.filterorder.DefaultFilter4;
-import io.varhttp.controllers.withfilters.FilterCatcher;
 import io.varhttp.filterorder.FilterControllerClass;
 import io.varhttp.filterorder.ShouldNotBeRunFilterInner;
 import io.varhttp.filterorder.ShouldNotBeRunFilterOnTheSide;
@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class FilterOrderTest {
-	static Standalone launcher;
+	static VarUndertow launcher;
 	static Thread thread;
 	private static FilterCatcher filterCatcher;
 
@@ -30,7 +30,7 @@ public class FilterOrderTest {
 	public static void setup() {
 		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
-		launcher = odinJector.getInstance(Standalone.class);
+		launcher = odinJector.getInstance(VarUndertow.class);
 		launcher.configure(config -> {
 			config.addDefaultVarFilter(DefaultFilter1.class);
 			config.addDefaultVarFilter(DefaultFilter2.class);
@@ -59,7 +59,7 @@ public class FilterOrderTest {
 
 	@AfterClass
 	public static void teardown() {
-		launcher.stop(Duration.ofSeconds(1));
+		launcher.stop(Duration.ofSeconds(20));
 	}
 
 	@Test

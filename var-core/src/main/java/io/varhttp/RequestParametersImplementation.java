@@ -1,15 +1,17 @@
 package io.varhttp;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RequestParametersImplementation implements RequestParameters {
 	private final Map<String, List<String>> decodedParams;
 
 	public RequestParametersImplementation(HttpServletRequest request) {
-		this.decodedParams = HttpHelper.decodeRequestParameters(request.getParameterMap());
+		this.decodedParams = request.getParameterMap().entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> Arrays.asList(entry.getValue())));
 	}
 
 	@Override
