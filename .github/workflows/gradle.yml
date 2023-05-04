@@ -40,13 +40,7 @@ jobs:
         if: failure()
         with:
           name: test_results
-          path: |
-            var-core/build/reports/tests/test/
-            var-jdk/build/reports/tests/test/
-            var-serializer-guice/build/reports/tests/test/
-            var-test/build/reports/tests/test/
-            var-test-support/build/reports/tests/test/
-            var-undertow/build/reports/tests/test/
+          path: ./**/build/reports/tests/test/
           retention-days: 1
       - name: versioning
         uses: paulhatch/semantic-version@v4.0.3
