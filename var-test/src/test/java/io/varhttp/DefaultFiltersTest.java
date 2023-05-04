@@ -42,6 +42,7 @@ public class DefaultFiltersTest {
 	@AfterClass
 	public static void teardown() {
 		launcher.stop();
+		filterCatcher = null;
 	}
 
 	@Test
@@ -49,7 +50,7 @@ public class DefaultFiltersTest {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
 		HttpClient.readContent(con);
 		List<String> result = filterCatcher.getResult();
-		System.err.println("----> " + result);
+		System.out.println("----------> " + result);
 		assertEquals(
 				Arrays.asList(
 						"Logging was called before",
