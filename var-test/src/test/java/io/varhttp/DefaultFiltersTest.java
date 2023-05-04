@@ -50,7 +50,16 @@ public class DefaultFiltersTest {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
 		HttpClient.readContent(con);
 		List<String> result = filterCatcher.getResult();
-		System.out.println("----------> " + result);
+		for (int i = 0; i < 20; i++) {
+			if (Arrays.asList(
+					"Logging was called before",
+					"/my-test",
+					"Logging was called after"
+			).equals(result)) {
+				break;
+			}
+			Thread.sleep(50);
+		}
 		assertEquals(
 				Arrays.asList(
 						"Logging was called before",
