@@ -22,18 +22,15 @@ public class VarServlet extends HttpServlet {
 	private final VarConfig varConfig;
 	private final ParameterHandler parameterHandler;
 	final ExecutionMap executions;
-	private ControllerMapper controllerMapper;
-	private HashMap<String, String> redirects = new HashMap<>();
-	private List<VarWebSocket> webSockets = new ArrayList<>();
-	private final RegisteredWebSockets registeredWebSockets;
+	private final ControllerMapper controllerMapper;
+	private final HashMap<String, String> redirects = new HashMap<>();
 
-	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, RegisteredWebSockets registeredWebSockets, IWebSocketProvider webSocketProvider) {
+	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
 		this.varConfig = varConfig;
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
-		this.registeredWebSockets = registeredWebSockets;
 
-		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
+		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter);
 		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 
@@ -126,7 +123,7 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {
-		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler, registeredWebSockets, null);
+		VarConfiguration varConfiguration = new VarConfiguration(this, controllerMapper, baseConfigurationContext, parameterHandler);
 		configuration.accept(varConfiguration);
 		baseConfigurationContext.applyMappings();
 		varConfiguration.applyMappings();
@@ -134,17 +131,5 @@ public class VarServlet extends HttpServlet {
 
 	public void redirect(String from, String to) {
 		redirects.put(from, to);
-	}
-
-	@Override
-	public void destroy() {
-		super.destroy();
-		for (VarWebSocket webSocket : webSockets) {
-			try {
-				webSocket.close();
-			} catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		}
 	}
 }

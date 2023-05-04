@@ -72,8 +72,7 @@ public class IsRequestSecureTest {
     }
 
     private void createLauncher(VarConfig varConfig) {
-        OdinJector odinJector = OdinJector.create().addContext(new OdinContext(varConfig))
-                .addContext(new UndertowContext());
+        OdinJector odinJector = OdinJector.create().addContext(new OdinContext(varConfig));
         launcher = odinJector.getInstance(Launcher.class);
         launcher.configure(config -> {
             config.addController(ContextControllerTest.class);

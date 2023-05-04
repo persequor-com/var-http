@@ -21,7 +21,7 @@ public class DefaultFiltersTest {
 
 	@BeforeClass
 	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
 
 		launcher = odinJector.getInstance(Launcher.class);

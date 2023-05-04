@@ -21,8 +21,7 @@ public class OnControllerAddTest {
 
 	@BeforeClass
 	public static void setup() throws InterruptedException {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)))
-				.addContext(new UndertowContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)));
 		launcher = odinJector.getInstance(Launcher.class);
 		launcher.configure(config -> config.onControllerAdd((path, method) -> methods.put(path, method.getName())));
 		thread = new Thread(launcher);

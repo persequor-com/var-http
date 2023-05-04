@@ -15,13 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VarServletTest {
@@ -39,14 +33,10 @@ public class VarServletTest {
 	private ControllerFilter controllerFilter;
 	@Mock
 	private VarConfigurationContext context;
-	@Mock
-	RegisteredWebSockets registeredWebSockets;
-	@Mock
-	IWebSocketProvider webSocketProvider;
 
 	@Before
 	public void setup() {
-		servlet = new VarServlet(varConfig, parameterHandler, controllerMapper, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
+		servlet = new VarServlet(varConfig, parameterHandler, controllerMapper, objectFactory, controllerFilter);
 	}
 
 	@Test

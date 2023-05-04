@@ -13,8 +13,7 @@ public class LauncherComponentTest extends LauncherTestBase {
 
 	@BeforeClass
 	public static void classSetup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)))
-				.addContext(new UndertowContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
 		Launcher launcher = odinJector.getInstance(Launcher.class);
 		varServlet = launcher.getServlet();
 		varServlet.configure(launcher::configure);

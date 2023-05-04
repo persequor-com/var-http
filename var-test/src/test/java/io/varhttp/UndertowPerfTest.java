@@ -23,7 +23,7 @@ public class UndertowPerfTest {
 
 	@BeforeClass
 	public static void setup() throws InterruptedException, ExecutionException, TimeoutException {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
 		launcher = odinJector.getInstance(LauncherUndertow.class);
 		thread = new Thread(launcher);
 		thread.run();

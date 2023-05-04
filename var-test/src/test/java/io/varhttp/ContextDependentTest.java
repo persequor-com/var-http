@@ -34,9 +34,9 @@ public class ContextDependentTest {
 
 	@BeforeClass
 	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext())
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)))
 				.addContext(new ControllerFilterContext()).addContext(new Context1());
-		OdinJector odinJector2 = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext())
+		OdinJector odinJector2 = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)))
 				.addContext(new ControllerFilterContext()).addContext(new Context2());
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
 		launcher = odinJector.getInstance(VarUndertow.class);

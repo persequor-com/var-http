@@ -9,7 +9,6 @@ import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ServletInfo;
-import io.varhttp.parameterhandlers.VarWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.Xnio;
@@ -62,16 +61,15 @@ public class VarUndertow implements Runnable {
 	private GracefulShutdownHandler gracefulShutdown;
 
 	@Inject
-	public VarUndertow(RegisteredWebSockets registeredWebSockets, VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
-					   ObjectFactory objectFactory, ControllerFilter controllerFilter, IWebSocketProvider webSocketProvider) {
+	public VarUndertow(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
+					   ObjectFactory objectFactory, ControllerFilter controllerFilter) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, registeredWebSockets, webSocketProvider);
+		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter);
 		servlets.put("/", servlet);
 	}
 
 	public void configure(Consumer<VarConfiguration> configuration) {
 		servlet.configure(c -> {
-			c.addParameterHandler(UndertowVarWebSocketHandler.class);
 			c.addParameterHandler(VarWebSocketHandler.class);
 			configuration.accept(c);
 		});
