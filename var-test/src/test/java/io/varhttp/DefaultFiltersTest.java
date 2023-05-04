@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -48,7 +49,14 @@ public class DefaultFiltersTest {
 		HttpURLConnection con = HttpClient.get("http://localhost:8088/my-test", "");
 		HttpClient.readContent(con);
 		List<String> result = filterCatcher.getResult();
-		assertEquals("Logging was called before\n/my-test\nLogging was called after", String.join("\n", result));
+		System.err.println("----> " + result);
+		assertEquals(
+				Arrays.asList(
+						"Logging was called before",
+						"/my-test",
+						"Logging was called after"
+				)
+				, result);
 	}
 
 	@FilterMethod
