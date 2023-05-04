@@ -16,7 +16,11 @@ public class RequestParameterHandler implements IParameterHandler {
 
 	@Override
 	public Object handle(ControllerContext controllerContext) {
-		return convert.convert(controllerContext.getParameters().get(configuration.getName()), configuration.getType(), configuration.getDefaultValue());
+		String parameter = controllerContext.getParameters().get(configuration.getName());
+		if(parameter == null && configuration.isRequired()) {
+			throw new MissingParamException("Required parameter " + configuration.getName() + " not found");
+		}
+		return convert.convert(parameter, configuration.getType(), configuration.getDefaultValue());
 	}
 
 	public static class Configuration extends MatchContext {
