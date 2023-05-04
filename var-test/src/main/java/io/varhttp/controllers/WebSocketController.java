@@ -9,44 +9,49 @@ import java.io.OutputStream;
 
 @ControllerClass
 public class WebSocketController {
-    private MyQueue myQueue;
 
-    @Inject
-    public WebSocketController(MyQueue myQueue) {
-        this.myQueue = myQueue;
-    }
+	@WebSocket(path = "/api/socketInit")
+	public void socket(VarWebSocket webSocket) {
+		System.out.println("socket init");
+		System.out.println("set on receive");
+		webSocket.onReceive(message -> {
+			message.setData("Pong! Was: `%s`".formatted(message.getData()));
+			webSocket.send(message);
+		});
 
-    @WebSocket(path = "/api/socketInit")
-    public void socket(RequestHeader requestHeader, VarWebSocket webSocket) {
-        System.out.println("socket init");
-        String cookie = requestHeader.getHeader("cookie");
-        System.out.println("set on receive");
-         webSocket.onReceive(message -> {
-            System.out.println("was here");
-            message.setData(message.getData()+" was here");
-            webSocket.send(message);
-        });
-        webSocket.setSendingQueue(myQueue.getQueue(cookie));
+		new Thread(() -> {
+			for (int i = 0; i < 10; i++) {
+				webSocket.send(new VarWebSocketMessage("Background server call nr %s/10!".formatted(i + 1)));
+				sleep(2000);
+			}
+		}).start();
+	}
 
-    }
+	private static void sleep(long sleepTime) {
+		try {
+			Thread.sleep(sleepTime);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    @Controller(path = "/socketjs")
-    public void js(ResponseStream response) {
-        try {
-            try(InputStream jsStream = WebSocketController.class.getResourceAsStream("/socket.html")) {
-                transferTo(jsStream, response.getOutputStream("text/html"));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	@Controller(path = "/socketjs")
+	public void js(ResponseStream response) {
+		try {
+			try (InputStream jsStream = WebSocketController.class.getResourceAsStream("/socket.html")) {
+				transferTo(jsStream, response.getOutputStream("text/html"));
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    private void transferTo(InputStream source, OutputStream target) throws IOException {
-        byte[] buf = new byte[8192];
-        int length;
-        while ((length = source.read(buf)) != -1) {
-            target.write(buf, 0, length);
-        }
-    }
+	private void transferTo(InputStream source, OutputStream target) throws IOException {
+		byte[] buf = new byte[8192];
+		int length;
+		while ((length = source.read(buf)) != -1) {
+			target.write(buf, 0, length);
+		}
+	}
 
 }

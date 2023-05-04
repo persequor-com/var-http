@@ -19,21 +19,16 @@ public class VarUndertowWebSocketHandler implements WebSocketConnectionCallback 
 
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
-        UndertowWebSocket webSocket = new UndertowWebSocket(exchange, channel);
-        exchange.getRequestURI();
+        UndertowWebSocket webSocket = new UndertowWebSocket(channel);
         webSockets.add(exchange.getRequestURI(), webSocket);
         channel.getReceiveSetter().set(new AbstractReceiveListener() {
 
             @Override
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
-                System.out.println("on full text message");
                 webSocket.receive(channel, message);
-
-                //WebSockets.sendText(message.getData(), channel, null);
             }
         });
 
-        System.out.println("consume receives done");
         channel.resumeReceives();
     }
 }
