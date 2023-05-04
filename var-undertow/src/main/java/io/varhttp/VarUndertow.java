@@ -109,7 +109,6 @@ public class VarUndertow implements Runnable {
 			manager.deploy();
 			PathHandler path = Handlers.path(Handlers.redirect("/"));
 
-//            path.addExactPath("/api/socketInit", websocket(webSocketHandler));
 			path.addPrefixPath("/", manager.start());
 
 			Undertow.Builder builder = Undertow.builder()
