@@ -2,12 +2,22 @@ package io.varhttp;
 
 import io.varhttp.parameterhandlers.IParameterHandler;
 import io.varhttp.parameterhandlers.IParameterHandlerMatcher;
+
+import javax.servlet.Filter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.Filter;
 
 public class VarConfigurationContext {
 	private VarServlet varServlet;
@@ -30,7 +40,7 @@ public class VarConfigurationContext {
 		this.parameterHandler = parameterHandler;
 		this.parentContext = parentContext;
 	}
-	
+
 	ParameterHandler getParameterHandler() {
 		if (parameterHandler == null) {
 			return parentContext.getParameterHandler();
@@ -111,7 +121,6 @@ public class VarConfigurationContext {
 		return getFilters(method, filters);
 	}
 
-
 	private void replaceAll(LinkedHashSet<FilterTuple> filters, Set<FilterTuple> filterAnnotations) {
 		filters.removeAll(filterAnnotations);
 		filters.addAll(filterAnnotations);
@@ -122,7 +131,7 @@ public class VarConfigurationContext {
 		List<Object> filters = new ArrayList<>(getInitializedDefaultFilters(method));
 		filters.addAll(getInitializedVarDefaultFilterExecutions(method));
 		filters.addAll(filterAnnotations.stream().map(f -> {
-			Class<?> filterClass = f.getFilter().value();
+			Class<?> filterClass = f.getFilterClass();
 			if (Filter.class.isAssignableFrom(filterClass)) {
 				return getAndInitializeFilter(method, f);
 			} else {

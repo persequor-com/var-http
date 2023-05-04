@@ -6,12 +6,12 @@ import javax.servlet.http.HttpServlet;
 import java.util.Collections;
 import java.util.Enumeration;
 
-public class VarServletConfig implements ServletConfig {
+public class JdkServletConfig implements ServletConfig {
 
 	private final HttpServlet httpServlet;
-	private final VarServletContext servletContext = new VarServletContext(null);
+	private final JdkServletContext servletContext = new JdkServletContext(null);
 
-	public VarServletConfig(HttpServlet httpServlet) {
+	public JdkServletConfig(HttpServlet httpServlet) {
 		this.httpServlet = httpServlet;
 	}
 

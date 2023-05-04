@@ -1,12 +1,15 @@
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'io.odinjector:odinjector:0.0.1-50'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation 'io.odinjector:odinjector:0.0.1-50'
     implementation 'org.slf4j:slf4j-simple:1.7.26'
     implementation group: 'javax', name: 'javaee-web-api', version: '8.0.1'
-    compile project(':var-core');
+    implementation project(':var-core')
     testImplementation project(':var-test-support')
-    compile project(':var-serializer-guice');
+    implementation project(':var-serializer-guice')
+
+    implementation project(':var-undertow')
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 }
 
 test{

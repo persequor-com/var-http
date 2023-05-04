@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(':var-core')
+    implementation group: 'com.google.guava', name: 'guava', version: '20.0'
+
+}

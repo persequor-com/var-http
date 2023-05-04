@@ -8,11 +8,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,9 +34,17 @@ public class TestServletResponse implements HttpServletResponse {
 
 		@Override
 		public void write(int b) throws IOException {
+			TestServletResponse.this.committed = true;
 			outputStream.write(b);
 		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			TestServletResponse.this.committed = true;
+			outputStream.write(b, off, len);
+		}
 	};
+	private boolean committed = false;
 
 	public TestServletResponse() {
 		this.printWriter = new PrintWriter(servletOutputStream);
@@ -216,7 +222,7 @@ public class TestServletResponse implements HttpServletResponse {
 
 	@Override
 	public boolean isCommitted() {
-		return false;
+		return committed;
 	}
 
 	@Override

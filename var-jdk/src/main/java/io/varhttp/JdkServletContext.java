@@ -22,11 +22,11 @@ import java.util.EventListener;
 import java.util.Map;
 import java.util.Set;
 
-public class VarServletContext implements ServletContext {
-	Logger logger = LoggerFactory.getLogger(VarServletContext.class);
+public class JdkServletContext implements ServletContext {
+	Logger logger = LoggerFactory.getLogger(JdkServletContext.class);
 	private HttpExchange httpExchange;
 
-	public VarServletContext(HttpExchange httpExchange) {
+	public JdkServletContext(HttpExchange httpExchange) {
 		this.httpExchange = httpExchange;
 	}
 

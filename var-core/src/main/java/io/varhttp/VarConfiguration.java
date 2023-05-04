@@ -13,9 +13,7 @@ public class VarConfiguration {
 	private final VarConfigurationContext context;
 	private ControllerMapper controllerMapper = null;
 	private final ParameterHandler parameterHandler;
-	private ExceptionRegistry exceptionRegistry;
 	List<Runnable> mappings = new ArrayList<>();
-
 
 	public VarConfiguration(VarServlet servlet, ControllerMapper controllerMapper, VarConfigurationContext context, ParameterHandler parameterHandler) {
 		this.servlet = servlet;

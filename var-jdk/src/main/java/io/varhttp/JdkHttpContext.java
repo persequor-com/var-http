@@ -14,21 +14,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
 
-public class VarHttpContext implements HttpHandler {
+public class JdkHttpContext implements HttpHandler {
 	private final HttpServlet servlet;
 	private final VarConfig config;
 
-	public VarHttpContext(HttpServlet servlet, VarConfig config) {
+	public JdkHttpContext(HttpServlet servlet, VarConfig config) {
 		this.servlet = servlet;
 		this.config = config;
 	}
@@ -78,9 +74,9 @@ public class VarHttpContext implements HttpHandler {
 		}
 		final Map<String, String[]> postData = parsePostData.entrySet().stream().collect(toMap(e -> e.getKey(), e -> e.getValue().toArray(new String[0])));
 
-		VarHttpServletRequest req = new VarHttpServletRequest(ex, postData, is, new VarServletContext(ex), config);
+		JdkHttpServletRequest req = new JdkHttpServletRequest(ex, postData, is, new JdkServletContext(ex), config);
 
-		VarHttpServletResponse resp = new VarHttpServletResponse(ex);
+		JdkHttpServletResponse resp = new JdkHttpServletResponse(ex);
 
 		try {
 			servlet.service(req, resp);

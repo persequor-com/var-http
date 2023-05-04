@@ -8,30 +8,30 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class PerfLauncher implements Runnable {
-	private Standalone standalone;
+	private final VarUndertow undertow;
 
 	@Inject
-	public PerfLauncher(Standalone standalone) {
-		this.standalone = standalone;
+	public PerfLauncher(VarUndertow undertow) {
+		this.undertow = undertow;
 	}
 
 	@Override
 	public void run() {
 		long s = System.currentTimeMillis();
-		standalone.setExecutor(Executors.newCachedThreadPool());
-		standalone.configure(configuration -> {
+		undertow.setExecutor(Executors.newCachedThreadPool());
+		undertow.configure(configuration -> {
 			configuration.addControllerPackage(Class1.class.getPackage());
 		});
-		standalone.run();
-		System.out.println("Startup time: " + (System.currentTimeMillis() - s));
+		undertow.run();
+		System.out.println("Startup time: "+(System.currentTimeMillis()-s));
 	}
 
 	public void stop() {
-		standalone.stop(Duration.ofSeconds(1));
+		undertow.stop(Duration.ofSeconds(20));
 	}
 
 	public Future<Boolean> isStarted() {
-		return standalone.getStarted();
+		return undertow.getStarted();
 	}
 
 }

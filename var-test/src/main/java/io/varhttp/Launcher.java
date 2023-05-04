@@ -1,16 +1,15 @@
 package io.varhttp;
 
 import io.varhttp.controllers.MyTestController;
-
 import java.time.Duration;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 
 public class Launcher implements Runnable {
-	private final Standalone standalone;
+	private final VarUndertow standalone;
 
 	@Inject
-	public Launcher(Standalone standalone) {
+	public Launcher(VarUndertow standalone) {
 		this.standalone = standalone;
 	}
 
@@ -29,8 +28,10 @@ public class Launcher implements Runnable {
 		varConfiguration.addControllerPackage(MyTestController.class.getPackage());
 	}
 
-	public void stop() {
-		standalone.stop(Duration.ofSeconds(1));
+	public Thread stop() {
+		Thread stopper = new Thread(() -> standalone.stop(Duration.ofSeconds(20)));
+		stopper.start();
+		return stopper;
 	}
 
 	public VarServlet getServlet() {
