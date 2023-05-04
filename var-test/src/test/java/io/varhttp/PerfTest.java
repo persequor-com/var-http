@@ -27,8 +27,7 @@ public class PerfTest {
 
 	@BeforeClass
 	public static void setup() throws InterruptedException, ExecutionException, TimeoutException {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)))
-				.addContext(new UndertowContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8089)));
 		launcher = odinJector.getInstance(PerfLauncher.class);
 		launcher.run();
 		launcher.isStarted().get(5, TimeUnit.SECONDS);

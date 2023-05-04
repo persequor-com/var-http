@@ -1,11 +1,11 @@
 package io.varhttp;
 
 import io.odinjector.OdinJector;
+import io.varhttp.controllers.withfilters.FilterCatcher;
 import io.varhttp.filterorder.DefaultFilter1;
 import io.varhttp.filterorder.DefaultFilter2;
 import io.varhttp.filterorder.DefaultFilter3;
 import io.varhttp.filterorder.DefaultFilter4;
-import io.varhttp.controllers.withfilters.FilterCatcher;
 import io.varhttp.filterorder.FilterControllerClass;
 import io.varhttp.filterorder.ShouldNotBeRunFilterInner;
 import io.varhttp.filterorder.ShouldNotBeRunFilterOnTheSide;
@@ -28,7 +28,7 @@ public class FilterOrderTest {
 
 	@BeforeClass
 	public static void setup() {
-		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088))).addContext(new UndertowContext());
+		OdinJector odinJector = OdinJector.create().addContext(new OdinContext(new VarConfig().setPort(8088)));
 		filterCatcher = odinJector.getInstance(FilterCatcher.class);
 		launcher = odinJector.getInstance(VarUndertow.class);
 		launcher.configure(config -> {

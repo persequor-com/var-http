@@ -4,25 +4,19 @@ import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.*;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.concurrent.CompletableFuture;
 
 
-@Singleton
-public class VarUndertowWebSocketHandler implements WebSocketConnectionCallback {
-    private RegisteredWebSockets webSockets;
+public class VarUndertowWebSocketCallback implements WebSocketConnectionCallback {
 
-    @Inject
-    public VarUndertowWebSocketHandler(RegisteredWebSockets webSockets) {
-        this.webSockets = webSockets;
-    }
+
+    private CompletableFuture<VarWebSocket> futureSocket = new CompletableFuture<>();
 
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
         UndertowWebSocket webSocket = new UndertowWebSocket(channel);
-        webSockets.add(exchange.getRequestURI(), webSocket);
+        futureSocket.complete(webSocket);
         channel.getReceiveSetter().set(new AbstractReceiveListener() {
-
             @Override
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
                 webSocket.receive(channel, message);
@@ -30,5 +24,10 @@ public class VarUndertowWebSocketHandler implements WebSocketConnectionCallback 
         });
 
         channel.resumeReceives();
+    }
+
+
+    public CompletableFuture<VarWebSocket> getWebSocket() {
+        return futureSocket;
     }
 }
