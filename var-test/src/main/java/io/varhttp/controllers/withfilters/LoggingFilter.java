@@ -28,7 +28,12 @@ public class LoggingFilter implements VarFilter, javax.servlet.Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		filterCatcher.add("Logging was called before");
-		chain.doFilter(request, response);
-		filterCatcher.add("Logging was called after");
+		try {
+			chain.doFilter(request, response);
+		} catch (Throwable th) {
+			filterCatcher.add(th.getMessage());
+		} finally {
+			filterCatcher.add("Logging was called after");
+		}
 	}
 }
