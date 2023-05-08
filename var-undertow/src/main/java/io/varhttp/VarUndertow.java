@@ -7,6 +7,7 @@ import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.InstanceHandle;
+import io.undertow.servlet.api.ServletContainer;
 import io.undertow.servlet.api.ServletInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,7 @@ public class VarUndertow implements Runnable {
 	private Undertow server;
 	private SSLContext sslContext;
 	private ExecutorService executorService;
+	private XnioWorker worker;
 
 	@Inject
 	public VarUndertow(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
@@ -83,6 +86,7 @@ public class VarUndertow implements Runnable {
 			DeploymentInfo servletBuilder = Servlets.deployment()
 					.setClassLoader(VarUndertow.class.getClassLoader())
 					.setContextPath("/");
+
 			for (Map.Entry<String, HttpServlet> servlet : servlets.entrySet()) {
 
 				ServletInfo servletInfo = Servlets.servlet(servlet.getKey(), servlet.getValue().getClass(), () -> new InstanceHandle<>() {
@@ -102,9 +106,10 @@ public class VarUndertow implements Runnable {
 			}
 
 
-			DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
-
+			ServletContainer servletContainer = ServletContainer.Factory.newInstance();
+			DeploymentManager manager = servletContainer.addDeployment(servletBuilder);
 			manager.deploy();
+
 			PathHandler path = Handlers.path(Handlers.redirect("/"));
 
 			path.addPrefixPath("/", manager.start());
@@ -117,11 +122,12 @@ public class VarUndertow implements Runnable {
 				builder.addHttpListener(varConfig.getPort(), "localhost");
 			}
 
+			XnioWorker.Builder workerBuilder = Xnio.getInstance().createWorkerBuilder();
 			if (this.executorService != null) {
-				XnioWorker.Builder workerBuilder = Xnio.getInstance().createWorkerBuilder();
 				workerBuilder.setExternalExecutorService(executorService);
-				builder.setWorker(workerBuilder.build());
 			}
+
+			builder.setWorker(this.worker = workerBuilder.build());
 
 			server = builder.build();
 
@@ -135,14 +141,19 @@ public class VarUndertow implements Runnable {
 	}
 
 	public void stop(Duration awaitTimeout) {
+		long start = System.currentTimeMillis();
 		servlet.initiateShutdown();
 		try {
-			servlet.awaitShutdown(awaitTimeout);
-		} catch (InterruptedException e) {
+			try {
+				servlet.awaitShutdown(awaitTimeout);
+			} finally {
+				server.stop();
+				worker.shutdown();
+				worker.shutdownNow();
+				worker.awaitTermination(awaitTimeout.toMillis() - (System.currentTimeMillis() - start), TimeUnit.MILLISECONDS);
+			}
+		} catch (InterruptedException interruptedException) {
 			Thread.currentThread().interrupt();
-			throw new RuntimeException(e);
-		} finally {
-			server.stop();
 		}
 		servlets.values().forEach(HttpServlet::destroy);
 	}
