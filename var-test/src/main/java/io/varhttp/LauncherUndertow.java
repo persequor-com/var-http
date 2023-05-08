@@ -27,7 +27,7 @@ public class LauncherUndertow implements Runnable {
 		varConfiguration.addControllerPackage(MyTestController.class.getPackage());
 	}
 
-	public void stop() {
+	public void stop(){
 		varUndertow.stop(Duration.ofSeconds(20));
 	}
 
