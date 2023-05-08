@@ -2,7 +2,6 @@ package io.varhttp;
 
 import io.undertow.Handlers;
 import io.undertow.Undertow;
-import io.undertow.server.handlers.GracefulShutdownHandler;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
@@ -58,7 +57,6 @@ public class VarUndertow implements Runnable {
 	private Undertow server;
 	private SSLContext sslContext;
 	private ExecutorService executorService;
-	private GracefulShutdownHandler gracefulShutdown;
 
 	@Inject
 	public VarUndertow(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
@@ -111,8 +109,7 @@ public class VarUndertow implements Runnable {
 
 			path.addPrefixPath("/", manager.start());
 
-			Undertow.Builder builder = Undertow.builder()
-					.setHandler(this.gracefulShutdown = new GracefulShutdownHandler(path));
+			Undertow.Builder builder = Undertow.builder().setHandler(path);
 
 			if (sslContext != null) {
 				builder.addHttpsListener(varConfig.getPort(), "localhost", sslContext);
@@ -138,9 +135,9 @@ public class VarUndertow implements Runnable {
 	}
 
 	public void stop(Duration awaitTimeout) {
-		gracefulShutdown.shutdown();
+		servlet.initiateShutdown();
 		try {
-			gracefulShutdown.awaitShutdown(awaitTimeout.toMillis());
+			servlet.awaitShutdown(awaitTimeout);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new RuntimeException(e);

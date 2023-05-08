@@ -75,20 +75,15 @@ public class Standalone implements Runnable {
 	}
 
 	public void stop(Duration awaitTimeout) {
-		final long shutdownStart = System.currentTimeMillis();
-		if (server != null) {
-			server.stop((int) awaitTimeout.getSeconds()); //stop listening and await(block) for at most timeout seconds
-		}
-		if (executor != null) {
-			executor.shutdownNow();
-			final long timeoutLeft = awaitTimeout.toMillis() - (System.currentTimeMillis() - shutdownStart);
-			if (timeoutLeft > 0) {
-				try {
-					executor.awaitTermination(timeoutLeft, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					return;
-				}
+		servlet.initiateShutdown();
+		try {
+			servlet.awaitShutdown(awaitTimeout);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(e);
+		} finally {
+			if (server != null) {
+				server.stop(0);
 			}
 		}
 	}

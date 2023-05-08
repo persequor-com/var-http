@@ -10,9 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 @Singleton
@@ -24,6 +27,10 @@ public class VarServlet extends HttpServlet {
 	final ExecutionMap executions;
 	private final ControllerMapper controllerMapper;
 	private final HashMap<String, String> redirects = new HashMap<>();
+
+	private final AtomicLong activeRequests = new AtomicLong(0);
+	private final AtomicBoolean shutdownInProgress = new AtomicBoolean(false);
+
 
 	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
 		this.varConfig = varConfig;
@@ -70,6 +77,19 @@ public class VarServlet extends HttpServlet {
 	}
 
 	public void handle(HttpServletRequest request, HttpServletResponse response) {
+		if (shutdownInProgress.get()) {
+			response.setStatus(503);// service unavailable
+			return;
+		}
+		activeRequests.incrementAndGet();
+		try {
+			innerHandle(request, response);
+		} finally {
+			activeRequests.decrementAndGet();
+		}
+	}
+
+	public void innerHandle(HttpServletRequest request, HttpServletResponse response) {
 		lockDefaultEncoding(request);
 		final HttpMethod httpMethod = HttpMethod.valueOf(request.getMethod());
 		String servletPath = request.getRequestURI();
@@ -113,7 +133,7 @@ public class VarServlet extends HttpServlet {
 
 	private static void lockDefaultEncoding(HttpServletRequest request) {
 		String characterEncoding = request.getCharacterEncoding();
-		if(characterEncoding == null){
+		if (characterEncoding == null) {
 			try {
 				request.setCharacterEncoding(Charsets.UTF_8.toString());
 			} catch (UnsupportedEncodingException e) {
@@ -131,5 +151,31 @@ public class VarServlet extends HttpServlet {
 
 	public void redirect(String from, String to) {
 		redirects.put(from, to);
+	}
+
+
+	public void initiateShutdown() {
+		shutdownInProgress.set(true);
+	}
+
+
+	/**
+	 * Waits a set length of time for the handler to shut down
+	 *
+	 * @param duration The length of time
+	 * @return <code>true</code> If the handler successfully shut down
+	 */
+	public boolean awaitShutdown(Duration duration) throws InterruptedException {
+		if (!shutdownInProgress.get()) {
+			throw new IllegalStateException("Shutdown hasn't been started");
+		}
+		long start = System.currentTimeMillis();
+		do {
+			if (activeRequests.get() == 0) {
+				return true;
+			}
+			Thread.sleep(10);
+		} while ((System.currentTimeMillis() - start) < duration.toMillis());
+		return false;
 	}
 }
