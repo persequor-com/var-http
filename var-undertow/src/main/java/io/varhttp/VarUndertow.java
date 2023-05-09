@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -116,13 +117,17 @@ public class VarUndertow implements Runnable {
 
 			Undertow.Builder builder = Undertow.builder().setHandler(path);
 
+			Undertow.ListenerBuilder listenerBuilder = new Undertow.ListenerBuilder().setType(Undertow.ListenerType.HTTP);
+			listenerBuilder.setPort(varConfig.getPort());
+			listenerBuilder.setHost(new InetSocketAddress(varConfig.getPort()).getHostName());
 			if (sslContext != null) {
-				builder.addHttpsListener(varConfig.getPort(), "localhost", sslContext);
-			} else {
-				builder.addHttpListener(varConfig.getPort(), "localhost");
+				listenerBuilder.setType(Undertow.ListenerType.HTTPS);
+				listenerBuilder.setSslContext(sslContext);
 			}
+			builder.addListener(listenerBuilder);
 
 			XnioWorker.Builder workerBuilder = Xnio.getInstance().createWorkerBuilder();
+			workerBuilder.setWorkerName("var-XNIO");
 			if (this.executorService != null) {
 				workerBuilder.setExternalExecutorService(executorService);
 			}
