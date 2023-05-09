@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class LauncherTestBase {
 
@@ -55,6 +56,22 @@ public abstract class LauncherTestBase {
 		varClient.get("/requestParameter?var=my&datetime=2017-06-16T21%3A51%3A30.211%2B05%3A30")
 				.execute()
 				.assertContent("my 2017-06-16T21:51:30.211+05:30");
+	}
+
+
+	@Test
+	public void requestParameter_required() throws Throwable {
+		varClient.get("/required-request-params?paramOne=true&paramTwo=false")
+				.execute()
+				.assertContent("true|false");
+	}
+
+	@Test
+	public void requestParameter_missingRequired() throws Throwable {
+		varClient.get("/required-request-params?paramOne=true")
+				.execute()
+				.isInternalError()
+				.assertOnResponse(httpResponse -> assertTrue(httpResponse.getContent().contains("Required parameter paramTwo not found")));
 	}
 
 	@Test
@@ -289,7 +306,8 @@ public abstract class LauncherTestBase {
 				.execute()
 				.assertHeaderSize("Content-Type", 1)
 				.assertContentType("application/javascript")
-				.assertContent("alert('hello darkness my old friend')");}
+				.assertContent("alert('hello darkness my old friend')");
+	}
 
 	@Test
 	public void headController() throws Throwable {

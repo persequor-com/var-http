@@ -64,6 +64,11 @@ public class MyTestController {
 		return uuid1.toString() + " " + uuid2.toString();
 	}
 
+	@Controller(path = "/required-request-params")
+	public String requiredRequestParams(@RequestParameter(name = "paramOne", required = true, description = "true") Boolean paramOne, @RequestParameter(name = "paramTwo", required = true, description = "true") Boolean paramTwo) {
+		return paramOne + "|" + paramTwo;
+	}
+
 	@Controller(path = "/header")
 	public String header(ResponseHeader responseHeader, RequestHeader requestHeader) {
 		responseHeader.addHeader("My", requestHeader.getHeader("My"));
