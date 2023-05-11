@@ -68,10 +68,26 @@ public abstract class LauncherTestBase {
 
 	@Test
 	public void requestParameter_missingRequired() throws Throwable {
-		varClient.get("/required-request-params?paramOne=true")
+		varClient.get("/required-request-params?paramTwo=false")
 				.execute()
 				.isBadRequest()
-				.assertOnResponse(httpResponse -> assertTrue(httpResponse.getContent().contains("Required parameter paramTwo not found")));
+				.assertOnResponse(httpResponse -> assertTrue(httpResponse.getContent().contains("Required parameter paramOne not found")));
+	}
+
+	@Test
+	public void requestParameter_missingRequiredWithDefaultValue() throws Throwable {
+		varClient.get("/required-request-params?paramOne=true")
+				.execute()
+				.isOk()
+				.assertContent("true|true");
+	}
+
+	@Test
+	public void requestParameter_requiredWithDefaultValuePresent() throws Throwable {
+		varClient.get("/required-request-params?paramOne=true&paramTwo=false")
+				.execute()
+				.isOk()
+				.assertContent("true|false");
 	}
 
 	@Test

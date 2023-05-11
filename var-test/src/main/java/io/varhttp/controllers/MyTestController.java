@@ -65,7 +65,7 @@ public class MyTestController {
 	}
 
 	@Controller(path = "/required-request-params")
-	public String requiredRequestParams(@RequestParameter(name = "paramOne", required = true, description = "true") Boolean paramOne, @RequestParameter(name = "paramTwo", required = true, description = "true") Boolean paramTwo) {
+	public String requiredRequestParams(@RequestParameter(name = "paramOne", required = true) Boolean paramOne, @RequestParameter(name = "paramTwo", required = true, defaultValue = "true") Boolean paramTwo) {
 		return paramOne + "|" + paramTwo;
 	}
 
