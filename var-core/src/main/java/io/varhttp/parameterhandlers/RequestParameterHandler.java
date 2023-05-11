@@ -1,6 +1,7 @@
 package io.varhttp.parameterhandlers;
 
 import io.varhttp.ControllerContext;
+import io.varhttp.TypeHelper;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -30,7 +31,11 @@ public class RequestParameterHandler implements IParameterHandler {
 		public Configuration(Method method, Parameter parameter, Class<?> type, String name, boolean required, String defaultValue) {
 			super(method, parameter, type);
 			this.name = name;
-			this.required = required;
+			if(TypeHelper.isValidDefaultValue(defaultValue)) {
+				this.required = false;
+			} else {
+				this.required = required;
+			}
 			this.setDefaultValue(defaultValue);
 		}
 		public boolean isRequired() {

@@ -64,4 +64,13 @@ public class TypeHelper {
 			this.defaultValue = defaultValue;
 		}
 	}
+
+	/**
+	 * Checks if a given string is a valid default value for a parameter.
+	 * @param defaultValue The string to check
+	 * @return true if the string is a valid default value, false otherwise
+	 */
+	public static boolean isValidDefaultValue(String defaultValue) {
+		return defaultValue != null && !"".equals(defaultValue);
+	}
 }
