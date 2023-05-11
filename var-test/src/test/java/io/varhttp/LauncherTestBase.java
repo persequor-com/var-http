@@ -70,7 +70,7 @@ public abstract class LauncherTestBase {
 	public void requestParameter_missingRequired() throws Throwable {
 		varClient.get("/required-request-params?paramOne=true")
 				.execute()
-				.isInternalError()
+				.isBadRequest()
 				.assertOnResponse(httpResponse -> assertTrue(httpResponse.getContent().contains("Required parameter paramTwo not found")));
 	}
 

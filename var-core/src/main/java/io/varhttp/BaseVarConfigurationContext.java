@@ -1,12 +1,22 @@
 package io.varhttp;
 
-import io.varhttp.parameterhandlers.*;
+import io.varhttp.parameterhandlers.HttpServletRequestParameterHandler;
+import io.varhttp.parameterhandlers.HttpServletResponseParameterHandler;
+import io.varhttp.parameterhandlers.MissingParamException;
+import io.varhttp.parameterhandlers.PathVariableParameterHandlerMatcher;
+import io.varhttp.parameterhandlers.RequestBodyHandlerMatcher;
+import io.varhttp.parameterhandlers.RequestHeaderParameterHandler;
+import io.varhttp.parameterhandlers.RequestParameterHandlerMatcher;
+import io.varhttp.parameterhandlers.RequestParametersHandler;
+import io.varhttp.parameterhandlers.ResponseHeaderParameterHandler;
+import io.varhttp.parameterhandlers.ResponseStreamParameterHandler;
+import io.varhttp.parameterhandlers.VarFilterChainParameterHandler;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class BaseVarConfigurationContext extends VarConfigurationContext {
-
 
 
 	@Inject
@@ -28,6 +38,8 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		controllerMatchers.add(new VarControllerMatcher());
 		controllerMatchers.add(new VarWebSocketMatcher());
 		exceptionRegistry = new ExceptionRegistry();
+		exceptionRegistry.registerException(new ControllerExceptionMapper(ContentTypeException.class, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE));
+		exceptionRegistry.registerException(new ControllerExceptionMapper(MissingParamException.class, HttpServletResponse.SC_BAD_REQUEST));
 	}
 
 	ParameterHandler getParameterHandler() {

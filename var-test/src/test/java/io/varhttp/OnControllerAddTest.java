@@ -41,7 +41,7 @@ public class OnControllerAddTest {
 						"myTestRequestParameter", "header", "headerPathInfo", "servletRequest", "socket", "optionalBody", "primitives",
 						"primitivesBoxed", "listController", "listObject", "requestParameters", "requestParameters", "requiredRequestParams",
 						"requestBodyString", "responseStream_getOutputStream_contentType", "getOutputStream_addiionalContentType",
-						"returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream","js",
+						"returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream", "js",
 						"headController", "altControllerAnnotation", "altControllerAnnotation", "checkedException",
 						"uncheckedException", "checkedException_varFilter", "uncheckedException_varFilter",
 						"myTest", "redirect", "redirectRelative", "url", "contextdependent", "uuid"));
