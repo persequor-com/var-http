@@ -54,8 +54,6 @@ public class ControllerExecution  {
 			}
 
 			chain.doFilter(context.request(), context.response());
-		} catch (ContentTypeException e) {
-			fail(415,e,context.response());
 		} catch (WrappedServletException e) {
 			// Controller logic threw exception
 			Throwable cause = e.getCause() == null ? e : e.getCause();
