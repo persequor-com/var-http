@@ -20,11 +20,12 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 
 
 	@Inject
-	public BaseVarConfigurationContext(VarServlet varServlet, ParameterHandler parameterHandler, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
+	public BaseVarConfigurationContext(VarServlet varServlet, ParameterHandler parameterHandler, ObjectFactory objectFactory, ControllerFilter controllerFilter, ExceptionRegistry exceptionRegistry) {
 		super(varServlet, null, parameterHandler);
 		this.parameterHandler = parameterHandler;
 		this.objectFactory = objectFactory;
 		this.controllerFilter = controllerFilter;
+		this.exceptionRegistry = exceptionRegistry;
 		parameterHandler.addParameterHandler(ResponseStreamParameterHandler.class);
 		parameterHandler.addParameterHandler(ResponseHeaderParameterHandler.class);
 		parameterHandler.addParameterHandler(RequestParametersHandler.class);
@@ -37,7 +38,6 @@ public class BaseVarConfigurationContext extends VarConfigurationContext {
 		parameterHandler.addParameterHandler(VarFilterChainParameterHandler.class);
 		controllerMatchers.add(new VarControllerMatcher());
 		controllerMatchers.add(new VarWebSocketMatcher());
-		exceptionRegistry = new ExceptionRegistry();
 		exceptionRegistry.registerException(new ControllerExceptionMapper(ContentTypeException.class, HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE));
 		exceptionRegistry.registerException(new ControllerExceptionMapper(MissingParamException.class, HttpServletResponse.SC_BAD_REQUEST));
 	}

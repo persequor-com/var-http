@@ -64,9 +64,9 @@ public class VarUndertow implements Runnable {
 
 	@Inject
 	public VarUndertow(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
-					   ObjectFactory objectFactory, ControllerFilter controllerFilter) {
+					   ObjectFactory objectFactory, ControllerFilter controllerFilter, ExceptionRegistry exceptionRegistry) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter);
+		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, exceptionRegistry);
 		servlets.put("/", servlet);
 	}
 

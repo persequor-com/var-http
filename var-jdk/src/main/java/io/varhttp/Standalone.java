@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 
@@ -39,9 +38,9 @@ public class Standalone implements Runnable {
 
 	@Inject
 	public Standalone(VarConfig varConfig, Provider<ParameterHandler> parameterHandlerProvider, ControllerMapper controllerMapper,
-					  ObjectFactory objectFactory, ControllerFilter controllerFilter, HttpServerFactory serverFactory) {
+					   ObjectFactory objectFactory, ControllerFilter controllerFilter, HttpServerFactory serverFactory, ExceptionRegistry exceptionRegistry) {
 		this.varConfig = varConfig;
-		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter);
+		this.servlet = new VarServlet(varConfig, parameterHandlerProvider.get(), controllerMapper, objectFactory, controllerFilter, exceptionRegistry);
 		servlets.put("/", servlet);
 		this.serverFactory = serverFactory;
 	}
