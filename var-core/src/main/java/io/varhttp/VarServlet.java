@@ -11,9 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -32,12 +30,12 @@ public class VarServlet extends HttpServlet {
 	private final AtomicBoolean shutdownInProgress = new AtomicBoolean(false);
 
 
-	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter) {
+	public VarServlet(VarConfig varConfig, ParameterHandler parameterHandler, ControllerMapper controllerMapper, ObjectFactory objectFactory, ControllerFilter controllerFilter, ExceptionRegistry exceptionRegistry) {
 		this.varConfig = varConfig;
 		this.parameterHandler = parameterHandler;
 		this.controllerMapper = controllerMapper;
 
-		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter);
+		this.baseConfigurationContext = new BaseVarConfigurationContext(this, this.parameterHandler, objectFactory, controllerFilter, exceptionRegistry);
 		this.executions = new ExecutionMap(this.baseConfigurationContext);
 	}
 

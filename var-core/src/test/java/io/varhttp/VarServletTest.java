@@ -34,9 +34,11 @@ public class VarServletTest {
 	@Mock
 	private VarConfigurationContext context;
 
+	private ExceptionRegistry exceptionRegistry = new ExceptionRegistry();
+
 	@Before
 	public void setup() {
-		servlet = new VarServlet(varConfig, parameterHandler, controllerMapper, objectFactory, controllerFilter);
+		servlet = new VarServlet(varConfig, parameterHandler, controllerMapper, objectFactory, controllerFilter, exceptionRegistry);
 	}
 
 	@Test
