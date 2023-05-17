@@ -86,6 +86,11 @@ public class MyTestController {
 		return servletRequest.getRequestURI();
 	}
 
+	@Controller(path = "/http-servlet-request-not-implemented")
+	public void servletRequestAccessNotImplementedMethods(HttpServletRequest servletRequest) {
+		servletRequest.getSession();
+	}
+
 
 	@Controller(path = "/defaultValue")
 	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh", required = false) String param, @RequestParameter(name = "param2", defaultValue = "muh", required = false) String param2) {

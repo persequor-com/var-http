@@ -38,7 +38,7 @@ public class OnControllerAddTest {
 		Set<String> expectedMethodNames =
 				new TreeSet<>(Arrays.asList("login", "muh", "prefixed", "root", "defaultValue", "myTest",
 						"myTestSerialized", "myTestPathVar", "myTestPathVarMultiLevel", "noSerializerCustomContentType_responseHelper",
-						"myTestRequestParameter", "header", "headerPathInfo", "servletRequest", "socket", "optionalBody", "primitives",
+						"myTestRequestParameter", "header", "headerPathInfo", "servletRequest", "servletRequestAccessNotImplementedMethods", "socket", "optionalBody", "primitives",
 						"primitivesBoxed", "listController", "listObject", "requestParameters", "requestParameters", "requiredRequestParams",
 						"requestBodyString", "responseStream_getOutputStream_contentType", "getOutputStream_addiionalContentType",
 						"returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream", "js",
@@ -51,7 +51,7 @@ public class OnControllerAddTest {
 						"/no-serializer-custom-content-type-annotation", "/contextdependent", "/controllable-endpoint", "/header", "/listObject",
 						"/redirects/target", "/primitivesBoxed", "/my-test", "/redirects/redirect", "/dates",
 						"/unchecked-exception", "/altControllerAnnotation", "/defaultValue", "/pathVar/{pathVar}",
-						"/getOutputStream_addiionalContentType", "/listController", "/http-servlet-request/*",
+						"/getOutputStream_addiionalContentType", "/listController", "/http-servlet-request/*", "/http-servlet-request-not-implemented",
 						"/requestBodyString", "/checked-exception-var", "/primitives", "/checked-exception",
 						"/muh", "/redirects/redirectRelative", "/enumParameter/{enum}", "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}",
 						"/anothercontextdependent", "/api/socketInit", "/", "/requestParameters", "/requestParameters", "/required-request-params", "/packageprefix/classprefix/controller",

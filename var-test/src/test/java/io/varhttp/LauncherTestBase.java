@@ -120,15 +120,21 @@ public abstract class LauncherTestBase {
 	@Test
 	public void headerPathInfo() throws Throwable {
 		varClient.get("/header-path-info/xxx?key=value")
-				.execute()
+				.execute().isOk()
 				.assertContent("/header-path-info/xxx");
 	}
 
 	@Test
 	public void servletRequest() throws Throwable {
 		varClient.get("/http-servlet-request/xxx?key=value")
-				.execute()
+				.execute().isOk()
 				.assertContent("/http-servlet-request/xxx");
+	}
+
+	@Test
+	public void servletRequest_notImplementedMethods() throws Throwable {
+		varClient.get("/http-servlet-request-not-implemented")
+				.execute().isInternalError();
 	}
 
 	@Test
