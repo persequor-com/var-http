@@ -53,7 +53,7 @@ jobs:
           bump_each_commit: false
         id: versioning
       - name: 📢 Publish package
-        run: ./gradlew -PprojVersion=${${{steps.versioning.outputs.version}}//[/]/_} publish
+        run: ./gradlew -PprojVersion=${${{steps.versioning.outputs.version}}//[\/]/_} publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
