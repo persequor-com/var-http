@@ -8,8 +8,8 @@ import java.io.PrintWriter;
 
 public class VarServletOutputStream extends ServletOutputStream {
 
-	public final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	public final PrintWriter printWriter = new PrintWriter(outputStream);
+	private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	private final PrintWriter printWriter = new PrintWriter(outputStream);
 
 	@Override
 	public boolean isReady() {
@@ -24,5 +24,14 @@ public class VarServletOutputStream extends ServletOutputStream {
 	@Override
 	public void write(int b) throws IOException {
 		outputStream.write(b);
+	}
+
+
+	public ByteArrayOutputStream getInternalBuffer() {
+		return outputStream;
+	}
+
+	public PrintWriter asPrintWriter() {
+		return printWriter;
 	}
 }

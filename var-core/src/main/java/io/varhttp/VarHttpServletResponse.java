@@ -56,11 +56,11 @@ public class VarHttpServletResponse extends HttpServletResponseWrapper {
 
 	public void complete() {
 		try {
-			servletStream.printWriter.flush();
+			servletStream.asPrintWriter().flush();
 
-			if (servletStream.outputStream.size() > 0) {
-				super.setContentLength(servletStream.outputStream.size());
-				super.getOutputStream().write(servletStream.outputStream.toByteArray());
+			if (servletStream.getInternalBuffer().size() > 0) {
+				super.setContentLength(servletStream.getInternalBuffer().size());
+				super.getOutputStream().write(servletStream.getInternalBuffer().toByteArray());
 				super.flushBuffer();
 			}
 		} catch (IOException e) {
@@ -85,7 +85,7 @@ public class VarHttpServletResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public PrintWriter getWriter() throws IOException {
-		return servletStream.printWriter;
+		return servletStream.asPrintWriter();
 	}
 
 	@Override
