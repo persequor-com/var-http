@@ -14,10 +14,12 @@ import io.varhttp.ResponseHeader;
 import io.varhttp.ResponseStream;
 import io.varhttp.VarFilterChain;
 import io.varhttp.VarResponseStream;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -31,6 +33,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @ControllerClass
 public class MyTestController {
@@ -51,7 +54,7 @@ public class MyTestController {
 
 	@Controller(path = "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}")
 	public String myTestPathVarMultiLevel(@PathVariable(name = "pathVar1") String pathVar1, @PathVariable(name = "pathVar2") String pathVar2, @PathVariable(name = "pathVar3") String pathVar3) {
-		return pathVar1+"-"+pathVar2+"-"+pathVar3;
+		return pathVar1 + "-" + pathVar2 + "-" + pathVar3;
 	}
 
 	@Controller(path = "/requestParameter")
@@ -94,7 +97,7 @@ public class MyTestController {
 
 	@Controller(path = "/defaultValue")
 	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh", required = false) String param, @RequestParameter(name = "param2", defaultValue = "muh", required = false) String param2) {
-		return param+"-"+param2;
+		return param + "-" + param2;
 	}
 
 	@Controller(path = "/optionalBody")
@@ -110,7 +113,7 @@ public class MyTestController {
 			, @RequestParameter(name = "doubler") double doubler
 			, @RequestParameter(name = "floater") float floater
 	) {
-		return String.valueOf(bool)+":"+String.valueOf(integer)+":"+String.valueOf(longer)+":"+String.valueOf(doubler)+":"+String.valueOf(floater);
+		return String.valueOf(bool) + ":" + String.valueOf(integer) + ":" + String.valueOf(longer) + ":" + String.valueOf(doubler) + ":" + String.valueOf(floater);
 	}
 
 	@Controller(path = "/primitivesBoxed")
@@ -121,7 +124,7 @@ public class MyTestController {
 			, @RequestParameter(name = "doubler") Double doubler
 			, @RequestParameter(name = "floater") Float floater
 	) {
-		return String.valueOf(bool)+":"+String.valueOf(integer)+":"+String.valueOf(longer)+":"+String.valueOf(doubler)+":"+String.valueOf(floater);
+		return String.valueOf(bool) + ":" + String.valueOf(integer) + ":" + String.valueOf(longer) + ":" + String.valueOf(doubler) + ":" + String.valueOf(floater);
 	}
 
 	@Controller(path = "/listController")
@@ -131,7 +134,7 @@ public class MyTestController {
 
 	@Controller(path = "/listObject", httpMethods = HttpMethod.POST)
 	public List<SerializableObject> listObject(@RequestBody List<SerializableObject> list) {
-		list.forEach(a -> a.setName(a.getName()+"!"));
+		list.forEach(a -> a.setName(a.getName() + "!"));
 		return list;
 	}
 
@@ -161,12 +164,12 @@ public class MyTestController {
 
 	@Controller(path = "/dates")
 	public String requestParameters(
-			@RequestParameter(name = "zonedDateTime")  ZonedDateTime zonedDateTime,
+			@RequestParameter(name = "zonedDateTime") ZonedDateTime zonedDateTime,
 			@RequestParameter(name = "date") Date date,
 			@RequestParameter(name = "localDate") LocalDate localDate
 
 	) {
-		return date.toInstant().toString()+"-"+zonedDateTime.toInstant().toString()+"-"+localDate.toString();
+		return date.toInstant().toString() + "-" + zonedDateTime.toInstant().toString() + "-" + localDate.toString();
 	}
 
 	@Controller(path = "/requestBodyString")
@@ -266,7 +269,7 @@ public class MyTestController {
 			try {
 				filterChain.proceed();
 			} catch (Exception exception) {
-				responseStream.write(exception.getClass().getName()+": "+exception.getMessage());
+				responseStream.write(exception.getClass().getName() + ": " + exception.getMessage());
 			}
 		}
 	}
@@ -277,12 +280,30 @@ public class MyTestController {
 			try {
 				chain.doFilter(request, response);
 			} catch (RuntimeException exception) {
-				response.getWriter().print(exception.getClass().getName()+": "+exception.getMessage());
+				response.getWriter().print(exception.getClass().getName() + ": " + exception.getMessage());
 				response.getWriter().flush();
 			} catch (ServletException exception) {
-				response.getWriter().print(exception.getCause().getClass().getName()+": "+exception.getCause().getMessage());
+				response.getWriter().print(exception.getCause().getClass().getName() + ": " + exception.getCause().getMessage());
 				response.getWriter().flush();
 			}
 		}
+	}
+
+
+	@Controller(path = "/streamed-then-set-custom-http-code")
+	public void streamedOut_thenCustomCode(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
+		responseHeader.setStatus(HttpServletResponse.SC_ACCEPTED);
+		try (OutputStream outputStream = responseStream.getOutputStream("text/test")) {
+			outputStream.write("tadaaa".getBytes());
+		}
+		responseHeader.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
+	}
+
+
+	@Controller(path = "/streamed-then-failed")
+	public void streamedOut_thenFailed(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
+		responseHeader.setStatus(HttpServletResponse.SC_ACCEPTED);
+		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());
+		throw new RuntimeException("should result in error code 500");
 	}
 }

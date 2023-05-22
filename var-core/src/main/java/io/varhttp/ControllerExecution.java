@@ -66,6 +66,8 @@ public class ControllerExecution  {
 					, e
 					, context.response()
 			);
+		}finally{
+			context.complete();
 		}
 	}
 
