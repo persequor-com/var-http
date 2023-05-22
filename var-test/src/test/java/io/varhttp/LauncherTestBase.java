@@ -3,6 +3,7 @@ package io.varhttp;
 import io.varhttp.test.VarClient;
 import org.junit.Test;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -432,5 +433,22 @@ public abstract class LauncherTestBase {
 				.isUnsupportedMediaType()
 				.getContent();
 		assertEquals("io.varhttp.ContentTypeException Requested Content-Type 'my/xml' is not supported", response);
+	}
+
+
+	@Test
+	public void streamedOut_thenFailed() {
+		varClient.get("/streamed-then-failed")
+				.execute()
+				.isInternalError()
+				.assertContent("tadaaajava.lang.RuntimeException should result in error code 500");
+	}
+
+	@Test
+	public void streamedOut_thenCustomCode() {
+		varClient.get("/streamed-then-set-custom-http-code")
+				.execute()
+				.assertStatusCode(HttpServletResponse.SC_EXPECTATION_FAILED)
+				.assertContent("tadaaa");
 	}
 }
