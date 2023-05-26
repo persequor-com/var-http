@@ -6,27 +6,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 public class Convert {
-	public Object convert(String parameter, Class<?> type, String defaultValue) {
-		if (parameter == null || ("".equals(parameter) && !String.class.equals(type))) {
+	public Object convert(String parameter, Class<?> requestedType, String defaultValue) {
+		if (parameter == null || (!String.class.equals(requestedType) && "".equals(parameter))) {
 			if (TypeHelper.isValidDefaultValue(defaultValue)) {
-				return TypeHelper.parse(type, defaultValue);
+				return TypeHelper.parse(requestedType, defaultValue);
 			} else {
-				return TypeHelper.defaultValue(type);
+				return TypeHelper.defaultValue(requestedType);
 			}
 		}
-		if (type.isEnum()) {
+		if (requestedType.isEnum()) {
 			try {
-				return type.getMethod("valueOf", String.class).invoke(null, parameter);
+				return requestedType.getMethod("valueOf", String.class).invoke(null, parameter);
 			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
-				throw new RuntimeException("valueOf method missing from enum class: "+type.getName()+". This should not be possible.");
+				throw new RuntimeException("valueOf method missing from enum class: "+requestedType.getName()+". This should not be possible.");
 			}
 		}
-		if (TypeHelper.isStandardType(type)) {
-			return TypeHelper.parse(type, parameter);
+		if (TypeHelper.isStandardType(requestedType)) {
+			return TypeHelper.parse(requestedType, parameter);
 		}
-		if (type.equals(Optional.class)) {
+		if (requestedType.equals(Optional.class)) {
 			return Optional.ofNullable(parameter);
 		}
-		throw new RuntimeException("Unhandled conversion type: "+type.getName());
+		throw new RuntimeException("Unhandled conversion requestedType: "+requestedType.getName());
 	}
 }
