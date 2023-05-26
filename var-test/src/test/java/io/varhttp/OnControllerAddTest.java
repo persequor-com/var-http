@@ -44,7 +44,8 @@ public class OnControllerAddTest {
 						"returnJavascriptString", "noSerializerCustomContentType_annotation", "javascriptInResponseStream", "js",
 						"headController", "altControllerAnnotation", "altControllerAnnotation", "checkedException",
 						"uncheckedException", "checkedException_varFilter", "uncheckedException_varFilter",
-						"myTest", "redirect", "redirectRelative", "url", "contextdependent", "uuid"));
+						"myTest", "redirect", "redirectRelative", "url", "contextdependent", "uuid", "streamedOut_thenCustomCode",
+						"streamedOut_thenFailed"));
 		Set<String> expectedPaths =
 				new TreeSet<>(Arrays.asList("/header-path-info/*", "/requestParameter", "/headController", "/login",
 						"/my-test-serialized", "/no-serializer-custom-content-type-response-helper",
@@ -57,7 +58,8 @@ public class OnControllerAddTest {
 						"/anothercontextdependent", "/api/socketInit", "/", "/requestParameters", "/requestParameters", "/required-request-params", "/packageprefix/classprefix/controller",
 						"/optionalBody", "/responseStream_getOutputStream_contentType", "/unchecked-exception-var",
 						"/returnJavascriptString", "/javascriptInResponseStream", "/redirects/url",
-						"/responseStream_getOutputStream_contentType", "/requestBodyInputStream", "/uuid/{uuid1}", "/socketjs"));
+						"/responseStream_getOutputStream_contentType", "/requestBodyInputStream", "/uuid/{uuid1}", "/socketjs",
+						"/streamed-then-set-custom-http-code", "/streamed-then-failed"));
 
 		Set<String> actualMethodNames = new TreeSet<>(methods.values());
 		Set<String> actualPaths = new TreeSet<>(methods.keySet());

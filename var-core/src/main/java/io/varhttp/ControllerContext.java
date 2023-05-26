@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ControllerContext {
 	private final HttpServletRequest request;
-	private final HttpServletResponse response;
+	private final VarHttpServletResponse response;
 	private final ContentTypes accepted = new ContentTypes();
 	private VarFilterChain filterChain;
 
@@ -44,5 +44,9 @@ public class ControllerContext {
 
 	public String getContentType() {
 		return response().getContentType();
+	}
+
+	public void complete() {
+		response.complete();
 	}
 }
