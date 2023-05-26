@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class Convert {
 	public Object convert(String parameter, Class<?> type, String defaultValue) {
-		if (parameter == null) {
+		if (parameter == null || ("".equals(parameter) && !String.class.equals(type))) {
 			if (TypeHelper.isValidDefaultValue(defaultValue)) {
 				return TypeHelper.parse(type, defaultValue);
 			} else {
