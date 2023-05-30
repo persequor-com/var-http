@@ -64,7 +64,7 @@ public class MyTestController {
 
 	@Controller(path = "/uuid/{uuid1}")
 	public String uuid(@PathVariable(name = "uuid1") UUID uuid1, @RequestParameter(name = "uuid2") UUID uuid2) {
-		return uuid1.toString() + " " + uuid2.toString();
+		return uuid1 + " " + uuid2;
 	}
 
 	@Controller(path = "/required-request-params")
@@ -113,7 +113,7 @@ public class MyTestController {
 			, @RequestParameter(name = "doubler") double doubler
 			, @RequestParameter(name = "floater") float floater
 	) {
-		return String.valueOf(bool) + ":" + String.valueOf(integer) + ":" + String.valueOf(longer) + ":" + String.valueOf(doubler) + ":" + String.valueOf(floater);
+		return bool + ":" + integer + ":" + longer + ":" + doubler + ":" + floater;
 	}
 
 	@Controller(path = "/primitivesBoxed")
@@ -124,7 +124,7 @@ public class MyTestController {
 			, @RequestParameter(name = "doubler") Double doubler
 			, @RequestParameter(name = "floater") Float floater
 	) {
-		return String.valueOf(bool) + ":" + String.valueOf(integer) + ":" + String.valueOf(longer) + ":" + String.valueOf(doubler) + ":" + String.valueOf(floater);
+		return bool + ":" + integer + ":" + longer + ":" + doubler + ":" + floater;
 	}
 
 	@Controller(path = "/listController")
@@ -169,7 +169,7 @@ public class MyTestController {
 			@RequestParameter(name = "localDate") LocalDate localDate
 
 	) {
-		return date.toInstant().toString() + "-" + zonedDateTime.toInstant().toString() + "-" + localDate.toString();
+		return (date == null ? null : date.toInstant()) + "|" + (zonedDateTime == null ? null : zonedDateTime.toInstant()) + "|" + localDate;
 	}
 
 	@Controller(path = "/requestBodyString")

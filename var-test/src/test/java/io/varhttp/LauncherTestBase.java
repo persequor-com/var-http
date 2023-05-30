@@ -92,6 +92,20 @@ public abstract class LauncherTestBase {
 	}
 
 	@Test
+	public void requestParameter_noValues() throws Throwable {
+		varClient.get("/requestParameter")
+				.execute()
+				.assertContent("null null");
+	}
+
+	@Test
+	public void requestParameter_emptyValues() throws Throwable {
+		varClient.get("/requestParameter?var=&datetime=")
+				.execute()
+				.assertContent(" null");
+	}
+
+	@Test
 	public void requestParameter_uuid() throws Throwable {
 		UUID uuid1 = UUID.randomUUID();
 		UUID uuid2 = UUID.randomUUID();
@@ -100,6 +114,16 @@ public abstract class LauncherTestBase {
 				.parameter("uuid2", uuid2.toString())
 				.execute()
 				.assertContent(uuid1 + " " + uuid2);
+	}
+
+	@Test
+	public void requestParameter_emptyValue() throws Throwable {
+		UUID uuid1 = UUID.randomUUID();
+
+		varClient.get("/uuid/" + uuid1)
+				.parameter("uuid2", "")
+				.execute()
+				.assertContent(uuid1 + " null" );
 	}
 
 	@Test
@@ -195,6 +219,13 @@ public abstract class LauncherTestBase {
 	}
 
 	@Test
+	public void primitivesBoxedParameters_emptyValues() throws Throwable {
+		varClient.post("/primitivesBoxed?bool=&integer=&longer=&doubler=&floater=")
+				.execute()
+				.assertContent("null:null:null:null:null");
+	}
+
+	@Test
 	public void redirectRelative() throws Throwable {
 		varClient.post("/redirects/redirectRelative")
 				.execute()
@@ -256,7 +287,21 @@ public abstract class LauncherTestBase {
 	public void dates() throws Throwable {
 		varClient.post("/dates?date=2020-01-01T12:30:15Z&zonedDateTime=2020-01-01T12:30:45Z&localDate=2020-01-10")
 				.execute()
-				.assertContent("2020-01-01T12:30:15Z-2020-01-01T12:30:45Z-2020-01-10");
+				.assertContent("2020-01-01T12:30:15Z|2020-01-01T12:30:45Z|2020-01-10");
+	}
+
+	@Test
+	public void dates_noValues() throws Throwable {
+		varClient.post("/dates")
+				.execute()
+				.assertContent("null|null|null");
+	}
+
+	@Test
+	public void dates_emptyValues() throws Throwable {
+		varClient.post("/dates?date=&zonedDateTime=&localDate=")
+				.execute()
+				.assertContent("null|null|null");
 	}
 
 	@Test
