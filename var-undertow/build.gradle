@@ -1,14 +1,14 @@
 dependencies {
 // https://mvnrepository.com/artifact/io.undertow/undertow-core
-    api('io.undertow:undertow-core:2.2.18.Final') {
+    api('io.undertow:undertow-core:2.2.26.Final') {
         exclude group: 'org.wildfly.client', module: 'wildfly-client-config'
     }
 // https://mvnrepository.com/artifact/io.undertow/undertow-servlet
-    api(group: 'io.undertow', name: 'undertow-servlet', version: '2.2.18.Final') {
+    api(group: 'io.undertow', name: 'undertow-servlet', version: '2.2.26.Final') {
         exclude group: 'org.wildfly.client', module: 'wildfly-client-config'
     }
 // https://mvnrepository.com/artifact/io.undertow/undertow-websockets-jsr
-    api(group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.18.Final') {
+    api(group: 'io.undertow', name: 'undertow-websockets-jsr', version: '2.2.26.Final') {
         exclude group: 'org.wildfly.client', module: 'wildfly-client-config'
     }
     api project(':var-core')
