@@ -35,7 +35,7 @@ public class WebSocketController {
 		}
 	}
 
-	@Controller(path = "/socketjs")
+	@Controller(path = "/socketjs", httpMethods = {HttpMethod.GET})
 	public void js(ResponseStream response) {
 		try {
 			try (InputStream jsStream = WebSocketController.class.getResourceAsStream("/socket.html")) {

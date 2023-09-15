@@ -37,75 +37,75 @@ import javax.servlet.http.HttpServletResponse;
 
 @ControllerClass
 public class MyTestController {
-	@Controller(path = "/my-test")
+	@Controller(path = "/my-test", httpMethods = {HttpMethod.GET})
 	public String myTest() {
 		return "Simple string";
 	}
 
-	@Controller(path = "/my-test-serialized")
+	@Controller(path = "/my-test-serialized", httpMethods = {HttpMethod.GET})
 	public TestResponse myTestSerialized() {
 		return new TestResponse("Simple string");
 	}
 
-	@Controller(path = "/pathVar/{pathVar}")
+	@Controller(path = "/pathVar/{pathVar}", httpMethods = {HttpMethod.GET})
 	public String myTestPathVar(@PathVariable(name = "pathVar") String pathVar) {
 		return pathVar;
 	}
 
-	@Controller(path = "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}")
+	@Controller(path = "/pathVar/{pathVar1}/{pathVar2}/{pathVar3}", httpMethods = {HttpMethod.GET})
 	public String myTestPathVarMultiLevel(@PathVariable(name = "pathVar1") String pathVar1, @PathVariable(name = "pathVar2") String pathVar2, @PathVariable(name = "pathVar3") String pathVar3) {
 		return pathVar1 + "-" + pathVar2 + "-" + pathVar3;
 	}
 
-	@Controller(path = "/requestParameter")
+	@Controller(path = "/requestParameter", httpMethods = {HttpMethod.GET})
 	public String myTestRequestParameter(@RequestParameter(name = "var") String var, @RequestParameter(name = "datetime") ZonedDateTime date) {
 		return var + " " + date;
 	}
 
-	@Controller(path = "/uuid/{uuid1}")
+	@Controller(path = "/uuid/{uuid1}", httpMethods = {HttpMethod.GET})
 	public String uuid(@PathVariable(name = "uuid1") UUID uuid1, @RequestParameter(name = "uuid2") UUID uuid2) {
 		return uuid1 + " " + uuid2;
 	}
 
-	@Controller(path = "/required-request-params")
+	@Controller(path = "/required-request-params", httpMethods = {HttpMethod.GET})
 	public String requiredRequestParams(@RequestParameter(name = "paramOne", required = true) Boolean paramOne, @RequestParameter(name = "paramTwo", required = true, defaultValue = "true") Boolean paramTwo) {
 		return paramOne + "|" + paramTwo;
 	}
 
-	@Controller(path = "/header")
+	@Controller(path = "/header", httpMethods = {HttpMethod.GET})
 	public String header(ResponseHeader responseHeader, RequestHeader requestHeader) {
 		responseHeader.addHeader("My", requestHeader.getHeader("My"));
 		responseHeader.setContentType("text/plainish");
 		return "muh";
 	}
 
-	@Controller(path = "/header-path-info/*")
+	@Controller(path = "/header-path-info/*", httpMethods = {HttpMethod.GET})
 	public String headerPathInfo(ResponseHeader responseHeader, RequestHeader requestHeader) {
 		return requestHeader.getPath();
 	}
 
-	@Controller(path = "/http-servlet-request/*")
+	@Controller(path = "/http-servlet-request/*", httpMethods = {HttpMethod.GET})
 	public String servletRequest(HttpServletRequest servletRequest) {
 		return servletRequest.getRequestURI();
 	}
 
-	@Controller(path = "/http-servlet-request-not-implemented")
+	@Controller(path = "/http-servlet-request-not-implemented", httpMethods = {HttpMethod.GET})
 	public void servletRequestAccessNotImplementedMethods(HttpServletRequest servletRequest) {
 		servletRequest.getSession();
 	}
 
 
-	@Controller(path = "/defaultValue")
+	@Controller(path = "/defaultValue", httpMethods = {HttpMethod.GET})
 	public String defaultValue(@RequestParameter(name = "param", defaultValue = "muh", required = false) String param, @RequestParameter(name = "param2", defaultValue = "muh", required = false) String param2) {
 		return param + "-" + param2;
 	}
 
-	@Controller(path = "/optionalBody")
+	@Controller(path = "/optionalBody", httpMethods = {HttpMethod.POST})
 	public String optionalBody(@RequestBody() Optional<String> param) {
 		return param.orElse("Nothing passed in");
 	}
 
-	@Controller(path = "/primitives")
+	@Controller(path = "/primitives", httpMethods = {HttpMethod.POST})
 	public String primitives(
 			@RequestParameter(name = "bool") boolean bool
 			, @RequestParameter(name = "integer") int integer
@@ -116,7 +116,7 @@ public class MyTestController {
 		return bool + ":" + integer + ":" + longer + ":" + doubler + ":" + floater;
 	}
 
-	@Controller(path = "/primitivesBoxed")
+	@Controller(path = "/primitivesBoxed", httpMethods = {HttpMethod.POST})
 	public String primitivesBoxed(
 			@RequestParameter(name = "bool") Boolean bool
 			, @RequestParameter(name = "integer") Integer integer
@@ -127,7 +127,7 @@ public class MyTestController {
 		return bool + ":" + integer + ":" + longer + ":" + doubler + ":" + floater;
 	}
 
-	@Controller(path = "/listController")
+	@Controller(path = "/listController", httpMethods = {HttpMethod.POST})
 	public List<String> listController(@RequestParameter(name = "list") List<String> list) {
 		return list;
 	}
@@ -138,7 +138,7 @@ public class MyTestController {
 		return list;
 	}
 
-	@Controller(path = "/")
+	@Controller(path = "/", httpMethods = {HttpMethod.GET})
 	public String root() {
 		return "Who am i";
 	}
@@ -155,14 +155,14 @@ public class MyTestController {
 		}
 	}
 
-	@Controller(path = "/requestParameters")
+	@Controller(path = "/requestParameters", httpMethods = {HttpMethod.GET, HttpMethod.POST})
 	public String requestParameters(
 			RequestParameters requestParameters
 	) {
 		return requestParameters.get("what-õõ") + " is " + requestParameters.get("where");
 	}
 
-	@Controller(path = "/dates")
+	@Controller(path = "/dates", httpMethods = {HttpMethod.POST})
 	public String requestParameters(
 			@RequestParameter(name = "zonedDateTime") ZonedDateTime zonedDateTime,
 			@RequestParameter(name = "date") Date date,
@@ -172,7 +172,7 @@ public class MyTestController {
 		return (date == null ? null : date.toInstant()) + "|" + (zonedDateTime == null ? null : zonedDateTime.toInstant()) + "|" + localDate;
 	}
 
-	@Controller(path = "/requestBodyString")
+	@Controller(path = "/requestBodyString", httpMethods = {HttpMethod.POST})
 	public String requestBodyString(
 			@RequestBody String string,
 			@RequestParameter(name = "otherParameter") String otherParameter
@@ -180,7 +180,7 @@ public class MyTestController {
 		return string;
 	}
 
-	@Controller(path = "/requestBodyInputStream")
+	@Controller(path = "/requestBodyInputStream", httpMethods = {HttpMethod.POST})
 	public String requestBodyString(
 			@RequestBody InputStream inputStream
 	) {
@@ -190,24 +190,24 @@ public class MyTestController {
 				.collect(Collectors.joining("\n"));
 	}
 
-	@Controller(path = "/responseStream_getOutputStream_contentType")
+	@Controller(path = "/responseStream_getOutputStream_contentType", httpMethods = {HttpMethod.POST})
 	public void responseStream_getOutputStream_contentType(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
 		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());
 	}
 
-	@Controller(path = "/getOutputStream_addiionalContentType")
+	@Controller(path = "/getOutputStream_addiionalContentType", httpMethods = {HttpMethod.POST})
 	public void getOutputStream_addiionalContentType(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
 		responseHeader.setContentType("text/other");
 		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());
 	}
 
-	@Controller(path = "/returnJavascriptString")
+	@Controller(path = "/returnJavascriptString", httpMethods = {HttpMethod.POST})
 	public String returnJavascriptString(ResponseHeader responseHeader) throws IOException {
 		responseHeader.setContentType("application/javascript");
 		return "alert('hello darkness my old friend')";
 	}
 
-	@Controller(path = "/javascriptInResponseStream")
+	@Controller(path = "/javascriptInResponseStream", httpMethods = {HttpMethod.POST})
 	public void javascriptInResponseStream(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
 		responseHeader.setContentType("application/javascript");
 		responseStream.write("alert('hello darkness my old friend')");
@@ -290,7 +290,7 @@ public class MyTestController {
 	}
 
 
-	@Controller(path = "/streamed-then-set-custom-http-code")
+	@Controller(path = "/streamed-then-set-custom-http-code", httpMethods = {HttpMethod.GET})
 	public void streamedOut_thenCustomCode(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
 		responseHeader.setStatus(HttpServletResponse.SC_ACCEPTED);
 		try (OutputStream outputStream = responseStream.getOutputStream("text/test")) {
@@ -300,7 +300,7 @@ public class MyTestController {
 	}
 
 
-	@Controller(path = "/streamed-then-failed")
+	@Controller(path = "/streamed-then-failed", httpMethods = {HttpMethod.GET})
 	public void streamedOut_thenFailed(ResponseHeader responseHeader, ResponseStream responseStream) throws IOException {
 		responseHeader.setStatus(HttpServletResponse.SC_ACCEPTED);
 		responseStream.getOutputStream("text/test").write("tadaaa".getBytes());

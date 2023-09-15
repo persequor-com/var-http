@@ -83,7 +83,7 @@ public class IsRequestSecureTest {
     }
 
     public static class ContextControllerTest {
-        @Controller(path = "/is-secure")
+        @Controller(path = "/is-secure", httpMethods = {HttpMethod.GET})
         public boolean isSecure(HttpServletRequest request) {
             return request.isSecure();
         }

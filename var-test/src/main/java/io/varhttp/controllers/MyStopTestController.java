@@ -2,6 +2,7 @@ package io.varhttp.controllers;
 
 import io.varhttp.Controller;
 import io.varhttp.ControllerClass;
+import io.varhttp.HttpMethod;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +13,7 @@ public class MyStopTestController {
 	private final static CountDownLatch controlPoint = new CountDownLatch(1);
 	private final static CountDownLatch started = new CountDownLatch(1);
 
-	@Controller(path = "/controllable-endpoint")
+	@Controller(path = "/controllable-endpoint", httpMethods = {HttpMethod.GET})
 	public String myTest() throws InterruptedException {
 		started.countDown();
 		if(!controlPoint.await(5, TimeUnit.SECONDS)){
