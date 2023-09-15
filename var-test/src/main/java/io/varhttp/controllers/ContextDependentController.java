@@ -2,6 +2,7 @@ package io.varhttp.controllers;
 
 import io.varhttp.Controller;
 import io.varhttp.ControllerClass;
+import io.varhttp.HttpMethod;
 
 import javax.inject.Inject;
 
@@ -14,7 +15,7 @@ public class ContextDependentController {
 		this.myContext = myContext;
 	}
 
-	@Controller(path = "/contextdependent")
+	@Controller(path = "/contextdependent", httpMethods = {HttpMethod.GET})
 	public String contextdependent() {
 		return myContext.contextResult();
 	}

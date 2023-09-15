@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Controller {
 	String path();
-	HttpMethod[] httpMethods() default {};
+	HttpMethod[] httpMethods();
 	String contentType() default "";
 	String summary() default "";
 	String notes() default "";
