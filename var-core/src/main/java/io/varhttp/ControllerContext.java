@@ -12,6 +12,11 @@ public class ControllerContext {
 	public ControllerContext(HttpServletRequest request, HttpServletResponse response, VarConfig varConfig) {
 		this.request = new VarHttpServletRequest(varConfig, request);
 		this.response = new VarHttpServletResponse(response);
+
+		// By default, we don't allow framing of our pages
+		// Controllers can override this by setting the header themselves
+		response.addHeader("X-Frame-Options", "SAMEORIGIN");
+		response.addHeader("Content-Security-Policy", "frame-ancestors 'self'");
 	}
 
 	public HttpServletRequest request() {
