@@ -1,8 +1,0 @@
-.idea
-.git
-.env
-.attach_pid*
-out/
-.gradle
-build/
-**/*.iml

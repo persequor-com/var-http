@@ -1,8 +1,0 @@
-rootProject.name = 'var'
-
-include 'var-core'
-include 'var-serializer-guice'
-include 'var-test'
-include 'var-test-support'
-include 'var-undertow'
-include 'var-jdk'
